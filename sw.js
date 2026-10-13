@@ -1,7 +1,7 @@
 /* Service worker do Cycle: abre mesmo sem internet.
    Arquivos do app: responde do cache e atualiza em segundo plano (a nova versão aparece na abertura seguinte). */
-const V = "cycle-v3";
-const SHELL = ["./", "index.html", "shim.js", "manifest.webmanifest", "sync.js", "lib/qrcode.js", "lib/jsQR.js", "icons/icon-192.png", "icons/icon-512.png"];
+const V = "cycle-v4";
+const SHELL = ["./", "index.html", "ajuda.html", "shim.js", "manifest.webmanifest", "sync.js", "lib/qrcode.js", "lib/jsQR.js", "icons/icon-192.png", "icons/icon-512.png"];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(V).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));

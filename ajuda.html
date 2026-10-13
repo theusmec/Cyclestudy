@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Cycle · Como usar</title>
+<meta name="theme-color" content="#1B2430">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<style>
+:root{--bg:#F4F1E4;--card:#FFFFFF;--fg:#1B2430;--mut:#5B6675;--line:#DDD8C4;--acc:#B27B00;--accbg:#FBF0CC;--ok:#2E7D4F;--warn:#9A4B12;--warnbg:#FBE7D3;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141B24;--card:#1C2531;--fg:#ECE9DC;--mut:#A3ADBA;--line:#2D3846;--acc:#E8B230;--accbg:#3A3115;--ok:#6CC592;--warn:#F0A468;--warnbg:#3C2A1B;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#141B24;--card:#1C2531;--fg:#ECE9DC;--mut:#A3ADBA;--line:#2D3846;--acc:#E8B230;--accbg:#3A3115;--ok:#6CC592;--warn:#F0A468;--warnbg:#3C2A1B;color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-inline:16px;padding-block:24px 64px}
+main{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+h1{font-size:2rem;line-height:1.15;margin:0;text-wrap:balance}
+h2{font-size:1.3rem;line-height:1.25;margin:0 0 10px;text-wrap:balance}
+h3{font-size:1rem;margin:16px 0 4px}
+p{margin:0 0 10px}
+.eyebrow{font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--acc);font-weight:700}
+.lead{color:var(--mut);font-size:1.05rem}
+a{color:var(--acc)}
+.open{display:inline-block;margin-top:6px;background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:10px;text-decoration:none;font-weight:600}
+nav.toc{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 18px}
+nav.toc ol{margin:6px 0 0;padding-left:20px;columns:2;column-gap:24px}
+@media (max-width:520px){nav.toc ol{columns:1}}
+section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 20px 12px;min-width:0}
+ol.steps,ul{padding-left:22px;margin:0 0 10px}
+li{margin-bottom:6px}
+b{font-weight:650}
+code,kbd{font:.88em ui-monospace,Consolas,monospace;background:var(--bg);border:1px solid var(--line);border-radius:5px;padding:1px 5px;overflow-wrap:anywhere}
+.tip,.warn{border-radius:10px;padding:10px 14px;margin:6px 0 12px;font-size:.95rem}
+.tip{background:var(--accbg)}
+.warn{background:var(--warnbg);color:var(--fg)}
+.tip b:first-child,.warn b:first-child{display:block;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px}
+.tip b:first-child{color:var(--acc)}.warn b:first-child{color:var(--warn)}
+table{border-collapse:collapse;width:100%;font-size:.93rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
+.scroll{overflow-x:auto}
+footer{color:var(--mut);font-size:.9rem}
+</style></head><body>
+<main>
+<header>
+  <div class="eyebrow">Tutorial</div>
+  <h1>Cycle: como usar</h1>
+  <p class="lead">Um app de estudos que organiza matérias, provas e revisões espaçadas. Funciona no celular e no computador, sem criar conta, e guarda tudo no seu próprio aparelho.</p>
+  <a class="open" href="./">Abrir o Cycle</a>
+</header>
+
+<nav class="toc" aria-label="Índice"><b>Neste guia</b>
+<ol>
+  <li><a href="#ideia">A ideia</a></li>
+  <li><a href="#instalar">Instalar no aparelho</a></li>
+  <li><a href="#comecar">Primeiros passos</a></li>
+  <li><a href="#dia">O dia a dia</a></li>
+  <li><a href="#notas">Notas e médias</a></li>
+  <li><a href="#dados">Seus dados e privacidade</a></li>
+  <li><a href="#sync">Celular e computador juntos</a></li>
+  <li><a href="#agenda">Levar para o Google Agenda</a></li>
+  <li><a href="#limites">O que não funciona aqui</a></li>
+  <li><a href="#duvidas">Problemas comuns</a></li>
+</ol></nav>
+
+<section id="ideia">
+  <h2>1. A ideia</h2>
+  <p>Estudar uma vez e esquecer em uma semana é o normal. O Cycle usa a <b>revisão espaçada</b>: depois de estudar um conteúdo, ele cria revisões em datas crescentes (por padrão <b>1, 3, 7, 14 e 30 dias</b>), e as aproxima da prova quando ela está perto.</p>
+  <p>Você cadastra as matérias e as datas das provas, registra o que estudou, e o app diz o que revisar hoje.</p>
+  <div class="scroll"><table>
+    <tr><th>Página</th><th>Para quê</th></tr>
+    <tr><td><b>Hoje</b></td><td>O que fazer agora: revisões do dia, cronômetro e a semana.</td></tr>
+    <tr><td><b>Revisões</b></td><td>Todas as revisões e trabalhos em lista, quadro ou calendário. Aqui você registra o que estudou e adiciona trabalhos.</td></tr>
+    <tr><td><b>Matérias</b></td><td>Cadastro das matérias, ementa, horários de aula, anotações, backup e sincronização.</td></tr>
+    <tr><td><b>Provas</b></td><td>Datas das provas e o plano para chegar preparado.</td></tr>
+    <tr><td><b>Notas</b></td><td>Notas lançadas, médias, o que falta para passar.</td></tr>
+    <tr><td><b>Tempo</b></td><td>Horas estudadas por matéria e metas semanais.</td></tr>
+  </table></div>
+  <p style="margin-top:10px">No celular, as páginas Notas e Tempo ficam no botão <b>Mais</b>. <kbd>Ctrl</kbd>+<kbd>K</kbd> (no computador) abre a busca e os comandos.</p>
+</section>
+
+<section id="instalar">
+  <h2>2. Instalar no aparelho</h2>
+  <p>Instalar é opcional, mas deixa o Cycle com ícone próprio, em tela cheia, e <b>funcionando sem internet</b> depois da primeira abertura.</p>
+  <h3>Android (Chrome)</h3>
+  <ol class="steps"><li>Abra o endereço do Cycle no Chrome.</li><li>Toque nos três pontinhos e em <b>Instalar app</b> (ou <b>Adicionar à tela inicial</b>).</li><li>Confirme. O ícone aparece na tela inicial.</li></ol>
+  <h3>iPhone e iPad (Safari)</h3>
+  <ol class="steps"><li>Abra o endereço no <b>Safari</b> (outros navegadores no iPhone não instalam).</li><li>Toque no botão de compartilhar (quadrado com seta para cima).</li><li>Role e toque em <b>Adicionar à Tela de Início</b>, depois em <b>Adicionar</b>.</li></ol>
+  <h3>Computador (Edge ou Chrome)</h3>
+  <ol class="steps"><li>Abra o endereço.</li><li>Clique no ícone de instalar no fim da barra de endereço (ou menu &gt; <b>Instalar Cycle</b>).</li></ol>
+  <div class="tip"><b>Dica</b>Abra o app uma vez com internet antes de depender dele offline. Quando houver versão nova, ela é baixada em segundo plano e aparece na abertura seguinte.</div>
+</section>
+
+<section id="comecar">
+  <h2>3. Primeiros passos</h2>
+  <ol class="steps">
+    <li><b>Cadastre as matérias.</b> Em <b>Matérias</b>, no painel <i>Matérias</i>, escolha uma cor, digite o nome e toque em <b>Adicionar</b>.</li>
+    <li><b>Marque as provas.</b> Em <b>Provas</b>, abra <i>Datas das provas</i>, escolha a matéria, o tipo (P1, P2, P3 ou Sub), a data e o horário, e toque em <b>Adicionar prova</b>.</li>
+    <li><b>Informe os horários de aula.</b> Em <b>Matérias</b>, toque na matéria e use <i>Horários de aula</i> (dia da semana e hora, depois <b>Adicionar</b>). Pode ter mais de um por semana.</li>
+    <li><b>Cole a ementa (opcional).</b> Na página da matéria, cole os tópicos, um por linha. Uma linha começando com <code>#</code> inicia uma unidade. O app distribui os tópicos pelas próximas aulas e pelo que falta até a prova.</li>
+    <li><b>Registre o que estudou.</b> Em <b>Revisões</b>, no painel <i>Registrar conteúdo do dia</i>, escolha a matéria, escreva o conteúdo e a data, e toque em <b>Registrar e agendar revisões</b>. As revisões aparecem com as datas.</li>
+  </ol>
+  <div class="tip"><b>Dica</b>Na página da matéria também dá para marcar um tópico como <b>Visto</b> depois da aula (isso cria as revisões), <b>Já visto</b> (sem revisões) ou <b>Não deu</b> (o professor não passou o tópico).</div>
+</section>
+
+<section id="dia">
+  <h2>4. O dia a dia</h2>
+  <ul>
+    <li><b>Hoje</b> mostra as revisões do dia. Toque em <b>Feita</b> ao terminar, ou em <b>Revisar agora</b> para iniciar o cronômetro naquele conteúdo.</li>
+    <li><b>Cronômetro:</b> escolha a matéria e inicie. O tempo continua contando mesmo se você fechar o app, e vira horas estudadas em <b>Tempo</b>. Esqueceu de ligar? Use <i>Esqueceu o cronômetro?</i> para lançar minutos.</li>
+    <li><b>Trabalhos:</b> em <b>Revisões</b>, painel <i>Novo trabalho</i>. Eles aceitam subtarefas e aparecem junto das revisões.</li>
+    <li><b>Visões:</b> alterne entre <b>Lista</b>, <b>Quadro</b> e <b>Calendário</b>, filtre por matéria ou prova próxima e salve combinações como visões suas.</li>
+    <li><b>Anotações:</b> cada matéria e tópico tem anotações em Markdown (títulos, listas, <code>[ ]</code> para checklist). Use <code>[[Nome]]</code> para ligar uma anotação a outra. Há histórico de versões.</li>
+    <li><b>Ajustes:</b> em <i>Horários das revisões</i> você muda a janela de estudo, a duração e os intervalos (ex.: <code>1, 3, 7, 14, 30</code>).</li>
+  </ul>
+</section>
+
+<section id="notas">
+  <h2>5. Notas e médias</h2>
+  <ol class="steps">
+    <li>Abra <b>Notas</b> e toque na matéria.</li>
+    <li>Use <b>Adicionar avaliação</b> (nome, nota e peso). A substitutiva (Sub) é tratada como tal. Se já cadastrou as provas, <b>Importar das provas cadastradas</b> poupa digitação.</li>
+    <li>O app calcula a <b>média parcial</b>, quanto você precisa tirar nas avaliações que faltam para chegar à média mínima (padrão 5,0, ajustável) e mostra a fórmula usada.</li>
+    <li>Quer testar? Preencha uma nota hipotética em <i>e se…</i>. Ela não é gravada; <b>Limpar simulação</b> descarta.</li>
+  </ol>
+  <div class="warn"><b>Confira com a sua faculdade</b>Os pesos e a regra da substitutiva variam. O app usa o que você informar, então confira a regra oficial da sua matéria.</div>
+</section>
+
+<section id="dados">
+  <h2>6. Seus dados e privacidade</h2>
+  <ul>
+    <li>Tudo o que você cadastra fica <b>só no navegador deste aparelho</b>. Não existe conta, login nem servidor guardando seus dados, e o site não tem anúncios. O app só baixa os próprios arquivos e as fontes de letra (Google Fonts); seus dados nunca são enviados para fora.</li>
+    <li>Consequência: <b>quem tem acesso ao seu aparelho vê seus dados</b>, e <b>limpar os dados do navegador (ou desinstalar o app) apaga tudo</b>.</li>
+    <li>Faça <b>backup</b> de vez em quando: em <b>Matérias &gt; Todos os dados (.json)</b>. Para restaurar, use <b>Importar backup (.json)</b> (isso substitui os dados do aparelho). Guarde o arquivo em um lugar seu, como seu e-mail ou nuvem.</li>
+    <li><b>Anotações (.md)</b> exporta só suas anotações, em texto que abre em qualquer editor.</li>
+  </ul>
+  <div class="tip"><b>iPhone</b>Instale o app na Tela de Início (passo 2). Sites usados só pelo navegador podem ter os dados apagados pelo sistema depois de muito tempo sem uso. Mesmo assim, faça backup.</div>
+</section>
+
+<section id="sync">
+  <h2>7. Celular e computador juntos</h2>
+  <p>Como não há servidor, os aparelhos trocam dados diretamente entre si, por <b>QR code animado</b> ou por <b>código de texto</b>. Em <b>Matérias</b>, toque em <b>Sincronizar com outro aparelho</b>.</p>
+  <h3>No aparelho que tem os dados (Enviar)</h3>
+  <ol class="steps"><li>Escolha o que enviar.</li><li>(Opcional) coloque uma <b>senha</b>. Recomendado se for mandar o código por mensagem.</li><li>Toque em <b>Gerar QR e código</b>. O QR passa em vários quadros; ajuste a velocidade se precisar.</li></ol>
+  <h3>No outro aparelho (Receber)</h3>
+  <ol class="steps"><li>Abra Sincronizar e vá em <b>Receber</b>.</li><li>Toque em <b>Escanear com a câmera</b> e aponte para o QR animado, firme, até completar. Ou cole o código no campo.</li><li>O app mostra o que vai mudar e <b>só aplica depois que você confirmar</b>.</li></ol>
+  <ul>
+    <li>Cada item guarda a data da última alteração; o mais recente vence. Exclusões também viajam.</li>
+    <li>Para o caminho de volta, use <b>Enviar</b> no aparelho que acabou de receber.</li>
+    <li>Depois de uma troca, marque <i>Já recebi no outro aparelho</i> para que o próximo envio leve só o que mudou (poucos quadros).</li>
+    <li>A câmera só funciona no endereço seguro (https). Se não abrir, use o código.</li>
+  </ul>
+  <div class="warn"><b>Cuidado</b>O QR e o código contêm os seus dados. Não os publique em redes sociais ou grupos.</div>
+</section>
+
+<section id="agenda">
+  <h2>8. Levar para o Google Agenda</h2>
+  <p>Em <b>Matérias</b>, toque em <b>Agenda (.ics)</b>. O arquivo leva as provas, os trabalhos em aberto, as revisões pendentes e as aulas semanais (20 semanas).</p>
+  <ol class="steps"><li>No computador, abra o Google Agenda e vá em <b>Configurações &gt; Importar e exportar</b>.</li><li>Escolha o arquivo e a agenda de destino, e clique em <b>Importar</b>.</li></ol>
+  <ul>
+    <li>Funciona também no Apple Calendar e no Outlook, e não precisa de conta nem chave.</li>
+    <li>Cada evento tem um identificador fixo. Se importar de novo depois de mudar uma data, o evento é atualizado, não duplicado. O que você apagar no Cycle continua na agenda até você apagar lá.</li>
+    <li>É uma cópia de um momento, não uma sincronização contínua.</li>
+  </ul>
+</section>
+
+<section id="limites">
+  <h2>9. O que não funciona nesta versão</h2>
+  <ul>
+    <li><b>Google Agenda automático</b> (criar eventos sozinho): precisa de uma integração com o Google que esta versão não tem. Use o arquivo .ics acima.</li>
+    <li><b>Assistente e Examinador (IA):</b> não estão ligados. Eles dependem de uma conta de IA, que seria paga por uso, e esta versão não usa chave nem cobra nada de ninguém. A página Assistente avisa isso.</li>
+  </ul>
+  <p>Todo o resto (matérias, provas, revisões, notas, cronômetro, anotações, backup e sincronização) funciona sem internet.</p>
+</section>
+
+<section id="duvidas">
+  <h2>10. Problemas comuns</h2>
+  <div class="scroll"><table>
+    <tr><th>Situação</th><th>O que fazer</th></tr>
+    <tr><td>Não aparece a opção de instalar</td><td>Use Chrome (Android) ou Safari (iPhone) e abra o endereço https. No iPhone, a opção está em compartilhar &gt; Adicionar à Tela de Início.</td></tr>
+    <tr><td>A versão nova não apareceu</td><td>Feche o app por completo e abra de novo. Se persistir, recarregue a página uma vez com internet.</td></tr>
+    <tr><td>A câmera não abre na sincronização</td><td>Permita a câmera para o site nas configurações do navegador, ou cole o código.</td></tr>
+    <tr><td>O QR não completa</td><td>Aumente o brilho da tela, diminua a velocidade, ou use o código de texto.</td></tr>
+    <tr><td>Os dados sumiram</td><td>Provavelmente foram apagados com os dados do navegador. Restaure com <b>Importar backup (.json)</b>.</td></tr>
+    <tr><td>Datas ou horários estranhos</td><td>O app usa o fuso de Brasília. Confira a data e a hora do aparelho.</td></tr>
+  </table></div>
+</section>
+
+<footer>
+  <p>O Cycle usa as bibliotecas livres qrcode-generator e jsQR para gerar e ler o QR code (licenças em <a href="lib/LICENSES.txt">lib/LICENSES.txt</a>).</p>
+  <p><a href="./">Voltar ao Cycle</a></p>
+</footer>
+</main>
+</body></html>
