@@ -56,7 +56,7 @@ footer{color:var(--mut);font-size:.9rem}
   <li><a href="#notas">Notas e médias</a></li>
   <li><a href="#dados">Seus dados e privacidade</a></li>
   <li><a href="#sync">Celular e computador juntos</a></li>
-  <li><a href="#agenda">Levar para o Google Agenda</a></li>
+  <li><a href="#agenda">Google Agenda: trazer e levar</a></li>
   <li><a href="#limites">O que não funciona aqui</a></li>
   <li><a href="#duvidas">Problemas comuns</a></li>
 </ol></nav>
@@ -152,7 +152,22 @@ footer{color:var(--mut);font-size:.9rem}
 </section>
 
 <section id="agenda">
-  <h2>8. Levar para o Google Agenda</h2>
+  <h2>8. Google Agenda: trazer e levar</h2>
+  <h3>Trazer o seu Google Agenda para o Cycle</h3>
+  <p>Assim você vê seus compromissos (consultas, reuniões, eventos que se repetem) na página <b>Hoje</b> e na página <b>Tempo</b>, ao lado das revisões.</p>
+  <ol class="steps">
+    <li><b>No computador</b>, abra o Google Agenda (calendar.google.com) e clique na engrenagem &gt; <b>Configurações</b>.</li>
+    <li>No menu da esquerda, clique em <b>Importar e exportar</b> e depois em <b>Exportar</b>. O Google baixa um arquivo <code>.zip</code> com uma agenda por arquivo.</li>
+    <li>No Cycle, vá em <b>Matérias &gt; Google Agenda &gt; Importar agenda (.zip ou .ics)</b> e escolha o arquivo <b>sem descompactar</b>. Se você estiver no celular, passe o arquivo para ele (e-mail, nuvem ou cabo) e escolha-o do mesmo jeito.</li>
+    <li>O Cycle lista as agendas que achou. Marque as que você quer (por exemplo, deixe de fora "Feriados" se não precisar) e toque em <b>Importar as marcadas</b>.</li>
+  </ol>
+  <ul>
+    <li>O app entende eventos que se repetem toda semana ou mês, exceções e eventos de dia inteiro. Compromissos que terminaram há mais de 45 dias são ignorados.</li>
+    <li>É uma <b>cópia do momento</b>: se você mudar algo no Google Agenda, exporte e importe de novo (a nova importação substitui a anterior).</li>
+    <li>A agenda importada fica só neste aparelho e <b>não</b> vai na sincronização por QR. Importe o arquivo em cada aparelho em que quiser ver os compromissos. Para apagar, use <b>Remover agenda importada</b>.</li>
+    <li>O Cycle não envia nada ao Google e não pede o seu login.</li>
+  </ul>
+  <h3>Levar as provas, trabalhos, revisões e aulas do Cycle para o Google Agenda</h3>
   <p>Em <b>Matérias</b>, toque em <b>Agenda (.ics)</b>. O arquivo leva as provas, os trabalhos em aberto, as revisões pendentes e as aulas semanais (20 semanas).</p>
   <ol class="steps"><li>No computador, abra o Google Agenda e vá em <b>Configurações &gt; Importar e exportar</b>.</li><li>Escolha o arquivo e a agenda de destino, e clique em <b>Importar</b>.</li></ol>
   <ul>
@@ -165,7 +180,7 @@ footer{color:var(--mut);font-size:.9rem}
 <section id="limites">
   <h2>9. O que não funciona nesta versão</h2>
   <ul>
-    <li><b>Google Agenda automático</b> (criar eventos sozinho): precisa de uma integração com o Google que esta versão não tem. Use o arquivo .ics acima.</li>
+    <li><b>Google Agenda automático</b> (ler e criar eventos sozinho, sem arquivo): precisa de uma integração com o Google que esta versão não tem. Use a importação e a exportação por arquivo da seção 8.</li>
     <li><b>Assistente e Examinador (IA):</b> não estão ligados. Eles dependem de uma conta de IA, que seria paga por uso, e esta versão não usa chave nem cobra nada de ninguém. A página Assistente avisa isso.</li>
   </ul>
   <p>Todo o resto (matérias, provas, revisões, notas, cronômetro, anotações, backup e sincronização) funciona sem internet.</p>
@@ -180,6 +195,7 @@ footer{color:var(--mut);font-size:.9rem}
     <tr><td>A câmera não abre na sincronização</td><td>Permita a câmera para o site nas configurações do navegador, ou cole o código.</td></tr>
     <tr><td>O QR não completa</td><td>Aumente o brilho da tela, diminua a velocidade, ou use o código de texto.</td></tr>
     <tr><td>Os dados sumiram</td><td>Provavelmente foram apagados com os dados do navegador. Restaure com <b>Importar backup (.json)</b>.</td></tr>
+    <tr><td>A agenda importada não mostra um evento</td><td>Confira se a agenda dele estava marcada na importação e se ele não terminou há mais de 45 dias. Exporte de novo no Google Agenda e importe outra vez.</td></tr>
     <tr><td>Datas ou horários estranhos</td><td>O app usa o fuso de Brasília. Confira a data e a hora do aparelho.</td></tr>
   </table></div>
 </section>

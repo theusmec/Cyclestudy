@@ -7,7 +7,7 @@
   window.__CYCLE_STANDALONE__ = true;
 
   var DBNAME = "cycle-db", STORE = "docs", META = "meta";
-  var LOCAL_ONLY = ["timer/current", "settings/ai"];   // nunca saem do aparelho
+  var LOCAL_ONLY = ["timer/current", "settings/ai", "agenda/main"];   // nunca saem do aparelho (a agenda importada é grande e cada aparelho importa a sua)
   var mem = new Map();          // caminho "colecao/id" -> dados
   var meta = new Map();         // caminho -> { t: data da alteração (ms), del: true se foi excluído }
   var listeners = [];

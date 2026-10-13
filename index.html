@@ -266,6 +266,7 @@ details.panel[open] summary::after{content:"–"}
 .sw.win{background:var(--accent-soft);opacity:.6}
 .sw.ses{width:5px;height:12px;background:var(--ink);border:0}
 .gmsg{font-size:13px;background:var(--late-soft);border-radius:8px;padding:8px 12px}
+.gmsg.info{background:var(--accent-soft)}
 .gscroll{overflow-x:auto;margin-inline:-4px;padding-inline:4px}
 .gw{display:grid;grid-template-columns:46px repeat(7,minmax(104px,1fr));min-width:774px}
 .gh{padding:6px 4px 8px;text-align:center;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:2px;align-items:center}
@@ -810,6 +811,13 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
       <p class="plan" style="margin:0">Baixe seus dados como arquivos. O navegador pede a sua confirmação antes de salvar.</p>
       <p class="plan" id="expLocal" style="margin:0" hidden>Seus dados ficam só neste aparelho. Para levar para outro aparelho, use <b>Sincronizar</b> (QR ou código, sem conta). O arquivo .json serve de backup, e "Importar backup" traz ele de volta. <a href="ajuda.html" target="_blank" rel="noopener">Tutorial: como usar o Cycle</a></p>
       <div class="hnav"><button class="btn primary" id="syncBtn" type="button" hidden>Sincronizar com outro aparelho</button><button class="btn" data-act="exp" data-w="notas" type="button">Anotações (.md)</button><button class="btn" data-act="exp" data-w="tudo" type="button">Todos os dados (.json)</button><button class="btn" data-act="exp" data-w="agenda" type="button">Agenda (.ics)</button><button class="btn" id="impBtn" type="button" hidden>Importar backup (.json)</button><input type="file" id="impFile" accept=".json,application/json" hidden></div>
+      <div id="agSec" hidden>
+        <h3 style="margin:14px 0 4px;font-size:15px">Google Agenda</h3>
+        <p class="plan" style="margin:0 0 8px">Para ver seus compromissos no Cycle: no Google Agenda, abra Configurações &gt; <b>Importar e exportar</b> &gt; <b>Exportar</b> e escolha aqui o arquivo .zip que o Google baixa (ou um .ics). É uma cópia do momento; para atualizar, exporte e importe de novo.</p>
+        <div class="hnav"><button class="btn" id="agImpBtn" type="button">Importar agenda (.zip ou .ics)</button><button class="btn ghost danger" id="agDelBtn" type="button" hidden>Remover agenda importada</button><input type="file" id="agFile" accept=".zip,.ics,application/zip,text/calendar" hidden></div>
+        <p class="plan" id="agStatus" style="margin:8px 0 0" hidden></p>
+        <div class="rbar" id="agBox" hidden style="flex-direction:column;align-items:stretch;gap:8px"><span id="agTxt"></span><div id="agList" style="display:flex;flex-direction:column;gap:4px"></div><div style="display:flex;gap:8px"><button class="btn small primary" id="agOk" type="button">Importar as marcadas</button><button class="btn small ghost" id="agNo" type="button">Cancelar</button></div></div>
+      </div>
       <div class="rbar" id="impBox" hidden><span id="impTxt"></span><button class="btn small primary" id="impOk" type="button">Substituir os dados</button><button class="btn small ghost" id="impNo" type="button">Cancelar</button></div>
     </section>
       <details class="panel" open>
@@ -985,7 +993,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
 (() => {
   const TZ = "America/Sao_Paulo";
   const STANDALONE = !!window.__CYCLE_STANDALONE__;   // true no app instalável; false dentro do claude.ai
-  const NOMCP = s => STANDALONE ? "O Google Calendar ainda não está conectado nesta versão do app." : s;
+  const NOMCP = s => STANDALONE ? "O Google Agenda não se conecta nesta versão. Para ver seus compromissos aqui, importe o arquivo exportado em Matérias > Google Agenda." : s;
   const CAL = "Google Calendar";
   const DEF = { windowStart:"14:00", windowEnd:"23:00", duration:30, buffer:10, intervals:[1,3,7,14,30], coverLead:14 };
   const PALETTE = ["#3B82C4","#D0602B","#2F9E6E","#8E5CC7","#C0417A","#B08A00","#1F8FA3","#6B7A2E","#C2453A","#5A6FD6"];
@@ -1269,9 +1277,28 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
   }
   const minsOf = d => d.getHours()*60 + d.getMinutes();
 
+  // Agenda importada de arquivo (só no app instalável, quando não há conexão com o Google Calendar).
+  const localCal = () => !S.mcp && !!S.agenda && !!window.__cycleAgenda;
+  const agendaEvents = (a, b) => { try { return window.__cycleAgenda.expand(S.agenda.events, a, b); } catch (e) { return []; } };
+  const agendaNote = () => S.agenda ? `Agenda importada em ${new Date(S.agenda.at).toLocaleDateString("pt-BR")} (${S.agenda.n} compromissos). É uma cópia do momento: exporte e importe de novo para atualizar.` : "";
+  const loadDay = () => { H.events = agendaEvents(H.day, addDays(H.day, 1)); H.status = "local"; H.err = null; };
+  const loadWeek = () => { G.events = agendaEvents(G.week, addDays(G.week, 7)); G.status = "local"; G.err = null; };
+  const loadBlocks = () => { const a = weekStart(); B.events = agendaEvents(a, addDays(a, 14)).filter(e => e.start?.dateTime && isBlock(e)); B.status = "local"; B.err = null; };
+  function refreshLocalCal(){
+    if (S.mcp) return;
+    if (localCal()) { loadDay(); loadWeek(); loadBlocks(); }
+    else { G.status = B.status = H.status = "nomcp"; G.events = []; B.events = []; H.events = []; }
+    renderHoje(); renderGrade(); renderProvas(); renderAgendaInfo();
+  }
+  function renderAgendaInfo(){
+    const st = $("agStatus"), del = $("agDelBtn"); if (!st) return;
+    st.hidden = !S.agenda; del.hidden = !S.agenda;
+    st.textContent = S.agenda ? `Agenda importada: ${S.agenda.n} compromissos de ${S.agenda.name}, em ${new Date(S.agenda.at).toLocaleDateString("pt-BR")}.` : "";
+  }
+
   function watchWeek(){
     G.unwatch?.(); G.unwatch = null;
-    if (!S.mcp) { G.status = "nomcp"; renderGrade(); return; }
+    if (!S.mcp) { if (localCal()) loadWeek(); else G.status = "nomcp"; renderGrade(); return; }
     G.status = "loading"; G.err = null; G.events = []; renderGrade();
     const input = { startTime:`${G.week}T00:00:00-03:00`, endTime:`${addDays(G.week,7)}T00:00:00-03:00`, timeZone:TZ, orderBy:"startTime", pageSize:250 };
     const denial = ["needs_reauth","server_not_connected","blocked_by_policy","approval_required","not_in_manifest","not_granted","capability_disabled","selection_required"];
@@ -1288,10 +1315,11 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     const t = today(), days = [...Array(7)].map((_,k) => addDays(G.week,k));
     $("gradeRange").textContent = `${fmtShort(days[0])} – ${fmtShort(days[6])}`;
     let msg = "";
-    if (G.status === "nomcp") msg = NOMCP("A agenda só aparece quando a página é aberta pelo claude.ai com o Google Calendar conectado.");
+    if (G.status === "local") msg = agendaNote();
+    else if (G.status === "nomcp") msg = NOMCP("A agenda só aparece quando a página é aberta pelo claude.ai com o Google Calendar conectado.");
     else if (G.status === "loading") msg = "";
     else if (G.err) msg = calError(G.err) + (G.status === "stale" ? " Mostrando a última versão carregada." : "");
-    $("gradeMsg").textContent = msg; $("gradeMsg").hidden = !msg;
+    $("gradeMsg").textContent = msg; $("gradeMsg").hidden = !msg; $("gradeMsg").classList.toggle("info", G.status === "local");
 
     const timed = {}, allDay = {}, sess = {};
     days.forEach(d => { timed[d] = []; allDay[d] = []; sess[d] = []; });
@@ -1365,7 +1393,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
   const B = { unwatch:null, events:[], status:"loading", err:null };
   function watchBlocks(){
     B.unwatch?.(); B.unwatch = null;
-    if (!S.mcp) { B.status = "nomcp"; renderProvas(); return; }
+    if (!S.mcp) { if (localCal()) loadBlocks(); else B.status = "nomcp"; renderProvas(); return; }
     const start = weekStart(), end = addDays(start, 14);
     B.unwatch = S.mcp.watchTool(CAL, "list_events", { startTime:`${start}T00:00:00-03:00`, endTime:`${end}T00:00:00-03:00`, timeZone:TZ, orderBy:"startTime", pageSize:250, fullText:"Grade de estudos" }, ev => {
       if (ev.type === "data") { B.events = ((ev.result.payload && ev.result.payload.events) || []).filter(e => e.start?.dateTime && e.status !== "cancelled"); B.status = "ok"; B.err = null; }
@@ -1398,7 +1426,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
         <div class="cd num">${d <= 0 ? "Hoje" : d}${d > 0 ? ` <small>dia${d>1?"s":""}</small>` : ""}</div>
         <dl>
           <dt>Revisões pendentes até a prova</dt><dd>${pend}</dd>
-          <dt>Blocos na agenda (próx. 2 sem.)</dt><dd>${B.status === "ok" || B.status === "stale" ? `${planned.length} · ${hm(planned.reduce((a,b)=>a+b.mins,0))}` : "–"}</dd>
+          <dt>Blocos na agenda (próx. 2 sem.)</dt><dd>${B.status === "ok" || B.status === "stale" || B.status === "local" ? `${planned.length} · ${hm(planned.reduce((a,b)=>a+b.mins,0))}` : "–"}</dd>
           <dt>Estudado neste ciclo</dt><dd>${hm(studied)}</dd>
           ${(() => { const p = subjPlan(x.subjectId), isNext = p?.exam?.id === x.id; return `<dt>Ementa</dt><dd>${!p ? "sem ementa" : isNext ? `${p.seenCycle} vistos · ${p.before} previstos antes` : "–"}</dd>`; })()}
         </dl>
@@ -1501,7 +1529,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
   const H = { day: today(), unwatch:null, events:[], status:"loading", err:null };
   function watchDay(){
     H.unwatch?.(); H.unwatch = null;
-    if (!S.mcp) { H.status = "nomcp"; renderHoje(); return; }
+    if (!S.mcp) { if (localCal()) loadDay(); else H.status = "nomcp"; renderHoje(); return; }
     H.status = "loading"; H.err = null; H.events = []; renderHoje();
     H.unwatch = S.mcp.watchTool(CAL, "list_events", { startTime:`${H.day}T00:00:00-03:00`, endTime:`${addDays(H.day,1)}T00:00:00-03:00`, timeZone:TZ, orderBy:"startTime", pageSize:250 }, ev => {
       if (ev.type === "data") { H.events = (ev.result.payload && ev.result.payload.events) || []; H.status = "ok"; H.err = null; }
@@ -1548,8 +1576,8 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     const d = H.day, t = today(), isToday = d === t, nowMs = Date.now(), nowM = minsOf(new Date());
     $("hojeTitle").textContent = isToday ? "Hoje" : d === addDays(t,1) ? "Amanhã" : d === addDays(t,-1) ? "Ontem" : fmtShort(d);
     $("hojeDate").textContent = parseYmd(d).toLocaleDateString("pt-BR", { weekday:"long", day:"numeric", month:"long" });
-    const msg = H.status === "nomcp" ? NOMCP("Os compromissos só aparecem quando a página é aberta pelo claude.ai com o Google Calendar conectado.") : H.err ? calError(H.err) + (H.status === "stale" ? " Mostrando a última versão carregada." : "") : "";
-    $("hojeMsg").textContent = msg; $("hojeMsg").hidden = !msg;
+    const msg = H.status === "local" ? agendaNote() : H.status === "nomcp" ? NOMCP("Os compromissos só aparecem quando a página é aberta pelo claude.ai com o Google Calendar conectado.") : H.err ? calError(H.err) + (H.status === "stale" ? " Mostrando a última versão carregada." : "") : "";
+    $("hojeMsg").textContent = msg; $("hojeMsg").hidden = !msg; $("hojeMsg").classList.toggle("info", H.status === "local");
 
     const { items, allDay } = dayItems(d), gaps = freeGaps(items, d);
     const doneIds = new Set(S.sessions.filter(z => z.blockId).map(z => z.blockId)), runId = S.timer?.running ? S.timer.blockId : null;
@@ -1970,8 +1998,8 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     $("pageEyebrow").textContent = pageSub(tab);
     closeMore();
     try { localStorage.setItem("ciclo.tab", tab); } catch (e) {}
-    if (tab === "hoje") { if (G.ready && !H.unwatch && H.status !== "nomcp") watchDay(); renderHoje(); }
-    if (tab === "tempo") { if (G.ready && !G.unwatch && G.status !== "nomcp") watchWeek(); renderGrade(); }
+    if (tab === "hoje") { if (G.ready && (S.mcp ? (!H.unwatch && H.status !== "nomcp") : localCal())) watchDay(); renderHoje(); }
+    if (tab === "tempo") { if (G.ready && (S.mcp ? (!G.unwatch && G.status !== "nomcp") : localCal())) watchWeek(); renderGrade(); }
     if (tab === "provas") { if (G.ready && !B.unwatch) watchBlocks(); renderProvas(); }
     if (tab === "materias") { renderMaterias(); renderProvas(); }
     if (tab === "notas") renderNotas();
@@ -2330,6 +2358,32 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     });
     $("impNo").addEventListener("click", () => { pending = null; $("impBox").hidden = true; });
     $("impOk").addEventListener("click", async () => { if (!pending) return; await window.__cycleDb.load(pending, true); pending = null; $("impBox").hidden = true; toast("Backup importado."); });
+
+    // importar o Google Agenda exportado (.zip ou .ics)
+    $("agSec").hidden = false;
+    let pendingAg = null;
+    $("agImpBtn").addEventListener("click", () => $("agFile").click());
+    $("agFile").addEventListener("change", async () => {
+      const f = $("agFile").files[0]; $("agFile").value = ""; if (!f) return;
+      try {
+        if (!window.__cycleAgenda) await loadScript("agenda.js");
+        toast("Lendo a agenda…");
+        pendingAg = await window.__cycleAgenda.load(f);
+        $("agTxt").textContent = `Achei ${pendingAg.calendars.length} agenda(s). Marque as que você quer ver no Cycle. Isto substitui a agenda importada antes.`;
+        $("agList").innerHTML = pendingAg.calendars.map((c, i) => `<label class="check"><input type="checkbox" data-ag="${i}" checked> ${esc(c.name)} (${c.events.length} compromissos)</label>`).join("");
+        $("agBox").hidden = false;
+      } catch (e) { pendingAg = null; toast(e?.code ? e.message : "Não consegui ler esse arquivo de agenda."); }
+    });
+    $("agNo").addEventListener("click", () => { pendingAg = null; $("agBox").hidden = true; });
+    $("agOk").addEventListener("click", async () => {
+      if (!pendingAg) return;
+      const sel = [...$("agList").querySelectorAll("input[data-ag]:checked")].map(x => pendingAg.calendars[+x.dataset.ag]);
+      if (!sel.length) return toast("Marque pelo menos uma agenda.");
+      const events = sel.flatMap(c => c.events);
+      await S.db.doc("agenda/main").set({ name: sel.map(c => c.name).join(", ").slice(0, 120), at: new Date().toISOString(), n: events.length, events });
+      pendingAg = null; $("agBox").hidden = true; toast("Agenda importada.");
+    });
+    $("agDelBtn").addEventListener("click", async () => { await S.db.doc("agenda/main").delete(); toast("Agenda importada removida."); });
   }
 
   // personalizar matéria e exportar (cliques)
@@ -3498,7 +3552,7 @@ Responda só com JSON neste formato:
   $("gNext").addEventListener("click", () => moveWeek(1));
   $("gToday").addEventListener("click", () => moveWeek(0));
   setInterval(() => { if (document.hidden) return; if (G.tab === "tempo") renderGrade(); if (G.tab === "provas") renderProvas(); if (G.tab === "hoje") renderHoje(); }, 60000);
-  const moveDay = n => { H.day = n === 0 ? today() : addDays(H.day, n); if (G.ready && S.mcp) watchDay(); else renderHoje(); };
+  const moveDay = n => { H.day = n === 0 ? today() : addDays(H.day, n); if (G.ready && (S.mcp || localCal())) watchDay(); else renderHoje(); };
   $("hPrev").addEventListener("click", () => moveDay(-1));
   $("hNext").addEventListener("click", () => moveDay(1));
   $("hToday").addEventListener("click", () => moveDay(0));
@@ -3577,6 +3631,11 @@ Responda só com JSON neste formato:
     db.collection("notes").onSnapshot(s => { S.notes = Object.fromEntries(s.docs.map(d => [d.id, { id:d.id, ...d.data() }])); renderProvas(); renderMaterias(); }, err);
     db.doc("settings/ai").onSnapshot(d => { AI.hist = d.exists ? (d.data().history || []) : []; renderAI(); }, err);
     db.doc("settings/main").onSnapshot(d => { S.settings = { ...DEF, ...(d.exists ? d.data() : {}) }; renderSettings(); renderPreview(); renderMaterias(); renderProvas(); renderHoje(); }, err);
+    db.doc("agenda/main").onSnapshot(async d => {
+      S.agenda = d.exists ? d.data() : null;
+      if (S.agenda && !window.__cycleAgenda) { try { await loadScript("agenda.js"); } catch (e) {} }
+      refreshLocalCal();
+    }, err);
     db.doc("timer/current").onSnapshot(d => { S.timer = d.exists ? d.data() : null; renderTimer(); renderTime(); renderGrade(); renderProvas(); }, err);
   })();
 })();

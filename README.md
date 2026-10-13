@@ -13,6 +13,7 @@
 - Notas e médias: pesos, substitutiva, o que falta para passar e simulação "e se…".
 - Anotações em Markdown por matéria e tópico.
 - Backup em arquivo, **sincronização entre celular e computador por QR animado ou código** (sem conta) e exportação **.ics** para o Google Agenda, Apple Calendar e Outlook.
+- **Importa o seu Google Agenda** (arquivo .zip exportado pelo Google) para ver seus compromissos, inclusive os que se repetem, ao lado das revisões. Sem conta e sem enviar nada ao Google.
 
 ## Como instalar
 - **Android (Chrome):** abrir o site e tocar em *Instalar app*.
@@ -24,7 +25,7 @@ Depois da primeira abertura, funciona sem internet.
 Não há login, banco de dados nem rastreamento. Nada que você cadastra sai do aparelho (a sincronização acontece direto entre os aparelhos, por QR ou código). Limpar os dados do navegador apaga tudo, então faça backup de vez em quando.
 
 ## Não incluído nesta versão
-Criação automática de eventos no Google Agenda e o Assistente/Examinador com IA (dependem de contas externas, pagas por uso no caso da IA).
+Conexão ao vivo com o Google Agenda (a troca é por arquivo) e o Assistente/Examinador com IA (dependem de contas externas, pagas por uso no caso da IA).
 
 ## Para quem quiser mexer
 É um site estático (HTML, JavaScript e IndexedDB), sem etapa de build para rodar. Publicado com o GitHub Pages a partir da raiz da branch `main`.
