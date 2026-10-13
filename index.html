@@ -813,8 +813,9 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
       <div class="hnav"><button class="btn primary" id="syncBtn" type="button" hidden>Sincronizar com outro aparelho</button><button class="btn" data-act="exp" data-w="notas" type="button">Anotações (.md)</button><button class="btn" data-act="exp" data-w="tudo" type="button">Todos os dados (.json)</button><button class="btn" data-act="exp" data-w="agenda" type="button">Agenda (.ics)</button><button class="btn" id="impBtn" type="button" hidden>Importar backup (.json)</button><input type="file" id="impFile" accept=".json,application/json" hidden></div>
       <div id="agSec" hidden>
         <h3 style="margin:14px 0 4px;font-size:15px">Google Agenda</h3>
-        <p class="plan" style="margin:0 0 8px">Para ver seus compromissos no Cycle: no Google Agenda, abra Configurações &gt; <b>Importar e exportar</b> &gt; <b>Exportar</b> e escolha aqui o arquivo .zip que o Google baixa (ou um .ics). É uma cópia do momento; para atualizar, exporte e importe de novo.</p>
-        <div class="hnav"><button class="btn" id="agImpBtn" type="button">Importar agenda (.zip ou .ics)</button><button class="btn ghost danger" id="agDelBtn" type="button" hidden>Remover agenda importada</button><input type="file" id="agFile" accept=".zip,.ics,application/zip,text/calendar" hidden></div>
+        <p class="plan" style="margin:0 0 8px">Para ver seus compromissos no Cycle, em 3 passos: <b>1)</b> abra a página de exportação do Google (entre na sua conta se pedir); <b>2)</b> clique em <b>Exportar</b>, e o Google baixa um arquivo .zip; <b>3)</b> volte aqui e escolha esse arquivo. É uma cópia do momento; para atualizar, repita.</p>
+        <p class="plan" id="agMobile" style="margin:0 0 8px" hidden>No celular o Google não deixa exportar. Faça o passo 1 e 2 no computador e passe o .zip para este aparelho (e-mail, nuvem ou cabo).</p>
+        <div class="hnav"><a class="btn" id="agOpen" href="https://calendar.google.com/calendar/u/0/r/settings/export" target="_blank" rel="noopener">1 e 2. Abrir a exportação do Google Agenda</a><button class="btn" id="agImpBtn" type="button">3. Importar agenda (.zip ou .ics)</button><button class="btn ghost danger" id="agDelBtn" type="button" hidden>Remover agenda importada</button><input type="file" id="agFile" accept=".zip,.ics,application/zip,text/calendar" hidden></div>
         <p class="plan" id="agStatus" style="margin:8px 0 0" hidden></p>
         <div class="rbar" id="agBox" hidden style="flex-direction:column;align-items:stretch;gap:8px"><span id="agTxt"></span><div id="agList" style="display:flex;flex-direction:column;gap:4px"></div><div style="display:flex;gap:8px"><button class="btn small primary" id="agOk" type="button">Importar as marcadas</button><button class="btn small ghost" id="agNo" type="button">Cancelar</button></div></div>
       </div>
@@ -2361,6 +2362,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
 
     // importar o Google Agenda exportado (.zip ou .ics)
     $("agSec").hidden = false;
+    try { $("agMobile").hidden = !window.matchMedia("(pointer: coarse)").matches; } catch (e) {}
     let pendingAg = null;
     $("agImpBtn").addEventListener("click", () => $("agFile").click());
     $("agFile").addEventListener("change", async () => {
