@@ -809,7 +809,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
       <h2 id="hExp">Exportar e backup</h2>
       <p class="plan" style="margin:0">Baixe seus dados como arquivos. O navegador pede a sua confirmação antes de salvar.</p>
       <p class="plan" id="expLocal" style="margin:0" hidden>Seus dados ficam só neste aparelho. Para levar para outro aparelho, use <b>Sincronizar</b> (QR ou código, sem conta). O arquivo .json serve de backup, e "Importar backup" traz ele de volta.</p>
-      <div class="hnav"><button class="btn primary" id="syncBtn" type="button" hidden>Sincronizar com outro aparelho</button><button class="btn" data-act="exp" data-w="notas" type="button">Anotações (.md)</button><button class="btn" data-act="exp" data-w="tudo" type="button">Todos os dados (.json)</button><button class="btn" id="impBtn" type="button" hidden>Importar backup (.json)</button><input type="file" id="impFile" accept=".json,application/json" hidden></div>
+      <div class="hnav"><button class="btn primary" id="syncBtn" type="button" hidden>Sincronizar com outro aparelho</button><button class="btn" data-act="exp" data-w="notas" type="button">Anotações (.md)</button><button class="btn" data-act="exp" data-w="tudo" type="button">Todos os dados (.json)</button><button class="btn" data-act="exp" data-w="agenda" type="button">Agenda (.ics)</button><button class="btn" id="impBtn" type="button" hidden>Importar backup (.json)</button><input type="file" id="impFile" accept=".json,application/json" hidden></div>
       <div class="rbar" id="impBox" hidden><span id="impTxt"></span><button class="btn small primary" id="impOk" type="button">Substituir os dados</button><button class="btn small ghost" id="impNo" type="button">Cancelar</button></div>
     </section>
       <details class="panel" open>
@@ -2270,6 +2270,34 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     const nl = noteLines(s, 3); if (nl.length) L.push("## Anotações", "", ...nl);
     return saveFile(`cycle-${sid}-${t}.md`, L.join("\n"));
   }
+  // Agenda (.ics): provas, trabalhos, revisões e aulas semanais. Abre no Google Agenda, Apple Calendar e Outlook.
+  // Os UIDs são fixos, então importar de novo atualiza os eventos em vez de duplicar.
+  function buildICS(){
+    const t = today(), nowZ = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+/, ""), out = [];
+    const d8 = s => s.replace(/-/g, ""), hm = s => s.replace(":", "") + "00";
+    const tx = s => String(s ?? "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+    const fold = l => { const enc = new TextEncoder(); let o = "", cur = ""; for (const ch of l) { if (enc.encode(cur + ch).length > (o ? 74 : 75)) { o += (o ? "\r\n " : "") + cur; cur = ch; } else cur += ch; } return o + (o ? "\r\n " : "") + cur; };
+    const ev = (uid, summary, lines, desc) => { out.push("BEGIN:VEVENT", `UID:${uid}@cycle`, `DTSTAMP:${nowZ}`, `SUMMARY:${tx(summary)}`, ...lines); if (desc) out.push(`DESCRIPTION:${tx(desc)}`); out.push("END:VEVENT"); };
+    const allDay = day => [`DTSTART;VALUE=DATE:${d8(day)}`, `DTEND;VALUE=DATE:${d8(addDays(day, 1))}`, "TRANSP:TRANSPARENT"];
+    const timed = (day, time, min) => { const [h, m] = time.split(":").map(Number), e = h * 60 + m + min, eh = Math.min(23, Math.floor(e / 60)), em = e >= 1440 ? 59 : e % 60; return [`DTSTART;TZID=${TZ}:${d8(day)}T${hm(time)}`, `DTEND;TZID=${TZ}:${d8(day)}T${hm(pad(eh) + ":" + pad(em))}`]; };
+    let n = { provas:0, trabalhos:0, revisoes:0, aulas:0 };
+    for (const e of S.exams) { if (!e.date || e.date < t) continue; const s = subj(e.subjectId); ev(`prova-${e.id}`, `${e.kind || "Prova"} · ${s.name}`, e.time ? timed(e.date, e.time, 120) : allDay(e.date)); n.provas++; }
+    for (const k of S.tasks) { if (k.status === "feita" || !k.due || k.due < t) continue; ev(`trabalho-${k.id}`, `Entrega: ${k.title} · ${subj(k.subjectId).name}`, allDay(k.due)); n.trabalhos++; }
+    for (const { c, r, i } of allReviews()) { if (r.done || r.skipped || !r.due || r.due < t) continue; ev(`revisao-${c.id}-${i}`, `R${i + 1}: ${c.title} · ${subj(c.subjectId).name}`, allDay(r.due)); n.revisoes++; }
+    for (const s of S.subjects) classSlots(s.id).forEach(([wd, tm], i) => {
+      let day = t; for (let k = 0; k < 7 && parseYmd(day).getDay() !== wd; k++) day = addDays(day, 1);
+      ev(`aula-${s.id}-${wd}-${tm}`, `Aula: ${s.name}`, [...timed(day, tm, 100), "RRULE:FREQ=WEEKLY;COUNT=20"]); n.aulas++;
+    });
+    const head = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Cycle//Agenda//PT-BR", "CALSCALE:GREGORIAN", "METHOD:PUBLISH", "X-WR-CALNAME:Cycle", `X-WR-TIMEZONE:${TZ}`,
+      "BEGIN:VTIMEZONE", `TZID:${TZ}`, "BEGIN:STANDARD", "DTSTART:19700101T000000", "TZOFFSETFROM:-0300", "TZOFFSETTO:-0300", "TZNAME:-03", "END:STANDARD", "END:VTIMEZONE"];
+    return { n, text: [...head, ...out, "END:VCALENDAR"].map(fold).join("\r\n") + "\r\n" };
+  }
+  function exportAgenda(){
+    const { n, text } = buildICS(), total = n.provas + n.trabalhos + n.revisoes + n.aulas;
+    if (!total) return toast("Não há nada para a agenda: sem provas, trabalhos, revisões ou aulas pela frente.");
+    window.__lastICS = text;
+    return saveFile(`cycle-agenda-${today()}.ics`, text).then(() => toast(`Agenda pronta: ${n.provas} provas, ${n.trabalhos} trabalhos, ${n.revisoes} revisões, ${n.aulas} aulas. No Google Agenda: Configurações > Importar e exportar.`));
+  }
   function exportAll(){
     const data = { app:"Cycle", formato:2, bruto: window.__cycleDb ? window.__cycleDb.dump() : undefined, exportadoEm:new Date().toISOString(), observacao:"Sessões de estudo incluem apenas os últimos 120 dias.", materias:S.subjects, conteudos:S.contents, trabalhos:S.tasks, provas:S.exams, sessoes:S.sessions, anotacoes:Object.values(S.notes), notas:S.grades, visoes:V, configuracoes:S.settings };
     return saveFile(`cycle-dados-${today()}.json`, JSON.stringify(data, null, 2));
@@ -2316,7 +2344,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
       else if (act === "clsdel") { const sid = b.dataset.s; await saveClasses(sid, classSlots(sid).filter((_, i) => i !== +b.dataset.i).map(x => ({ d:x[0], t:x[1] }))); }
       else if (act === "maticon" && S.db) await S.db.doc(`subjects/${b.dataset.s}`).update({ icone: b.dataset.e || null });
       else if (act === "matcapa" && S.db) await S.db.doc(`subjects/${b.dataset.s}`).update({ capa: b.dataset.c });
-      else if (act === "exp") { if (b.dataset.w === "notas") await exportNotes(); else if (b.dataset.w === "tudo") await exportAll(); else if (b.dataset.w === "materia") await exportMateria(b.dataset.s); }
+      else if (act === "exp") { if (b.dataset.w === "notas") await exportNotes(); else if (b.dataset.w === "tudo") await exportAll(); else if (b.dataset.w === "agenda") await exportAgenda(); else if (b.dataset.w === "materia") await exportMateria(b.dataset.s); }
     } catch (err) { toast("Algo falhou: " + (err?.message || err?.code || "erro")); }
   });
 
