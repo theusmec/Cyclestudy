@@ -11,6 +11,7 @@
 - Agenda **revisões espaçadas** (1, 3, 7, 14 e 30 dias, ajustáveis) e aproxima das provas quando elas chegam perto.
 - Lista, quadro e calendário; trabalhos com subtarefas; cronômetro e metas semanais.
 - **Ementa por PDF:** lê o PDF no aparelho (pdf.js), sugere os tópicos e você revisa antes de salvar.
+- **IA gratuita, sem chave:** monta o pedido pronto para ChatGPT, Gemini ou Claude (ementa e critérios de avaliação), copia, abre o chat e entende a resposta que você colar de volta.
 - Notas e médias: pesos, substitutiva, o que falta para passar e simulação "e se…".
 - Anotações em Markdown por matéria e tópico.
 - Backup em arquivo, **sincronização entre celular e computador por QR animado ou código** (sem conta) e exportação **.ics** para o Google Agenda, Apple Calendar e Outlook.

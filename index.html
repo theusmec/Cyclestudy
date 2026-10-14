@@ -1664,7 +1664,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     if (!typing) $("covList").innerHTML = covSubs.length ? covSubs.map(({ s, p, nx }) => {
       const st = planStatus(p), sid = esc(s.id);
       const ta = `<textarea id="tpa-${sid}" data-s="${sid}" placeholder="Um tópico por linha, na ordem do curso. Use # para unidades. Ex.:\n# Unidade 1\nTópico A\nTópico B">${esc(drafts[s.id] ?? syllabusText(s.syllabus))}</textarea><div style="display:flex;gap:8px;margin-top:8px"><button class="btn small primary" data-act="sylsave" data-s="${sid}" type="button">Salvar ementa</button></div>`;
-      const pdfBtn = STANDALONE ? `<div style="margin:8px 0"><button class="btn small" data-act="sylpdf" data-s="${sid}" type="button" title="Lê o PDF no seu aparelho e sugere os tópicos para você revisar antes de salvar">Importar ementa de PDF</button></div>` : "";
+      const pdfBtn = STANDALONE ? `<div style="margin:8px 0"><button class="btn small" data-act="sylpdf" data-s="${sid}" type="button" title="Lê o PDF no seu aparelho e sugere os tópicos para você revisar antes de salvar">Importar ementa de PDF</button> <button class="btn small" data-act="sylia" data-s="${sid}" type="button" title="Monta o pedido, abre o ChatGPT/Gemini/Claude e você cola a resposta aqui. Grátis e sem chave.">Pedir a uma IA</button></div>` : "";
       const sub = `${nx ? `${esc(nx.kind)} ${fmtShort(nx.date)}` : "Próxima prova sem data"} · aulas ${classSlots(s.id).map(x => `${WD[x[0]]} ${x[1]}`).join(", ") || "não cadastradas"}`;
       const head = `<div class="cov-h"><div><div class="name"><i class="dot" style="background:${esc(s.color)}"></i>${esc(s.name)}</div><div class="sub">${sub}</div></div><span class="xbadge ${st.k}">${st.t}</span></div>`;
       if (!p) return `<div class="cov" id="cov-${sid}">${head}<div class="plan">Sem ementa ainda. Cole os tópicos abaixo${STANDALONE ? " ou importe de um PDF" : ""}.</div>${pdfBtn}${ta}</div>`;
@@ -2607,6 +2607,20 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     $("agDelBtn").addEventListener("click", async () => { await S.db.doc("agenda/main").delete(); toast("Agenda importada removida."); });
   }
 
+  // joga uma lista de tópicos no campo da ementa da matéria (sem salvar: a pessoa revisa)
+  function putEmenta(sid, r){
+    const ta = $(`tpa-${sid}`); if (!ta) return false;
+    ta.value = (ta.value.trim() ? ta.value.replace(/\s+$/, "") + "\n" : "") + r.text; ta.dataset.dirty = "1";
+    ta.closest("details")?.setAttribute("open", ""); ta.scrollIntoView({ block: "center", behavior: "smooth" }); ta.focus();
+    toast(`${r.topics} tópicos${r.units ? ` em ${r.units} unidades` : ""} colocados no campo da ementa. Revise e toque em Salvar ementa.`);
+    return true;
+  }
+  async function openIA(cfg){
+    if (!window.__cycleIA) await loadScript("ia.js");
+    window.__cycleIA.open(cfg);
+  }
+  const iaExtract = async f => { if (!window.__cycleEmenta) await loadScript("ementa.js"); return window.__cycleEmenta.extract(f); };
+
   // ementa a partir de PDF (só no app instalável): o arquivo é lido no aparelho e vira uma sugestão no campo da ementa
   let pdfSid = null;
   $("sylPdf").addEventListener("change", async () => {
@@ -2629,7 +2643,16 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     const b = e.target.closest("[data-act]"); if (!b) return;
     const act = b.dataset.act;
     try {
-      if (act === "matdelask") { SUBDEL = b.dataset.s; renderSubjects(); }
+      if (act === "sylia") { const sid = b.dataset.s; await openIA({ kind:"ementa", name: subj(sid).name, extract: iaExtract, onApply: r => putEmenta(sid, r) }); }
+      else if (act === "gria") {
+        const sid = b.dataset.s;
+        await openIA({ kind:"avaliacao", name: subj(sid).name, extract: iaExtract, onApply: async r => {
+          let n = 0;
+          await saveGrade(sid, g => { r.itens.forEach(it => { if (g.itens.length < 20 && !g.itens.some(x => norm(x.nome) === norm(it.nome))) { g.itens.push({ id:tid(), nome:it.nome, tipo:it.tipo, peso:it.peso, nota:null }); n++; } }); if (r.minima) g.minima = r.minima; });
+          toast(n ? `${n} avaliação${n === 1 ? "" : "s"} adicionada${n === 1 ? "" : "s"}${r.minima ? ` e média mínima ${r.minima}` : ""}. Confira os pesos.` : "Essas avaliações já estavam na lista.");
+        } });
+      }
+      else if (act === "matdelask") { SUBDEL = b.dataset.s; renderSubjects(); }
       else if (act === "matdelno") { SUBDEL = null; renderSubjects(); }
       else if (act === "matdelok") { b.disabled = true; await deleteSubject(b.dataset.s); }
       else if (act === "sylpdf") { pdfSid = b.dataset.s; $("sylPdf").click(); }
@@ -2816,7 +2839,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     const models = !g.itens.length ? `<div class="field"><span>Comece por um modelo</span><div class="ai-chips">${Object.entries(G_MODELOS).map(([k, m]) => `<button class="btn small" data-act="grmodelo" data-s="${esc(sid)}" data-m="${k}" type="button">${esc(m.nome)}</button>`).join("")}</div></div>` : "";
     return `<div class="gr">
       <div class="mat-tools"><label class="field"><span>Média mínima para passar</span><input id="${fid("minima")}" type="number" min="0.1" max="10" step="0.1" inputmode="decimal" data-g="minima" data-s="${esc(sid)}" value="${g.minima}"></label>
-        <button class="btn small" data-act="gradd" data-s="${esc(sid)}" type="button">Adicionar avaliação</button>${hasExams ? `<button class="btn small" data-act="grimport" data-s="${esc(sid)}" type="button">Importar das provas cadastradas</button>` : ""}</div>
+        <button class="btn small" data-act="gradd" data-s="${esc(sid)}" type="button">Adicionar avaliação</button>${STANDALONE ? `<button class="btn small" data-act="gria" data-s="${esc(sid)}" type="button" title="Pede a uma IA (ChatGPT, Gemini ou Claude) para ler o plano de ensino e devolver as avaliações e os pesos">Critérios com IA</button>` : ""}${hasExams ? `<button class="btn small" data-act="grimport" data-s="${esc(sid)}" type="button">Importar das provas cadastradas</button>` : ""}</div>
       ${models}
       ${g.itens.length ? `<div class="gr-head"><span>Avaliação</span><span>Tipo</span><span>Peso</span><span>Nota</span><span>E se…</span><span></span></div>${rows}` : ""}
       <div class="gr-res"><div class="hsum"><span>Média parcial <b>${fmtN(c.parcial)}</b></span><span>Garantida <b>${fmtN(c.garantido)}</b></span><span>Máxima possível <b>${fmtN(c.maximo)}</b></span>${c.final != null ? `<span>Final <b>${fmtN(c.final)}</b></span>` : ""}<span class="xbadge ${st[0]}">${st[1]}</span></div>
