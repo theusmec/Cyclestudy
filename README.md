@@ -10,6 +10,7 @@
 - Cadastra matérias, datas de prova, horários de aula e ementa.
 - Agenda **revisões espaçadas** (1, 3, 7, 14 e 30 dias, ajustáveis) e aproxima das provas quando elas chegam perto.
 - Lista, quadro e calendário; trabalhos com subtarefas; cronômetro e metas semanais.
+- **Ementa por PDF:** lê o PDF no aparelho (pdf.js), sugere os tópicos e você revisa antes de salvar.
 - Notas e médias: pesos, substitutiva, o que falta para passar e simulação "e se…".
 - Anotações em Markdown por matéria e tópico.
 - Backup em arquivo, **sincronização entre celular e computador por QR animado ou código** (sem conta) e exportação **.ics** para o Google Agenda, Apple Calendar e Outlook.
@@ -31,4 +32,4 @@ Conexão ao vivo com o Google Agenda (a troca é por arquivo) e o Assistente/Exa
 É um site estático (HTML, JavaScript e IndexedDB), sem etapa de build para rodar. Publicado com o GitHub Pages a partir da raiz da branch `main`.
 
 ## Bibliotecas de terceiros
-qrcode-generator e jsQR (em `lib/`, com as licenças em `lib/LICENSES.txt`).
+qrcode-generator, jsQR e pdf.js da Mozilla (em `lib/`, com as licenças em `lib/LICENSES.txt`).

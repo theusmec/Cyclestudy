@@ -95,7 +95,8 @@ footer{color:var(--mut);font-size:.9rem}
     <li><b>Cadastre as matérias.</b> Em <b>Matérias</b>, no painel <i>Matérias</i>, escolha uma cor, digite o nome e toque em <b>Adicionar</b>.</li>
     <li><b>Marque as provas.</b> Em <b>Provas</b>, abra <i>Datas das provas</i>, escolha a matéria, o tipo (P1, P2, P3 ou Sub), a data e o horário, e toque em <b>Adicionar prova</b>.</li>
     <li><b>Informe os horários de aula.</b> Em <b>Matérias</b>, toque na matéria e use <i>Horários de aula</i> (dia da semana e hora, depois <b>Adicionar</b>). Pode ter mais de um por semana.</li>
-    <li><b>Cole a ementa (opcional).</b> Na página da matéria, cole os tópicos, um por linha. Uma linha começando com <code>#</code> inicia uma unidade. O app distribui os tópicos pelas próximas aulas e pelo que falta até a prova.</li>
+    <li><b>Cadastre a ementa (opcional).</b> Na página da matéria, cole os tópicos, um por linha. Uma linha começando com <code>#</code> inicia uma unidade. O app distribui os tópicos pelas próximas aulas e pelo que falta até a prova.
+      <br><b>Tem a ementa em PDF?</b> Na página da matéria, toque em <b>Importar ementa de PDF</b> e escolha o arquivo. O Cycle lê o PDF no seu aparelho (o arquivo não é enviado para lugar nenhum), procura o <i>conteúdo programático</i> e coloca os tópicos no campo da ementa, <b>como sugestão</b>: revise, corrija o que precisar e toque em <b>Salvar ementa</b>. Funciona com PDF que tem texto selecionável; PDF escaneado (foto) não dá para ler.</li>
     <li><b>Registre o que estudou.</b> Em <b>Revisões</b>, no painel <i>Registrar conteúdo do dia</i>, escolha a matéria, escreva o conteúdo e a data, e toque em <b>Registrar e agendar revisões</b>. As revisões aparecem com as datas.</li>
   </ol>
   <div class="tip"><b>Dica</b>Na página da matéria também dá para marcar um tópico como <b>Visto</b> depois da aula (isso cria as revisões), <b>Já visto</b> (sem revisões) ou <b>Não deu</b> (o professor não passou o tópico).</div>
@@ -197,13 +198,14 @@ footer{color:var(--mut);font-size:.9rem}
     <tr><td>A câmera não abre na sincronização</td><td>Permita a câmera para o site nas configurações do navegador, ou cole o código.</td></tr>
     <tr><td>O QR não completa</td><td>Aumente o brilho da tela, diminua a velocidade, ou use o código de texto.</td></tr>
     <tr><td>Os dados sumiram</td><td>Provavelmente foram apagados com os dados do navegador. Restaure com <b>Importar backup (.json)</b>.</td></tr>
+    <tr><td>O PDF da ementa trouxe tópicos errados ou faltando</td><td>A leitura é uma sugestão, porque cada faculdade monta o PDF de um jeito. Edite o texto no campo da ementa antes de salvar. Se o PDF for escaneado, copie os tópicos à mão.</td></tr>
     <tr><td>A agenda importada não mostra um evento</td><td>Confira se a agenda dele estava marcada na importação e se ele não terminou há mais de 45 dias. Exporte de novo no Google Agenda e importe outra vez.</td></tr>
     <tr><td>Datas ou horários estranhos</td><td>O app usa o fuso de Brasília. Confira a data e a hora do aparelho.</td></tr>
   </table></div>
 </section>
 
 <footer>
-  <p>O Cycle usa as bibliotecas livres qrcode-generator e jsQR para gerar e ler o QR code (licenças em <a href="lib/LICENSES.txt">lib/LICENSES.txt</a>).</p>
+  <p>O Cycle usa as bibliotecas livres qrcode-generator e jsQR (QR code) e pdf.js, da Mozilla (leitura de PDF). Licenças em <a href="lib/LICENSES.txt">lib/LICENSES.txt</a>.</p>
   <p><a href="./">Voltar ao Cycle</a></p>
 </footer>
 </main>

@@ -775,6 +775,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
       </div>
       <p class="plan" style="margin:0">Cada tópico que você ainda não teve fica previsto para a próxima aula da matéria, pela sua grade semanal (um por aula, na ordem). Depois da aula, toque em <b>Vi</b>: só aí as revisões começam, a partir da data da aula. <b>Já visto</b> marca sem criar revisões.</p>
       <div class="covs" id="covList"></div>
+      <input type="file" id="sylPdf" accept="application/pdf,.pdf" hidden>
     </section>
     </div>
     <section class="panel" id="matSecRev" hidden aria-labelledby="hMatRev">
@@ -1485,7 +1486,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
 
     // coverage plans
     $("covLead").textContent = "um tópico por aula, na ordem da ementa";
-    const covSubs = S.subjects.filter(s => s.id === MAT.id && ((s.syllabus || []).length || S.exams.some(e => e.subjectId === s.id && e.date > t)))
+    const covSubs = S.subjects.filter(s => s.id === MAT.id)
       .map(s => ({ s, p: subjPlan(s.id), nx: examsOf(s.id).find(e => e.date > t) }))
       .sort((a,b) => (a.nx?.date || "9999").localeCompare(b.nx?.date || "9999") || a.s.name.localeCompare(b.s.name));
     const keepOpen = new Set([...document.querySelectorAll("#covList details[open]")].map(d => d.dataset.k));
@@ -1496,9 +1497,10 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     if (!typing) $("covList").innerHTML = covSubs.length ? covSubs.map(({ s, p, nx }) => {
       const st = planStatus(p), sid = esc(s.id);
       const ta = `<textarea id="tpa-${sid}" data-s="${sid}" placeholder="Um tópico por linha, na ordem do curso. Use # para unidades. Ex.:\n# Unidade 1\nTópico A\nTópico B">${esc(drafts[s.id] ?? syllabusText(s.syllabus))}</textarea><div style="display:flex;gap:8px;margin-top:8px"><button class="btn small primary" data-act="sylsave" data-s="${sid}" type="button">Salvar ementa</button></div>`;
+      const pdfBtn = STANDALONE ? `<div style="margin:8px 0"><button class="btn small" data-act="sylpdf" data-s="${sid}" type="button" title="Lê o PDF no seu aparelho e sugere os tópicos para você revisar antes de salvar">Importar ementa de PDF</button></div>` : "";
       const sub = `${nx ? `${esc(nx.kind)} ${fmtShort(nx.date)}` : "Próxima prova sem data"} · aulas ${classSlots(s.id).map(x => `${WD[x[0]]} ${x[1]}`).join(", ") || "não cadastradas"}`;
       const head = `<div class="cov-h"><div><div class="name"><i class="dot" style="background:${esc(s.color)}"></i>${esc(s.name)}</div><div class="sub">${sub}</div></div><span class="xbadge ${st.k}">${st.t}</span></div>`;
-      if (!p) return `<div class="cov" id="cov-${sid}">${head}<div class="plan">Sem ementa ainda. Cole os tópicos abaixo.</div>${ta}</div>`;
+      if (!p) return `<div class="cov" id="cov-${sid}">${head}<div class="plan">Sem ementa ainda. Cole os tópicos abaixo${STANDALONE ? " ou importe de um PDF" : ""}.</div>${pdfBtn}${ta}</div>`;
       const pct = p.seen / p.total * 100;
       const groups = []; p.items.forEach(it => { let g = groups.find(x => x.name === (it.group || "")); if (!g) groups.push(g = { name: it.group || "", items: [] }); g.items.push(it); });
       const row = it => {
@@ -1519,6 +1521,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
         <div class="cbar-l"><span>${p.seen}/${p.total} vistos</span><span>${p.n ? (p.lastCls ? `faltam ${p.n} · última aula prevista ${fmtShort(p.lastCls)}` : `faltam ${p.n}`) : "ementa completa"}</span></div>
         <label class="field" style="max-width:220px"><span>Data da aula (para o botão Vi)</span><input type="date" id="sd-${sid}" data-s="${sid}" value="${esc(dates[s.id] || t)}" max="${t}"></label>
         ${units}
+        ${pdfBtn}
         <details data-k="${esc(s.id)}:edit" ${keepOpen.has(s.id + ":edit") ? "open" : ""}><summary>Editar ementa</summary>${ta}</details>
       </div>`;
     }).join("") : `<div class="empty">Nenhuma ementa ou prova futura cadastrada.</div>`;
@@ -2407,12 +2410,30 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     $("agDelBtn").addEventListener("click", async () => { await S.db.doc("agenda/main").delete(); toast("Agenda importada removida."); });
   }
 
+  // ementa a partir de PDF (só no app instalável): o arquivo é lido no aparelho e vira uma sugestão no campo da ementa
+  let pdfSid = null;
+  $("sylPdf").addEventListener("change", async () => {
+    const f = $("sylPdf").files[0]; $("sylPdf").value = ""; const sid = pdfSid; if (!f || !sid) return;
+    try {
+      toast("Lendo o PDF…");
+      if (!window.__cycleEmenta) await loadScript("ementa.js");
+      const { text, pages } = await window.__cycleEmenta.extract(f), r = window.__cycleEmenta.toSyllabus(text);
+      const ta = $(`tpa-${sid}`); if (!ta) return;
+      if (!r.topics) return toast("Li o PDF (" + pages + " página" + (pages === 1 ? "" : "s") + "), mas não achei tópicos. Cole a lista na mão.");
+      ta.value = (ta.value.trim() ? ta.value.replace(/\s+$/, "") + "\n" : "") + r.text; ta.dataset.dirty = "1";
+      ta.closest("details")?.setAttribute("open", ""); ta.scrollIntoView({ block: "center", behavior: "smooth" }); ta.focus();
+      toast(`${r.topics} tópicos${r.units ? ` em ${r.units} unidades` : ""} sugeridos${r.whole ? " (não achei o título do conteúdo, usei o texto todo)" : ""}${r.truncated ? ` (cortei em ${MAXTOP})` : ""}. Revise e toque em Salvar ementa.`);
+    } catch (e) { toast(e?.code ? e.message : "Não consegui ler esse PDF."); }
+  });
+  const MAXTOP = 80;
+
   // personalizar matéria e exportar (cliques)
   document.addEventListener("click", async e => {
     const b = e.target.closest("[data-act]"); if (!b) return;
     const act = b.dataset.act;
     try {
-      if (act === "subtog") { VM.subs[b.dataset.k] = !VM.subs[b.dataset.k]; renderViews(); }
+      if (act === "sylpdf") { pdfSid = b.dataset.s; $("sylPdf").click(); }
+      else if (act === "subtog") { VM.subs[b.dataset.k] = !VM.subs[b.dataset.k]; renderViews(); }
       else if (act === "subdel") await updSubs(b.dataset.t, subs => { const i = subs.findIndex(y => y.id === b.dataset.i); if (i >= 0) subs.splice(i, 1); });
       else if (act === "matpers") { MAT.pers = !MAT.pers; renderMaterias(); }
       else if (act === "clsadd") { const sid = b.dataset.s, tm = $("clsTime").value; if (!tm) return toast("Escolha o horário da aula."); await saveClasses(sid, [...classSlots(sid).map(x => ({ d:x[0], t:x[1] })), { d:+$("clsDay").value, t:tm }]); }
