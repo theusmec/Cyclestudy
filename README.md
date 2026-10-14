@@ -14,7 +14,7 @@
 - Notas e médias: pesos, substitutiva, o que falta para passar e simulação "e se…".
 - Anotações em Markdown por matéria e tópico.
 - Backup em arquivo, **sincronização entre celular e computador por QR animado ou código** (sem conta) e exportação **.ics** para o Google Agenda, Apple Calendar e Outlook.
-- **Importa o seu Google Agenda** (arquivo .zip exportado pelo Google) para ver seus compromissos, inclusive os que se repetem, ao lado das revisões. Sem conta e sem enviar nada ao Google.
+- **Importa o seu Google Agenda** (arquivo .zip exportado pelo Google) para ver seus compromissos, inclusive os que se repetem, ao lado das revisões. Separa aula, prova, trabalho, revisão e evento, cria as matérias e lança as provas sozinho, e você corrige o tipo quando precisar. Sem conta e sem enviar nada ao Google.
 
 ## Como instalar
 - **Android (Chrome):** abrir o site e tocar em *Instalar app*.

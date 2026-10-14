@@ -211,16 +211,67 @@
     return out;
   }
 
-  // ---------- eventos no formato do Google Calendar ----------
-  function expand(events, startYmd, endYmd) {
-    var rs = localMs(startYmd), re = localMs(endYmd), out = [];
+  // ---------- classificar: aula (matéria), prova, trabalho, revisão ou evento ----------
+  var nrm = function (s) { return String(s == null ? "" : s).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim(); };
+  var B0 = "(?:^|[^a-zà-ÿ0-9])", B1 = "(?=$|[^a-zà-ÿ0-9])";
+  var RE_REV = /^\s*(?:r\d+\s*[:·\-–]|revis[ãa]o\b|revisar\b)/i;
+  var RE_PROVA = new RegExp(B0 + "(?:prova|p[1-4]|substitutiva|exame|avalia[çc][ãa]o|quiz|recupera[çc][ãa]o)" + B1, "i");
+  var RE_SUB = /(?:^|[\s·|:])sub(?=$|[\s·|:])/i;
+  var RE_TRAB = new RegExp(B0 + "(?:entrega|trabalho|relat[óo]rio|lista|projeto|semin[áa]rio|tarefa|atividade|prazo|deadline|apresenta[çc][ãa]o)" + B1, "i");
+  var RE_AULA = /^\s*aula\s*[:·\-–]/i;
+  var KW_STRIP = new RegExp(B0 + "(?:prova|p[1-4]|sub|substitutiva|exame|avalia[çc][ãa]o|quiz|entrega|trabalho|relat[óo]rio|lista|projeto|semin[áa]rio|tarefa|atividade|prazo|deadline|apresenta[çc][ãa]o|revis[ãa]o|recupera[çc][ãa]o|aula)" + B1, "gi");
+  var KINDS = ["aula", "prova", "trabalho", "revisao", "evento", "ignorar"];
+
+  function guess(ev, known) {
+    var s = ev.s || "";
+    if (RE_REV.test(s) || /grade de estudos/i.test(ev.d || "")) return "revisao";
+    if (RE_PROVA.test(s) || RE_SUB.test(s)) return "prova";
+    if (RE_TRAB.test(s)) return "trabalho";
+    if (RE_AULA.test(s)) return "aula";
+    var n = nrm(s);
+    if (known && known.some(function (k) { return k.length >= 4 && (n === k || n.indexOf(k) === 0); })) return "aula";
+    if (!ev.a && ev.rr && /FREQ=WEEKLY/i.test(ev.rr) && ev.dur >= 40 * 60000 && ev.dur <= 300 * 60000) return "aula";
+    return "evento";
+  }
+  function deriveName(title, kind) {                     // "P1 · Matéria A", "Entrega: X · Matéria A", "Prova de Matéria A" -> nome da matéria
+    var clean = function (p) { return p.replace(KW_STRIP, " ").replace(/^\s*\d+[ªº°.)]?\s+/, "").replace(/^\s*(?:de|da|do|das|dos)\s+/i, "").replace(/\s+/g, " ").trim(); };
+    var t = String(title || "").replace(/^\s*r\d+\s*[:·\-–]\s*/i, "");
+    var parts = t.split(/\s*[·|]\s*|\s+[-–—]\s+|:\s+/).map(clean).filter(function (p) { return /[a-zà-ÿ]{3}/i.test(p); });
+    if (!parts.length) return "";
+    return kind === "aula" ? parts[0] : parts[parts.length - 1];
+  }
+  var keyOf2 = function (ev) { return nrm(ev.s); };
+  function slotsOf(ev) {                                  // aula que se repete toda semana -> [{d: dia (0=dom), t: "HH:MM"}]
+    if (ev.a || !ev.rr || !/FREQ=WEEKLY/i.test(ev.rr)) return [];
+    var u = toUtc(wallMs(ev.w), ev.z), d = new Date(u), t = pad(d.getHours()) + ":" + pad(d.getMinutes());
+    var r = parseRule(ev.rr), days = r.byday.length ? r.byday.map(function (b) { return b.d; }) : [new Date(wallMs(ev.w)).getUTCDay()];
+    if (ev.z === "Z" && !r.byday.length) days = [d.getDay()];
+    return days.map(function (x) { return { d: x, t: t }; });
+  }
+  function groups(events, ctx, startYmd, endYmd) {         // um item por título, com a classificação atual e as próximas ocorrências
+    var rs = localMs(startYmd), re = localMs(endYmd), by = {}, order = [];
     events.forEach(function (ev) {
+      var k = keyOf2(ev), n = expandOne(ev, rs - 2 * DAY, re + 2 * DAY, 0).length;
+      if (!by[k]) { by[k] = { key: k, title: ev.s || "(sem título)", count: 0, kind: (ctx.cls && ctx.cls[k]) || ev.k || "evento", events: [], next: "" }; order.push(k); }
+      var g = by[k]; g.count += n; g.events.push(ev);
+      if (n) { var w = expandOne(ev, rs - DAY, re + DAY, 1)[0]; if (w != null) { var c = fromWallMs(w), ds = c[0] + "-" + pad(c[1]) + "-" + pad(c[2]); if (!g.next || ds < g.next) g.next = ds; } }
+    });
+    return order.map(function (k) { return by[k]; }).filter(function (g) { return g.count > 0; });
+  }
+
+  // ---------- eventos no formato do Google Calendar ----------
+  function expand(events, startYmd, endYmd, ctx) {
+    var rs = localMs(startYmd), re = localMs(endYmd), out = [], cls = (ctx && ctx.cls) || {}, map = (ctx && ctx.map) || {};
+    events.forEach(function (ev) {
+      var gkey = keyOf2(ev), kind = cls[gkey] || ev.k || "evento";
+      if (ctx && kind === "ignorar") return;
       if (!ev._xs) Object.defineProperty(ev, "_xs", { value: new Set(ev.x || []), enumerable: false });   // não enumerável: não vai para o banco
       var xs = ev._xs;
       var durMs = ev.a ? ev.dur * DAY : ev.dur;
       expandOne(ev, rs - 2 * DAY - durMs, re + 2 * DAY, 0).forEach(function (wall) {
         var w = fromWallMs(wall); if (xs.has(keyOf(w, ev.a))) return;
         var id = ev.u + "@" + keyOf(w, ev.a), base = { id: id, summary: ev.s, description: ev.d, location: ev.l };
+        if (ctx) { base.kind = kind; base.group = gkey; base.sid = map[gkey] || null; }
         if (ev.a) {
           var s = new Date(w[0], w[1] - 1, w[2]).getTime(), e = new Date(w[0], w[1] - 1, w[2] + ev.dur).getTime();
           if (s < re && e > rs) out.push(Object.assign(base, { start: { date: ymdOf(new Date(s)) }, end: { date: ymdOf(new Date(e)) } }));
@@ -252,5 +303,5 @@
     });
   }
 
-  window.__cycleAgenda = { load: load, parseICS: parseICS, expand: expand, _unzip: unzip };
+  window.__cycleAgenda = { load: load, parseICS: parseICS, expand: expand, guess: guess, deriveName: deriveName, slotsOf: slotsOf, groups: groups, groupKey: keyOf2, norm: nrm, KINDS: KINDS, _unzip: unzip };
 })();

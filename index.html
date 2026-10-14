@@ -298,6 +298,15 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .blk.one .tt{overflow:hidden;text-overflow:ellipsis}
 .blk.rev{--c:var(--accent);border-style:dashed;background:var(--accent-soft)}
 .blk.rev .tt{font-weight:500}
+.blk.trab{--c:var(--late);border-style:dashed}
+.gad i.k-prova{background:var(--late-soft);color:var(--late);font-weight:600}
+.gad i.k-trabalho{border-left:3px solid var(--late)}
+.gad i.k-revisao{background:var(--accent-soft)}
+.clsrow{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:7px 0;border-top:1px solid var(--line)}
+.clsrow .ct{min-width:0;display:flex;flex-direction:column;gap:1px}
+.clsrow .ct b{overflow-wrap:anywhere;font-weight:600}
+.clsrow .ct span{font-size:12px;color:var(--muted)}
+.clsrow select{flex:none;max-width:48%}
 .sess{position:absolute;right:2px;width:5px;border-radius:3px;background:var(--c);min-height:3px}
 .sess.live{animation:pulse 1.6s ease-in-out infinite}
 @keyframes pulse{50%{opacity:.4}}
@@ -949,6 +958,10 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
         <div class="rbar" id="agStep2" hidden style="flex-direction:column;align-items:stretch;gap:8px"><span><b>Agora, na aba do Google:</b> clique em <b>Exportar</b>. Quando o arquivo .zip terminar de baixar, volte aqui e toque no botão.</span><div><button class="btn small primary" id="agPick" type="button">Escolher o arquivo baixado</button></div></div>
         <p class="plan" id="agStatus" style="margin:8px 0 0" hidden></p>
         <div class="rbar" id="agBox" hidden style="flex-direction:column;align-items:stretch;gap:8px"><span id="agTxt"></span><div id="agList" style="display:flex;flex-direction:column;gap:4px"></div><div style="display:flex;gap:8px"><button class="btn small primary" id="agOk" type="button">Importar as marcadas</button><button class="btn small ghost" id="agNo" type="button">Cancelar</button></div></div>
+        <details class="panel" id="agClsBox" hidden style="margin-top:12px"><summary id="agClsSum">Como o Cycle entendeu a sua agenda</summary>
+          <p class="plan" style="margin:8px 0">O Cycle separa o que veio do Google Agenda em <b>aula</b> (vira uma matéria), <b>prova</b> (entra em Provas), <b>trabalho</b>, <b>revisão</b> e <b>evento</b>. Se errou, troque o tipo: as matérias e provas são ajustadas. <b>Ignorar</b> esconde o item da agenda.</p>
+          <div id="agClsList"></div>
+        </details>
       </div>
       <div class="rbar" id="impBox" hidden><span id="impTxt"></span><button class="btn small primary" id="impOk" type="button">Substituir os dados</button><button class="btn small ghost" id="impNo" type="button">Cancelar</button></div>
     </section>
@@ -1296,7 +1309,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
 
   // Agenda importada de arquivo (só no app instalável, quando não há conexão com o Google Calendar).
   const localCal = () => !S.mcp && !!S.agenda && !!window.__cycleAgenda;
-  const agendaEvents = (a, b) => { try { return window.__cycleAgenda.expand(S.agenda.events, a, b); } catch (e) { return []; } };
+  const agendaEvents = (a, b) => { try { return window.__cycleAgenda.expand(S.agenda.events, a, b, { cls: S.agenda.cls || {}, map: S.agenda.map || {} }); } catch (e) { return []; } };
   const agendaNote = () => S.agenda ? `Agenda importada em ${new Date(S.agenda.at).toLocaleDateString("pt-BR")} (${S.agenda.n} compromisso${S.agenda.n === 1 ? "" : "s"}). É uma cópia do momento: exporte e importe de novo para atualizar.` : "";
   const loadDay = () => { H.events = agendaEvents(H.day, addDays(H.day, 1)); H.status = "local"; H.err = null; };
   const loadWeek = () => { G.events = agendaEvents(G.week, addDays(G.week, 7)); G.status = "local"; G.err = null; };
@@ -1307,10 +1320,78 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     else { G.status = B.status = H.status = "nomcp"; G.events = []; B.events = []; H.events = []; }
     renderHoje(); renderGrade(); renderProvas(); renderAgendaInfo();
   }
+  // Classificação da agenda importada: cria as matérias (aulas), lança as provas e guarda a ligação grupo -> matéria.
+  const AG_COLORS = ["#3B82C4", "#D9534F", "#2E9E6B", "#B7791F", "#8E5BD0", "#D1568C", "#14899E", "#E2762B", "#5B6BC0", "#7A9A2E"];
+  const hash36 = s => { let h = 5381; for (const c of s) h = ((h << 5) + h + c.charCodeAt(0)) | 0; return (h >>> 0).toString(36); };
+  const examKindOf = t => /(^|[\s·|:])sub(?=$|[\s·|:])|substitutiva/i.test(t) ? "Sub" : /(^|[^a-z0-9])p\s*3(?![a-z0-9])|3[ªa]\s*prova/i.test(t) ? "P3" : /(^|[^a-z0-9])p\s*2(?![a-z0-9])|2[ªa]\s*prova/i.test(t) ? "P2" : "P1";
+  async function applyAgenda(doc, only){
+    const A = window.__cycleAgenda; if (!A || !S.db || !doc) return { text:"" };
+    const ctx = { cls: doc.cls || {}, map: { ...(doc.map || {}) } }, made = new Map(), t0 = today(), classesPatch = {};
+    let nSubj = 0, nExam = 0, nGone = 0;
+    const all = () => [...S.subjects, ...made.values()];
+    const find = name => { const n = norm(name); if (n.length < 3) return null; return all().find(s => norm(s.name) === n) || all().find(s => { const m = norm(s.name); return m.length >= 5 && n.length >= 5 && (m.includes(n) || n.includes(m)); }) || null; };
+    const ensure = async name => {
+      let s = find(name); if (s) return s;
+      const id = "ag-" + (norm(name).replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40) || hash36(name));
+      s = { id, name: name.trim(), color: AG_COLORS[all().length % AG_COLORS.length], order: all().length };
+      await S.db.doc(`subjects/${id}`).set({ name: s.name, color: s.color, order: s.order });
+      made.set(id, s); nSubj++; return s;
+    };
+    for (const g of A.groups(doc.events, ctx, addDays(t0, -30), addDays(t0, 365))) {
+      if (only && g.key !== only) continue;
+      const name = A.deriveName(g.title, g.kind);
+      if (g.kind === "aula") {
+        const s = await ensure(name || g.title); ctx.map[g.key] = s.id;
+        if (!(S.settings.classes?.[s.id] || []).length && !classesPatch[s.id]) {
+          const sl = g.events.flatMap(A.slotsOf), uniq = sl.filter((x, i) => sl.findIndex(y => y.d === x.d && y.t === x.t) === i);
+          if (uniq.length) classesPatch[s.id] = uniq;
+        }
+      } else if (g.kind === "prova") {
+        const s = name ? await ensure(name) : null;
+        if (s) {
+          ctx.map[g.key] = s.id;
+          for (const e of A.expand(g.events, t0, addDays(t0, 365), { cls: {}, map: {} })) {
+            const date = e.start.date || ymd(new Date(e.start.dateTime)), time = e.start.dateTime ? (d => `${pad(d.getHours())}:${pad(d.getMinutes())}`)(new Date(e.start.dateTime)) : "10:00";
+            const id = "ag-" + hash36(g.key + "|" + date);
+            if (S.exams.some(x => x.id === id || (x.subjectId === s.id && x.date === date))) continue;
+            await S.db.doc(`exams/${id}`).set({ subjectId: s.id, kind: examKindOf(g.title), date, time, src: "agenda", agKey: g.key }); nExam++;
+          }
+        } else delete ctx.map[g.key];
+      } else {
+        const s = name ? find(name) : null; if (s) ctx.map[g.key] = s.id; else delete ctx.map[g.key];
+      }
+      if (g.kind !== "prova") for (const x of S.exams.filter(x => x.agKey === g.key)) { await S.db.doc(`exams/${x.id}`).delete(); nGone++; }
+    }
+    await S.db.doc("agenda/main").update({ map: ctx.map });
+    if (Object.keys(classesPatch).length) await patchSettings({ classes: { ...(S.settings.classes || {}), ...classesPatch } });
+    const bits = [nSubj ? `${nSubj} matéria${nSubj === 1 ? "" : "s"} criada${nSubj === 1 ? "" : "s"}` : "", nExam ? `${nExam} prova${nExam === 1 ? "" : "s"} em Provas` : "", nGone ? `${nGone} prova${nGone === 1 ? "" : "s"} removida${nGone === 1 ? "" : "s"}` : "", Object.keys(classesPatch).length ? "horários de aula preenchidos" : ""].filter(Boolean);
+    return { text: bits.length ? bits.join(", ") + "." : "Nada novo para criar." };
+  }
+  const CLS_OPTS = [["aula", "Aula (matéria)"], ["prova", "Prova"], ["trabalho", "Trabalho"], ["revisao", "Revisão"], ["evento", "Evento"], ["ignorar", "Ignorar"]];
+  function renderAgendaClasses(){
+    const box = $("agClsBox"); if (!box) return;
+    if (!localCal()) { box.hidden = true; return; }
+    const ctx = { cls: S.agenda.cls || {}, map: S.agenda.map || {} };
+    let gs = []; try { gs = window.__cycleAgenda.groups(S.agenda.events, ctx, today(), addDays(today(), 120)); } catch (e) {}
+    const ord = { aula:0, prova:1, trabalho:2, revisao:3, evento:4, ignorar:5 };
+    gs.sort((a, b) => ord[a.kind] - ord[b.kind] || b.count - a.count || a.title.localeCompare(b.title));
+    box.hidden = !gs.length;
+    const cnt = k => gs.filter(g => g.kind === k).length;
+    const pl = (k, s, m) => `${cnt(k)} ${cnt(k) === 1 ? s : m}`;
+    $("agClsSum").textContent = `Como o Cycle entendeu a sua agenda: ${pl("aula", "matéria", "matérias")}, ${pl("prova", "prova", "provas")}, ${pl("trabalho", "trabalho", "trabalhos")}, ${pl("revisao", "revisão", "revisões")}, ${pl("evento", "evento", "eventos")}`;
+    const keep = document.activeElement?.closest?.("#agClsList");
+    if (keep) return;                                                 // não redesenha enquanto a pessoa mexe numa lista
+    $("agClsList").innerHTML = gs.slice(0, 300).map(g => {
+      const sid = ctx.map[g.key], sj = sid && S.subjects.find(s => s.id === sid);
+      return `<div class="clsrow"><div class="ct"><b>${esc(g.title)}</b><span>${g.count}× nos próximos meses${g.next ? ` · próximo ${fmtShort(g.next)}` : ""}${sj ? ` · matéria ${esc(sj.name)}` : ""}</span></div><select data-agcls="${esc(g.key)}" aria-label="Tipo de ${esc(g.title)}">${CLS_OPTS.map(([v, l]) => `<option value="${v}" ${g.kind === v ? "selected" : ""}>${l}</option>`).join("")}</select></div>`;
+    }).join("") + (gs.length > 300 ? `<p class="plan">Mostrando 300 de ${gs.length} itens.</p>` : "");
+  }
+
   function renderAgendaInfo(){
     const st = $("agStatus"), del = $("agDelBtn"); if (!st) return;
     st.hidden = !S.agenda; del.hidden = !S.agenda;
     st.textContent = S.agenda ? `Agenda importada: ${S.agenda.n} compromisso${S.agenda.n === 1 ? "" : "s"} de ${S.agenda.name}, em ${new Date(S.agenda.at).toLocaleDateString("pt-BR")}.` : "";
+    renderAgendaClasses();
   }
 
   function watchWeek(){
@@ -1349,13 +1430,13 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     for (const e of G.events) {
       if (e.status === "cancelled") continue;
       const title = e.summary || "(sem título)";
-      if (e.start?.date) { if (allDay[e.start.date]) allDay[e.start.date].push(title); continue; }
+      if (e.start?.date) { if (allDay[e.start.date] && !dupOfCycle(e, e.start.date)) allDay[e.start.date].push({ t:title, k:e.kind || "" }); continue; }
       if (!e.start?.dateTime) continue;
       const s = new Date(e.start.dateTime), en = new Date(e.end.dateTime), d = ymd(s);
-      if (!timed[d]) continue;
-      const isRev = /^R\d+\s*·/.test(title), sj = matchSubject(title);
+      if (!timed[d] || dupOfCycle(e, d)) continue;
+      const isRev = e.kind ? e.kind === "revisao" : /^R\d+\s*·/.test(title), sj = (e.sid && S.subjects.find(x => x.id === e.sid)) || matchSubject(title);
       const a = minsOf(s), b = ymd(en) > d ? 1440 : minsOf(en);
-      timed[d].push({ a, b: Math.max(b, a+15), title, rev:isRev, color: sj?.color || null, sid: sj?.id || null, loc: e.location || "" });
+      timed[d].push({ a, b: Math.max(b, a+15), title, rev:isRev, exam:e.kind === "prova", trab:e.kind === "trabalho", color: sj?.color || null, sid: sj?.id || null, loc: e.location || "" });
       if (isRev) revCount++; else if (isBlock(e)) blockMin += b - a; else classMin += b - a;
     }
     // aulas semanais (do horário de cada matéria), sem repetir as que já vieram da agenda importada e sem os dias de prova
@@ -1407,7 +1488,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
 
     let html = `<div class="gw" style="--rows:${rows};--hpx:${HPX}px"><div class="gh"></div>`;
     html += days.map(d => { const dt = parseYmd(d); return `<div class="gh ${d===t?"today":""}"><span>${WD[dt.getDay()]}</span><b>${pad(dt.getDate())}</b></div>`; }).join("");
-    if (hasAllDay) html += `<div class="gad-l">dia todo</div>` + days.map(d => `<div class="gad">${allDay[d].map(x => `<i title="${esc(x)}">${esc(x)}</i>`).join("")}</div>`).join("");
+    if (hasAllDay) html += `<div class="gad-l">dia todo</div>` + days.map(d => `<div class="gad">${allDay[d].map(x => `<i class="${x.k ? "k-" + x.k : ""}" title="${esc(x.t)}">${esc(x.t)}</i>`).join("")}</div>`).join("");
     if (hasTodo) html += `<div class="gad-l">a fazer</div>` + days.map(d => `<div class="gad">${todo[d].map(pill).join("")}${d === t && lateMore ? `<i>+${lateMore} atrasadas (veja em Revisões)</i>` : ""}</div>`).join("");
     html += `<div class="gtimes">${[...Array(rows)].map((_,i) => `<span style="top:${i*HPX}px">${pad(H0+i)}h</span>`).join("")}</div>`;
     html += days.map(d => {
@@ -1417,8 +1498,8 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
         if (it.b <= H0*60) continue;
         const top = y(it.a), h = Math.max(18, y(it.b) - top - 2), w = 100/it.lanes;
         const one = h < 34, time = `${fromMin(it.a)}–${fromMin(Math.min(it.b,1439))}`;
-        const style = `top:${top+1}px;height:${h}px;left:calc(${it.lane*w}% + 3px);width:calc(${w}% - 13px);${it.exam || it.rev ? "" : it.color ? `--c:${esc(it.color)}` : "--c:var(--muted)"}`;
-        col += `<div class="blk ${it.rev?"rev":""} ${it.exam?"exam":""} ${one?"one":""}" style="${style}" title="${esc(time + " · " + it.title + (it.loc ? " · " + it.loc : ""))}"><span class="h">${time}</span><span class="tt">${esc(it.title)}</span></div>`;
+        const style = `top:${top+1}px;height:${h}px;left:calc(${it.lane*w}% + 3px);width:calc(${w}% - 13px);${it.exam || it.rev || it.trab ? "" : it.color ? `--c:${esc(it.color)}` : "--c:var(--muted)"}`;
+        col += `<div class="blk ${it.rev?"rev":""} ${it.exam?"exam":""} ${it.trab?"trab":""} ${one?"one":""}" style="${style}" title="${esc(time + " · " + it.title + (it.loc ? " · " + it.loc : ""))}"><span class="h">${time}</span><span class="tt">${esc(it.title)}</span></div>`;
       }
       for (const s of sess[d]) {
         if (s.b <= H0*60) continue;
@@ -1582,19 +1663,29 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
       renderHoje();
     }, { refetchInterval: 180000 });
   }
-  const KIND = { aula:"Aula", comp:"Compromisso", bloco:"Bloco de estudo", rev:"Revisão", exam:"Prova" };
+  // Item do Google Agenda que o Cycle já mostra pelos próprios dados (prova lançada, revisão ou entrega que ele mesmo exportou).
+  function dupOfCycle(e, d){
+    if (!e.kind) return false;
+    const n = norm(e.summary || "");
+    if (e.kind === "prova") return S.exams.some(x => x.date === d && (x.agKey === e.group || (e.sid && x.subjectId === e.sid)));
+    if (e.kind === "revisao") return S.contents.some(c => (c.reviews || []).some(r => r.due === d && n.includes(norm(c.title))));
+    if (e.kind === "trabalho") return S.tasks.some(k => k.due === d && n.includes(norm(k.title)));
+    return false;
+  }
+  const KIND = { aula:"Aula", comp:"Compromisso", bloco:"Bloco de estudo", rev:"Revisão", exam:"Prova", trab:"Trabalho" };
   function dayItems(d){
     const revMap = new Map();
     for (const c of S.contents) (c.reviews||[]).forEach((r, i) => { if (r.eventId) revMap.set(r.eventId, { c, i, r }); });
     const items = [], allDay = [];
     for (const e of H.events) {
       if (e.status === "cancelled") continue;
-      if (e.start?.date) { allDay.push(e.summary || "(sem título)"); continue; }
+      if (e.start?.date) { if (!dupOfCycle(e, e.start.date)) allDay.push(e.summary || "(sem título)"); continue; }
       if (!e.start?.dateTime) continue;
       const s = new Date(e.start.dateTime), en = new Date(e.end.dateTime);
+      if (dupOfCycle(e, ymd(s))) continue;
       const a = ymd(s) < d ? 0 : minsOf(s), b = ymd(en) > d ? 1440 : minsOf(en);
-      const title = e.summary || "(sem título)", sj = matchSubject(title);
-      const type = /^R\d+\s*·/.test(title) ? "rev" : isBlock(e) ? "bloco" : sj ? "aula" : "comp";
+      const title = e.summary || "(sem título)", sj = (e.sid && S.subjects.find(x => x.id === e.sid)) || matchSubject(title);
+      const type = e.kind ? ({ aula:"aula", prova:"exam", trabalho:"trab", revisao:"rev", evento:"comp" })[e.kind] || "comp" : /^R\d+\s*·/.test(title) ? "rev" : isBlock(e) ? "bloco" : sj ? "aula" : "comp";
       const it = { id:e.id, a, b, start:s.getTime(), end:en.getTime(), title, type, subject:sj, loc:e.location || "", link:e.conferenceUrl || e.hangoutLink || "", rv:revMap.get(e.id) || null };
       if (type === "bloco") { const bi = blockInfo(e); it.title = bi.label; }
       if (type === "rev" && it.rv) it.title = it.rv.c.title;
@@ -2449,9 +2540,23 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
       if (!pendingAg) return;
       const sel = [...$("agList").querySelectorAll("input[data-ag]:checked")].map(x => pendingAg.calendars[+x.dataset.ag]);
       if (!sel.length) return toast("Marque pelo menos uma agenda.");
-      const events = sel.flatMap(c => c.events);
-      await S.db.doc("agenda/main").set({ name: sel.map(c => c.name).join(", ").slice(0, 120), at: new Date().toISOString(), n: events.length, events });
-      pendingAg = null; $("agBox").hidden = true; toast("Agenda importada.");
+      const A = window.__cycleAgenda, known = S.subjects.map(s => A.norm(s.name)), events = sel.flatMap(c => c.events);
+      events.forEach(ev => { ev.k = A.guess(ev, known); });
+      const doc = { name: sel.map(c => c.name).join(", ").slice(0, 120), at: new Date().toISOString(), n: events.length, events, cls: S.agenda?.cls || {}, map: S.agenda?.map || {} };
+      pendingAg = null; $("agBox").hidden = true; toast("Classificando a agenda…");
+      await S.db.doc("agenda/main").set(doc);
+      const r = await applyAgenda(doc);
+      toast("Agenda importada. " + r.text);
+    });
+    $("agClsList").addEventListener("change", async e => {
+      const sel = e.target.closest("select[data-agcls]"); if (!sel || !S.agenda) return;
+      const key = sel.dataset.agcls, cls = { ...(S.agenda.cls || {}), [key]: sel.value };
+      try {
+        await S.db.doc("agenda/main").update({ cls });
+        const r = await applyAgenda({ ...S.agenda, cls }, key);
+        toast(r.text === "Nada novo para criar." ? "Tipo atualizado." : "Tipo atualizado. " + r.text);
+      } catch (err) { toast("Não consegui atualizar: " + (err?.message || "erro")); }
+      sel.blur(); renderAgendaClasses();
     });
     $("agDelBtn").addEventListener("click", async () => { await S.db.doc("agenda/main").delete(); toast("Agenda importada removida."); });
   }
