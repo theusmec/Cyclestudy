@@ -625,11 +625,13 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
       <h1 id="pageTitle">Agenda</h1>
     </div>
     <div class="top-r">
+      <button class="btn small" id="tourBtn" type="button" hidden title="Um passeio rápido por todas as abas">Tour</button>
       <div class="meta num" id="todayLabel"></div>
       <button class="icon-btn m-only" data-open-search type="button" aria-label="Buscar"><svg class="ico"><use href="#i-busca"/></svg></button>
     </div>
   </header>
 
+  <div class="gmsg info" id="tourBanner" hidden style="margin-bottom:14px"><span>Primeira vez por aqui? Faça um tour de 1 minuto por todas as abas.</span> <button class="btn small primary" id="tourGo" type="button">Fazer o tour</button> <button class="btn small ghost" id="tourNo" type="button">Agora não</button></div>
   <div class="banner" id="noDb" hidden>Os dados só são salvos quando a página é aberta pelo claude.ai. Nesta visualização nada fica gravado.</div>
   <section class="timer" id="timerBox" aria-label="Cronômetro">
     <div class="clock num" id="clock">00:00:00</div>
@@ -2223,6 +2225,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     V.items.forEach(v => out.push({ g, t:`Abrir visão: ${v.name}`, s:v.layout, run: () => { V.active = v.id; saveViews(); setTab("revisoes"); } }));
     out.push({ g, t: $("app").classList.contains("side-off") ? "Expandir menu lateral" : "Recolher menu lateral", s:"Ctrl+\\", run: toggleSide });
     if (STANDALONE) out.push({ g, t:"Sincronizar com outro aparelho", s:"QR ou código", run: openSync });
+    if (STANDALONE) out.push({ g, t:"Fazer o tour do app", s:"passeio por todas as abas", run: startTour });
     out.push({ g, t:"Exportar anotações (.md)", s:"baixar arquivo", run: exportNotes });
     out.push({ g, t:"Exportar todos os dados (.json)", s:"baixar arquivo", run: exportAll });
     return out;
@@ -3985,6 +3988,21 @@ Responda só com JSON neste formato:
     await patchSettings(data);
     toast("Horários salvos. Valem para os próximos registros.");
   });
+
+  // ---------- tour guiado (só no app instalável) ----------
+  window.__cycleSetTab = setTab;
+  async function startTour(){
+    try { if (!window.__cycleTour) await loadScript("tour.js"); } catch (e) { return toast("Não consegui abrir o tour."); }
+    $("tourBanner").hidden = true;
+    window.__cycleTour.start({ setTab, voltarPara: G.tab, onEnd: () => { $("tourBanner").hidden = true; } });
+  }
+  if (STANDALONE) {
+    $("tourBtn").hidden = false;
+    $("tourBtn").addEventListener("click", startTour);
+    $("tourGo").addEventListener("click", startTour);
+    $("tourNo").addEventListener("click", () => { $("tourBanner").hidden = true; try { localStorage.setItem("cycle.tour", "feito"); } catch (e) {} });
+    try { if (localStorage.getItem("cycle.tour") !== "feito") $("tourBanner").hidden = false; } catch (e) { $("tourBanner").hidden = false; }
+  }
 
   // ---------- boot ----------
   $("todayLabel").textContent = new Date().toLocaleDateString("pt-BR", { weekday:"long", day:"numeric", month:"long" });
