@@ -982,6 +982,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
         <button class="btn small" id="aiUndo" type="button" hidden>Desfazer último pedido</button>
       </div>
       <div class="gmsg" id="aiOff" hidden>O assistente só funciona com a página aberta pelo claude.ai, usando a sua conta do Claude.</div>
+      <p class="plan" id="aiLocalNote" style="margin:0" hidden>Assistente local: responde sobre a sua <b>agenda, provas, notas, revisões e trabalhos</b> com os dados deste aparelho. Não usa internet nem IA, e nunca inventa: se não souber, ele diz. Digite <b>ajuda</b> para ver tudo o que ele faz.</p>
       <div class="ai-log" id="aiLog" aria-live="polite"></div>
       <div class="field" id="aiEx"><span>Experimente</span>
         <div class="ai-chips">
@@ -995,7 +996,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
         <textarea id="aiInput" rows="2" placeholder="Peça em português. Ex.: adia as revisões de uma matéria em 2 dias" aria-label="Pedido ao assistente"></textarea>
         <div class="ai-btns"><button class="btn primary" id="aiSend" type="submit">Enviar</button><button class="btn" id="aiStop" type="button" hidden>Parar</button></div>
       </form>
-      <p class="plan" style="margin:0">O assistente só usa as ações do app e nunca apaga dados. Pede confirmação quando a mudança atinge vários itens ou mexe no Google Calendar, e o último pedido pode ser desfeito. Cada pedido usa o seu plano do Claude.</p>
+      <p class="plan" id="aiFootNote" style="margin:0">O assistente só usa as ações do app e nunca apaga dados. Pede confirmação quando a mudança atinge vários itens ou mexe no Google Calendar, e o último pedido pode ser desfeito. Cada pedido usa o seu plano do Claude.</p>
     </section>
   </div>
 </div>
@@ -3033,7 +3034,93 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
   }
 
   // Catálogo fechado: cada ação valida os parâmetros e devolve { titulo, lines, count, confirm, run }.
+  // Agenda de um dia, com o que o app já sabe: aulas do horário, compromissos importados, provas, revisões e entregas.
+  function agendaDia(d){
+    const out = [], wd = parseYmd(d).getDay();
+    for (const s of S.subjects) {
+      if (examsOf(s.id).some(e => e.date === d) || (s.skipLectures || []).includes(d)) continue;
+      for (const [w, tm] of classSlots(s.id)) if (w === wd) out.push({ a: toMin(tm), sid: s.id, txt: `${tm} · Aula · ${s.name}` });
+    }
+    if (localCal()) for (const e of agendaEvents(d, addDays(d, 1))) {
+      if (dupOfCycle(e, d)) continue;
+      const title = e.summary || "(sem título)", lbl = ({ prova:"Prova", trabalho:"Trabalho", revisao:"Revisão" })[e.kind];
+      if (e.start?.date) { out.push({ a: -1, txt: `Dia todo · ${lbl ? lbl + ": " : ""}${title}` }); continue; }
+      if (!e.start?.dateTime) continue;
+      const s0 = new Date(e.start.dateTime), a = minsOf(s0);
+      if (ymd(s0) !== d) continue;
+      if (e.sid && out.some(x => x.sid === e.sid && Math.abs(x.a - a) <= 30)) continue;       // aula que já veio do horário da matéria
+      out.push({ a, sid: e.sid, txt: `${fromMin(a)} · ${lbl ? lbl + ": " : ""}${title}${e.location ? " (" + e.location + ")" : ""}` });
+    }
+    for (const x of S.exams.filter(x => x.date === d)) out.push({ a: toMin(x.time || "10:00"), txt: `${x.time || "10:00"} · Prova ${x.kind} · ${subj(x.subjectId).name}` });
+    for (const it of buildItems().filter(it => !it.done && it.due === d)) out.push({ a: 9999, txt: it.tipo === "revisao" ? `Revisão R${it.stage}: ${it.title} (${subj(it.sid).name})` : `Entrega: ${it.title} (${subj(it.sid).name})` });
+    return out.sort((p, q) => p.a - q.a).map(x => x.txt);
+  }
+  const subjOf = a => { if (!a.materia) return null; const s = resolveSubject(a.materia); if (!s) throw new Error(`matéria não encontrada: ${a.materia}`); return s; };
+  const readOnly = (titulo, lines) => ({ titulo, lines, count:0, confirm:false, run: async () => [] });
+
   const ACTIONS = {
+    ajuda(a){
+      return readOnly(a.saudacao ? "Olá! Eu sou o assistente do Cycle." : "O que eu sei fazer", [
+        "Consultas: agenda de hoje, de amanhã, de um dia ou da semana; próxima prova; revisões atrasadas ou de hoje; trabalhos e prazos; notas e quanto falta para passar; horas estudadas; próximo tópico da ementa; próxima aula.",
+        "Ações (pedem confirmação e dá para desfazer): criar um trabalho e mover as revisões atrasadas para hoje.",
+        "Dica: cite a matéria para filtrar, por exemplo \"quanto falta para passar em ...\".",
+        "Eu uso só os dados deste aparelho, sem internet e sem IA. Fora disso eu aviso que não sei."]);
+    },
+    agenda(a){
+      if (!isDate(a.de) || !isDate(a.ate) || a.ate < a.de) throw new Error("datas inválidas");
+      const t = today(), lines = [], um = a.de === a.ate;
+      for (let d = a.de, k = 0; d <= a.ate && k < 31; d = addDays(d, 1), k++) {
+        const head = d === t ? "Hoje" : d === addDays(t, 1) ? "Amanhã" : fmtShort(d);
+        agendaDia(d).forEach(i => lines.push(um ? i : `${head} · ${i}`));
+      }
+      const late = buildItems().filter(it => !it.done && it.late).length;
+      if (a.de <= t && t <= a.ate && late) lines.push(`${late} item(ns) atrasado(s): veja em Revisões.`);
+      if (!lines.length) lines.push("Nada marcado neste período.");
+      if (!S.agenda) lines.push("Para ver aqui os compromissos do Google Agenda, importe a agenda na aba Sincronizar.");
+      const nome = d => d === t ? "hoje" : d === addDays(t, 1) ? "amanhã" : fmtShort(d);
+      return readOnly(um ? `Agenda de ${nome(a.de)}` : `Agenda de ${fmtShort(a.de)} a ${fmtShort(a.ate)}`, lines);
+    },
+    proxima_prova(a){
+      const t = today(), s = subjOf(a);
+      const list = S.exams.filter(e => e.date >= t && (!s || e.subjectId === s.id)).sort((x, y) => (x.date + (x.time || "")).localeCompare(y.date + (y.time || "")));
+      if (!list.length) return readOnly("Próxima prova", ["Nenhuma prova futura cadastrada. Cadastre em Provas ou importe o Google Agenda."]);
+      const q = e => { const d = dayDiff(t, e.date); return `${e.kind} de ${subj(e.subjectId).name}: ${fmtShort(e.date)} ${e.time || ""}, ${d <= 0 ? "hoje" : d === 1 ? "amanhã" : "em " + d + " dias"}`; };
+      return readOnly("Próxima prova", [q(list[0]), ...list.slice(1, 6).map(e => "Depois: " + q(e))]);
+    },
+    horas(a){
+      const t = today(), ws = weekStart(), s = subjOf(a), hojeP = a.periodo === "hoje", by = {};
+      S.sessions.filter(x => (hojeP ? x.date === t : x.date >= ws) && (!s || x.subjectId === s.id)).forEach(x => { by[x.subjectId] = (by[x.subjectId] || 0) + (x.minutes || 0); });
+      if (S.timer?.running && (!s || S.timer.subjectId === s.id)) by[S.timer.subjectId] = (by[S.timer.subjectId] || 0) + (Date.now() - S.timer.startedAt) / 60000;
+      const total = Object.values(by).reduce((p, q) => p + q, 0), lines = [`Total ${hojeP ? "hoje" : "nesta semana"}: ${hm(total)}`];
+      Object.entries(by).sort((p, q) => q[1] - p[1]).forEach(([id, m]) => lines.push(`${subj(id).name}: ${hm(m)}`));
+      if (!hojeP) S.subjects.filter(x => (!s || x.id === s.id) && x.metaHoras > 0).forEach(x => lines.push(`Meta de ${x.name}: ${hm((by[x.id] || 0))} de ${x.metaHoras} h`));
+      if (!total) lines.push("Nenhum tempo registrado ainda. Use o cronômetro na Agenda.");
+      return readOnly(hojeP ? "Tempo estudado hoje" : "Tempo estudado na semana", lines);
+    },
+    proxima_aula(a){
+      const s = subjOf(a), rows = S.subjects.filter(x => !s || x.id === s.id).map(x => ({ x, c: classDates(x.id, 1)[0] })).filter(r => r.c)
+        .sort((p, q) => (p.c.date + p.c.time).localeCompare(q.c.date + q.c.time));
+      return readOnly("Próxima aula", rows.length ? rows.slice(0, 8).map(r => `${r.x.name}: ${fmtShort(r.c.date)} ${r.c.time}`) : ["Nenhum horário de aula cadastrado. Cadastre na página da matéria."]);
+    },
+    proximo_topico(a){
+      const s = subjOf(a), lines = [];
+      for (const x of S.subjects.filter(x => !s || x.id === s.id)) {
+        const p = subjPlan(x.id), it = p && p.items.find(i => !i.seenOn); if (!it) continue;
+        lines.push(`${x.name}: ${it.title}${it.target ? ` (aula de ${fmtShort(it.target)} ${it.cls || ""})` : ""}`);
+      }
+      return readOnly("Próximo tópico da ementa", lines.length ? lines.slice(0, 12) : ["Nenhum tópico pendente. Cadastre a ementa na página da matéria (dá para importar de PDF)."]);
+    },
+    criar_trabalho(a){
+      needDb();
+      const s = resolveSubject(a.materia); if (!s) throw new Error("matéria não encontrada");
+      const title = String(a.titulo || "").trim().slice(0, 80) || "Trabalho";
+      if (!isDate(a.data)) throw new Error("data inválida"); if (a.data < today()) throw new Error("essa data já passou");
+      return { titulo:`Criar o trabalho "${title}"`, lines:[`Matéria: ${s.name}`, `Prazo: ${fmtShort(a.data)}`], count:1, confirm:true, run: async () => {
+        const ref = await S.db.collection("tasks").add({ subjectId:s.id, title, due:a.data, status:"aberta", hoje:false, createdAt:Date.now() });
+        (AI.sn.createdTasks ||= []).push(ref.id);
+        return [`Trabalho criado: ${title} (${s.name}), prazo ${fmtShort(a.data)}.`];
+      } };
+    },
     consultar(a){
       const ent = a.entidade, t = today();
       let lines = [];
@@ -3324,8 +3411,28 @@ ${text}`;
     : c === "sampling_disabled" ? "O Claude não está disponível nesta conta."
     : "Não consegui falar com a IA agora. Tente de novo.";
 
+  const FORA_MSG = "Eu só sei responder sobre a sua agenda, provas, notas, revisões e trabalhos, e criar um trabalho ou mover revisões atrasadas. Esse assunto não é pra mim. Se quiser, pergunte a uma IA:";
+  const CHATS = { chatgpt:["ChatGPT", "https://chatgpt.com/"], gemini:["Gemini", "https://gemini.google.com/app"], claude:["Claude", "https://claude.ai/new"] };
+  async function askLocal(text){
+    if (!window.__cycleAssist) { try { await loadScript("assistente.js"); } catch (e) { return toast("Não consegui carregar o assistente."); } }
+    const entry = { role:"a", state:"done", text:"", prepared:[], errors:[], results:[] };
+    AI.log.push({ role:"u", text }, entry);
+    const out = window.__cycleAssist.parse(text, { hoje: today(), materias: S.subjects.map(s => ({ id:s.id, name:s.name })) });
+    if (out.fora) { entry.text = FORA_MSG; entry.fora = text; renderAI(); return; }
+    entry.text = out.resposta || "";
+    let total = 0;
+    for (const a of out.acoes || []) {
+      const def = ACTIONS[a.nome];
+      try { const p = def(a.parametros || {}); if (p.skip) { entry.errors.push(p.skip); continue; } total += p.count || 0; entry.prepared.push(p); }
+      catch (e) { entry.errors.push(e?.message || "não consegui fazer isso"); }
+    }
+    if (entry.prepared.some(p => p.confirm)) entry.state = "plan";
+    else if (entry.prepared.length) await applyPlan(entry);
+    renderAI();
+  }
   async function askAI(text){
     text = String(text || "").trim(); if (!text || AI.busy) return;
+    if (!S.sample && STANDALONE) return askLocal(text);
     if (!S.sample) return toast("O assistente só funciona com a página aberta pelo claude.ai.");
     const entry = { role:"a", state:"thinking", text:"", prepared:[], errors:[], results:[] };
     AI.log.push({ role:"u", text }, entry);
@@ -3352,13 +3459,13 @@ ${text}`;
   }
   async function applyPlan(entry){
     entry.state = "applying"; entry.results = []; renderAI();
-    AI.sn = { contents:{}, tasks:{}, subjects:{}, created:[], cal:[], views:null, notes:{}, grades:{} };
+    AI.sn = { contents:{}, tasks:{}, subjects:{}, created:[], createdTasks:[], cal:[], views:null, notes:{}, grades:{} };
     try {
       for (const p of entry.prepared) { const lines = await p.run(); if (lines) entry.results.push(...lines); await sleep(120); }
       entry.state = "done";
     } catch (e) { entry.state = "error"; entry.error = `Parei no meio: ${e?.message || e?.code || "erro"}. O que já foi feito pode ser desfeito.`; }
     const sn = AI.sn; AI.sn = null;
-    if (Object.keys(sn.contents).length || Object.keys(sn.tasks).length || Object.keys(sn.subjects).length || sn.created.length || sn.views || Object.keys(sn.notes).length || Object.keys(sn.grades).length) {
+    if (Object.keys(sn.contents).length || sn.createdTasks.length || Object.keys(sn.tasks).length || Object.keys(sn.subjects).length || sn.created.length || sn.views || Object.keys(sn.notes).length || Object.keys(sn.grades).length) {
       const h = { id:tid() + tid(), at:Date.now(), pedido:String(AI.log.filter(m => m.role === "u").slice(-1)[0]?.text || "").slice(0, 120), snap:sn, undone:false };
       AI.hist.unshift(h); AI.hist = AI.hist.slice(0, 8); entry.histId = h.id; persistHist();
     }
@@ -3369,6 +3476,7 @@ ${text}`;
     const h = AI.hist.find(x => x.id === id && !x.undone); if (!h) return;
     const sn = h.snap, t = today(), delEv = async c => { if (S.mcp) for (const r of c.reviews || []) if (r.eventId && !r.done && r.due >= t) { try { await S.mcp.callTool(CAL, "delete_event", { eventId:r.eventId, notificationLevel:"NONE" }); } catch (e) {} } };
     try {
+      for (const tkid of sn.createdTasks || []) await S.db.doc(`tasks/${tkid}`).delete();
       for (const cid of sn.created || []) { const c = S.contents.find(x => x.id === cid); if (c) { await delEv(c); await S.db.doc(`contents/${cid}`).delete(); } }
       for (const [sid, v] of Object.entries(sn.subjects || {})) await S.db.doc(`subjects/${sid}`).update(Array.isArray(v) ? { syllabus: v } : v);
       for (const [cid, old] of Object.entries(sn.contents || {})) {
@@ -3400,15 +3508,23 @@ ${text}`;
     if (m.error) h += `<div class="ai-err">${esc(m.error)}</div>`;
     if (m.state === "done" && m.results.length) h += `<div class="ai-res">${m.results.map(esc).join("<br>")}</div>`;
     if (m.declined) h += `<span class="plan">Nada foi alterado.</span>`;
+    if (m.fora) h += `<div class="ai-foot">${Object.entries(CHATS).map(([k, [n]]) => `<button class="btn small" data-ai="chat" data-s="${k}" data-i="${i}" type="button">Copiar a pergunta e abrir o ${n}</button>`).join("")}</div>`;
     if (m.histId) { const hh = AI.hist.find(x => x.id === m.histId); h += hh && !hh.undone ? `<div class="ai-foot"><button class="btn small" data-ai="undo" data-id="${esc(m.histId)}" type="button">Desfazer</button></div>` : `<span class="plan">Desfeito.</span>`; }
     return h + `</div>`;
   }
   function renderAI(){
     const log = $("aiLog"); if (!log) return;
-    const off = !S.sample;
-    $("aiInput").disabled = off || AI.busy; $("aiSend").disabled = off || AI.busy; $("aiStop").hidden = !AI.busy;
+    const off = !S.sample && !STANDALONE;
+    $("aiInput").disabled = off || AI.busy; $("aiSend").disabled = off || AI.busy; $("aiStop").hidden = !AI.busy || STANDALONE;
     $("aiOff").hidden = !off; $("aiEx").hidden = off || AI.log.length > 0;
-    if (STANDALONE) $("aiOff").textContent = "O Assistente usa IA e ainda não está ligado nesta versão do app. O resto do Cycle funciona normalmente.";
+    $("aiLocalNote").hidden = !(STANDALONE && !S.sample); $("aiFootNote").hidden = STANDALONE && !S.sample;
+    if (STANDALONE && !S.sample) {
+      $("aiInput").placeholder = "Pergunte sobre a sua agenda, provas, notas e revisões. Ex.: o que tenho amanhã?";
+      const ex = ["O que tenho amanhã?", "Quando é a próxima prova?", "Quais revisões estão atrasadas?", "Quanto falta para passar?", "Quantas horas estudei esta semana?", "Qual o próximo tópico da ementa?", "Move as revisões atrasadas para hoje"];
+      if (S.subjects[0]) ex.splice(6, 0, `Adiciona trabalho Relatório de ${S.subjects[0].name} para sexta`);
+      const chips = $("aiEx").querySelector(".ai-chips"), sig = ex.join("|");
+      if (chips && chips.dataset.sig !== sig) { chips.dataset.sig = sig; chips.innerHTML = ex.map(x => `<button class="btn small" type="button" data-ai-ex="${esc(x)}">${esc(x)}</button>`).join(""); }
+    }
     const h = AI.hist.find(x => !x.undone); $("aiUndo").hidden = !h; if (h) $("aiUndo").title = `Desfazer: ${h.pedido}`;
     log.innerHTML = AI.log.map((m, i) => m.role === "u" ? `<div class="ai-msg u">${esc(m.text)}</div>` : aiBubble(m, i)).join("");
   }
@@ -3423,6 +3539,11 @@ ${text}`;
     if (b.dataset.ai === "ok" && m?.state === "plan") await applyPlan(m);
     if (b.dataset.ai === "no" && m?.state === "plan") { m.state = "done"; m.prepared = []; m.errors = []; m.declined = true; renderAI(); }
     if (b.dataset.ai === "undo") await undoHist(b.dataset.id);
+    if (b.dataset.ai === "chat" && m?.fora) {
+      const c = CHATS[b.dataset.s]; if (!c) return;
+      window.open(c[1], "_blank", "noopener");
+      (navigator.clipboard?.writeText(m.fora) || Promise.reject()).then(() => toast(`Pergunta copiada. No ${c[0]}, cole com Ctrl+V.`), () => toast(`Abra o ${c[0]} e digite a pergunta.`));
+    }
   });
 
   function renderAll(){ renderSelects(); renderAI(); renderMaterias(); renderNotas(); renderViews(); renderContents(); renderTime(); renderSubjects(); renderTimer(); renderGrade(); renderProvas(); renderHoje(); renderAdjust(); renderHeaderMeta(); renderPreview(); renderNav(); }

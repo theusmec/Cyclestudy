@@ -11,6 +11,7 @@
 - Agenda **revisões espaçadas** (1, 3, 7, 14 e 30 dias, ajustáveis) e aproxima das provas quando elas chegam perto.
 - Lista, quadro e calendário; trabalhos com subtarefas; cronômetro e metas semanais.
 - **Ementa por PDF:** lê o PDF no aparelho (pdf.js), sugere os tópicos e você revisa antes de salvar.
+- **Assistente local (sem IA e sem internet):** responde sobre agenda, provas, notas, revisões, trabalhos, horas e ementa com os seus dados, cria trabalhos e move revisões atrasadas (com confirmação e desfazer), e recusa o que não sabe.
 - **IA gratuita, sem chave:** monta o pedido pronto para ChatGPT, Gemini ou Claude (ementa e critérios de avaliação), copia, abre o chat e entende a resposta que você colar de volta.
 - Notas e médias: pesos, substitutiva, o que falta para passar e simulação "e se…".
 - Anotações em Markdown por matéria e tópico.

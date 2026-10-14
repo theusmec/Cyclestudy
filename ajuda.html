@@ -73,6 +73,7 @@ footer{color:var(--mut);font-size:.9rem}
     <tr><td><b>Provas</b></td><td>Datas das provas e o plano para chegar preparado.</td></tr>
     <tr><td><b>Notas</b></td><td>Notas lançadas, médias, o que falta para passar.</td></tr>
     <tr><td><b>Tempo</b></td><td>Horas estudadas por matéria e metas semanais.</td></tr>
+    <tr><td><b>Assistente</b></td><td>Pergunte em português sobre a sua agenda, provas, notas, revisões e trabalhos. Funciona sem internet e sem IA.</td></tr>
     <tr><td><b>Sincronizar</b></td><td>Passar os dados entre aparelhos (QR ou código), backup, importar o Google Agenda e exportar para a agenda.</td></tr>
   </table></div>
   <p style="margin-top:10px">No celular, as páginas Notas e Tempo ficam no botão <b>Mais</b>. <kbd>Ctrl</kbd>+<kbd>K</kbd> (no computador) abre a busca e os comandos.</p>
@@ -115,6 +116,7 @@ footer{color:var(--mut);font-size:.9rem}
     <li><b>Trabalhos:</b> em <b>Revisões</b>, painel <i>Novo trabalho</i>. Eles aceitam subtarefas e aparecem junto das revisões.</li>
     <li><b>Visões:</b> alterne entre <b>Lista</b>, <b>Quadro</b> e <b>Calendário</b>, filtre por matéria ou prova próxima e salve combinações como visões suas.</li>
     <li><b>Anotações:</b> cada matéria e tópico tem anotações em Markdown (títulos, listas, <code>[ ]</code> para checklist). Use <code>[[Nome]]</code> para ligar uma anotação a outra. Há histórico de versões.</li>
+    <li><b>Assistente:</b> na página <b>Assistente</b> você pergunta como falaria com uma pessoa: <i>"o que tenho amanhã?"</i>, <i>"quando é a próxima prova?"</i>, <i>"quais revisões estão atrasadas?"</i>, <i>"quanto falta para passar em Cálculo?"</i>, <i>"quantas horas estudei esta semana?"</i>, <i>"qual o próximo tópico da ementa?"</i>. Ele também faz duas ações: <i>"adiciona trabalho Relatório de Cálculo para sexta"</i> e <i>"move as revisões atrasadas para hoje"</i>. Antes de mudar qualquer coisa ele mostra o resumo e pede confirmação, e o último pedido pode ser desfeito. Ele usa só os dados deste aparelho, não inventa respostas e, se a pergunta for de outro assunto, avisa e oferece copiar a pergunta para o ChatGPT, o Gemini ou o Claude. Digite <b>ajuda</b> para ver tudo o que ele sabe fazer.</li>
     <li><b>Ajustes:</b> em <i>Horários das revisões</i> você muda a janela de estudo, a duração e os intervalos (ex.: <code>1, 3, 7, 14, 30</code>).</li>
   </ul>
 </section>
@@ -191,7 +193,7 @@ footer{color:var(--mut);font-size:.9rem}
   <h2>9. O que não funciona nesta versão</h2>
   <ul>
     <li><b>Google Agenda automático</b> (ler e criar eventos sozinho, sem arquivo): precisa de uma integração com o Google que esta versão não tem. Use a importação e a exportação por arquivo da seção 8.</li>
-    <li><b>Assistente e Examinador (IA):</b> não estão ligados. Eles dependem de uma conta de IA, que seria paga por uso, e esta versão não usa chave nem cobra nada de ninguém. A página Assistente avisa isso.</li>
+    <li><b>Assistente com IA e Examinador (quiz):</b> não estão ligados. Eles dependem de uma conta de IA, que seria paga por uso, e esta versão não usa chave nem cobra nada de ninguém. No lugar, o <b>Assistente local</b> responde às perguntas conhecidas sobre os seus dados.</li>
   </ul>
   <p>Todo o resto (matérias, provas, revisões, notas, cronômetro, anotações, backup e sincronização) funciona sem internet.</p>
 </section>
