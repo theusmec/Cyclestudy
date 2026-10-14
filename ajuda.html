@@ -67,12 +67,13 @@ footer{color:var(--mut);font-size:.9rem}
   <p>Você cadastra as matérias e as datas das provas, registra o que estudou, e o app diz o que revisar hoje.</p>
   <div class="scroll"><table>
     <tr><th>Página</th><th>Para quê</th></tr>
-    <tr><td><b>Hoje</b></td><td>O que fazer agora: revisões do dia, cronômetro e a semana.</td></tr>
+    <tr><td><b>Agenda</b></td><td>A página inicial: a semana inteira com aulas, compromissos, provas, revisões e entregas, mais o cronômetro e o dia de hoje.</td></tr>
     <tr><td><b>Revisões</b></td><td>Todas as revisões e trabalhos em lista, quadro ou calendário. Aqui você registra o que estudou e adiciona trabalhos.</td></tr>
-    <tr><td><b>Matérias</b></td><td>Cadastro das matérias, ementa, horários de aula, anotações, backup e sincronização.</td></tr>
+    <tr><td><b>Matérias</b></td><td>Cadastro das matérias, ementa, horários de aula e anotações.</td></tr>
     <tr><td><b>Provas</b></td><td>Datas das provas e o plano para chegar preparado.</td></tr>
     <tr><td><b>Notas</b></td><td>Notas lançadas, médias, o que falta para passar.</td></tr>
     <tr><td><b>Tempo</b></td><td>Horas estudadas por matéria e metas semanais.</td></tr>
+    <tr><td><b>Sincronizar</b></td><td>Passar os dados entre aparelhos (QR ou código), backup, importar o Google Agenda e exportar para a agenda.</td></tr>
   </table></div>
   <p style="margin-top:10px">No celular, as páginas Notas e Tempo ficam no botão <b>Mais</b>. <kbd>Ctrl</kbd>+<kbd>K</kbd> (no computador) abre a busca e os comandos.</p>
 </section>
@@ -105,7 +106,8 @@ footer{color:var(--mut);font-size:.9rem}
 <section id="dia">
   <h2>4. O dia a dia</h2>
   <ul>
-    <li><b>Hoje</b> mostra as revisões do dia. Toque em <b>Feita</b> ao terminar, ou em <b>Revisar agora</b> para iniciar o cronômetro naquele conteúdo.</li>
+    <li>A <b>Agenda</b> mostra a semana. Em cada dia aparecem as aulas, os compromissos (se você importou o Google Agenda), as provas e, na linha <i>a fazer</i>, as revisões e entregas que vencem nele. Toque no <b>✓</b> para concluir direto ali; o que ficou atrasado aparece no dia de hoje, tracejado. Abaixo da semana ficam o cronômetro e o painel de hoje, que mostra as revisões do dia.</li>
+    <li>O painel <b>Hoje</b> mostra as revisões do dia. Toque em <b>Feita</b> ao terminar, ou em <b>Revisar agora</b> para iniciar o cronômetro naquele conteúdo.</li>
     <li><b>Cronômetro:</b> escolha a matéria e inicie. O tempo continua contando mesmo se você fechar o app, e vira horas estudadas em <b>Tempo</b>. Esqueceu de ligar? Use <i>Esqueceu o cronômetro?</i> para lançar minutos.</li>
     <li><b>Trabalhos:</b> em <b>Revisões</b>, painel <i>Novo trabalho</i>. Eles aceitam subtarefas e aparecem junto das revisões.</li>
     <li><b>Visões:</b> alterne entre <b>Lista</b>, <b>Quadro</b> e <b>Calendário</b>, filtre por matéria ou prova próxima e salve combinações como visões suas.</li>
@@ -130,7 +132,7 @@ footer{color:var(--mut);font-size:.9rem}
   <ul>
     <li>Tudo o que você cadastra fica <b>só no navegador deste aparelho</b>. Não existe conta, login nem servidor guardando seus dados, e o site não tem anúncios. O app só baixa os próprios arquivos e as fontes de letra (Google Fonts); seus dados nunca são enviados para fora.</li>
     <li>Consequência: <b>quem tem acesso ao seu aparelho vê seus dados</b>, e <b>limpar os dados do navegador (ou desinstalar o app) apaga tudo</b>.</li>
-    <li>Faça <b>backup</b> de vez em quando: em <b>Matérias &gt; Todos os dados (.json)</b>. Para restaurar, use <b>Importar backup (.json)</b> (isso substitui os dados do aparelho). Guarde o arquivo em um lugar seu, como seu e-mail ou nuvem.</li>
+    <li>Faça <b>backup</b> de vez em quando: em <b>Sincronizar &gt; Todos os dados (.json)</b>. Para restaurar, use <b>Importar backup (.json)</b> (isso substitui os dados do aparelho). Guarde o arquivo em um lugar seu, como seu e-mail ou nuvem.</li>
     <li><b>Anotações (.md)</b> exporta só suas anotações, em texto que abre em qualquer editor.</li>
   </ul>
   <div class="tip"><b>iPhone</b>Instale o app na Tela de Início (passo 2). Sites usados só pelo navegador podem ter os dados apagados pelo sistema depois de muito tempo sem uso. Mesmo assim, faça backup.</div>
@@ -138,7 +140,7 @@ footer{color:var(--mut);font-size:.9rem}
 
 <section id="sync">
   <h2>7. Celular e computador juntos</h2>
-  <p>Como não há servidor, os aparelhos trocam dados diretamente entre si, por <b>QR code animado</b> ou por <b>código de texto</b>. Em <b>Matérias</b>, toque em <b>Sincronizar com outro aparelho</b>.</p>
+  <p>Como não há servidor, os aparelhos trocam dados diretamente entre si, por <b>QR code animado</b> ou por <b>código de texto</b>. Na aba <b>Sincronizar</b> (menu da esquerda; no celular, em <b>Mais</b>), toque em <b>Sincronizar com outro aparelho</b>.</p>
   <h3>No aparelho que tem os dados (Enviar)</h3>
   <ol class="steps"><li>Escolha o que enviar.</li><li>(Opcional) coloque uma <b>senha</b>. Recomendado se for mandar o código por mensagem.</li><li>Toque em <b>Gerar QR e código</b>. O QR passa em vários quadros; ajuste a velocidade se precisar.</li></ol>
   <h3>No outro aparelho (Receber)</h3>
@@ -155,9 +157,9 @@ footer{color:var(--mut);font-size:.9rem}
 <section id="agenda">
   <h2>8. Google Agenda: trazer e levar</h2>
   <h3>Trazer o seu Google Agenda para o Cycle</h3>
-  <p>Assim você vê seus compromissos (consultas, reuniões, eventos que se repetem) na página <b>Hoje</b> e na página <b>Tempo</b>, ao lado das revisões.</p>
+  <p>Assim você vê seus compromissos (consultas, reuniões, eventos que se repetem) na <b>Agenda</b> da semana e no painel de hoje, ao lado das revisões.</p>
   <ol class="steps">
-    <li><b>No computador</b>, no Cycle, vá em <b>Matérias &gt; Google Agenda</b> e clique em <b>Trazer meu Google Agenda</b>. O Google abre numa aba nova, já na página de exportação. Entre na sua conta se pedir.</li>
+    <li><b>No computador</b>, no Cycle, vá em <b>Sincronizar &gt; Google Agenda</b> e clique em <b>Trazer meu Google Agenda</b>. O Google abre numa aba nova, já na página de exportação. Entre na sua conta se pedir.</li>
     <li>Nessa página (<b>Importar e exportar</b>), clique em <b>Exportar</b>. O Google baixa um arquivo <code>.zip</code> com uma agenda por arquivo. Se cair na tela inicial do Google Agenda, clique na engrenagem &gt; <b>Configurações</b> &gt; <b>Importar e exportar</b>.</li>
     <li>Volte à aba do Cycle e toque em <b>Escolher o arquivo baixado</b>. No Chrome e no Edge a janela já abre na pasta Downloads; escolha o <code>.zip</code> <b>sem descompactar</b>.</li>
     <li>No celular o Google não deixa exportar: faça os passos acima no computador, passe o arquivo para o celular (e-mail, nuvem ou cabo) e use <b>Já tenho o arquivo: escolher</b>.</li>
@@ -171,7 +173,7 @@ footer{color:var(--mut);font-size:.9rem}
     <li>O Cycle não envia nada ao Google e não pede o seu login.</li>
   </ul>
   <h3>Levar as provas, trabalhos, revisões e aulas do Cycle para o Google Agenda</h3>
-  <p>Em <b>Matérias</b>, toque em <b>Agenda (.ics)</b>. O arquivo leva as provas, os trabalhos em aberto, as revisões pendentes e as aulas semanais (20 semanas).</p>
+  <p>Na aba <b>Sincronizar</b>, toque em <b>Agenda (.ics)</b>. O arquivo leva as provas, os trabalhos em aberto, as revisões pendentes e as aulas semanais (20 semanas).</p>
   <ol class="steps"><li>No computador, abra o Google Agenda e vá em <b>Configurações &gt; Importar e exportar</b>.</li><li>Escolha o arquivo e a agenda de destino, e clique em <b>Importar</b>.</li></ol>
   <ul>
     <li>Funciona também no Apple Calendar e no Outlook, e não precisa de conta nem chave.</li>

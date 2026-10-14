@@ -267,6 +267,7 @@ details.panel[open] summary::after{content:"–"}
 .sw.ses{width:5px;height:12px;background:var(--ink);border:0}
 .gmsg{font-size:13px;background:var(--late-soft);border-radius:8px;padding:8px 12px}
 .gmsg.info{background:var(--accent-soft)}
+a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .gscroll{overflow-x:auto;margin-inline:-4px;padding-inline:4px}
 .gw{display:grid;grid-template-columns:46px repeat(7,minmax(104px,1fr));min-width:774px}
 .gh{padding:6px 4px 8px;text-align:center;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:2px;align-items:center}
@@ -275,6 +276,11 @@ details.panel[open] summary::after{content:"–"}
 .gh.today b{background:var(--ink);color:var(--paper)}
 .gad{border-left:1px solid var(--line);border-bottom:1px solid var(--line);padding:3px;display:flex;flex-direction:column;gap:2px;min-height:24px}
 .gad i{font-style:normal;font-size:11px;background:var(--paper);border-radius:4px;padding:1px 5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gad i.gp{display:flex;align-items:flex-start;gap:4px;border-left:3px solid var(--c);background:color-mix(in srgb,var(--c) 14%,var(--card));white-space:normal}
+.gad i.gp span{overflow-wrap:anywhere;min-width:0}
+.gad i.gp button{flex:none;border:0;background:var(--card);color:var(--ink);border-radius:3px;font-size:10px;line-height:1;padding:3px 4px;cursor:pointer}
+.gad i.gp button:hover{background:var(--accent-soft)}
+.gad i.gp.late{outline:1px dashed var(--late)}
 .gad-l{font-size:10px;color:var(--muted);text-align:right;padding:6px 6px 0 0;border-bottom:1px solid var(--line)}
 .gtimes{position:relative;height:calc(var(--rows) * var(--hpx))}
 .gtimes span{position:absolute;right:6px;font-family:var(--mono);font-size:11px;color:var(--muted);transform:translateY(-50%)}
@@ -572,6 +578,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
   <symbol id="i-busca" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></symbol>
   <symbol id="i-mais" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.6" fill="currentColor" stroke="none"/></symbol>
   <symbol id="i-recolher" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></symbol>
+  <symbol id="i-sync" viewBox="0 0 24 24"><path d="M5 8h13l-3.5-3.5M19 16H6l3.5 3.5"/></symbol>
   <symbol id="i-notas" viewBox="0 0 24 24"><path d="M5 20V10M12 20V4M19 20v-7"/></symbol>
   <symbol id="i-nota" viewBox="0 0 24 24"><path d="M5 4h10l4 4v12H5z"/><path d="M15 4v4h4M8 12h8M8 16h5"/></symbol>
   <symbol id="i-estrela" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.9 6.8 19.7l1-5.9-4.3-4.1 5.9-.8z"/></symbol>
@@ -583,13 +590,14 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
   </div>
   <button class="side-search" data-open-search type="button" aria-label="Buscar"><svg class="ico"><use href="#i-busca"/></svg><span class="lbl">Buscar</span><kbd class="lbl">Ctrl K</kbd></button>
   <nav class="side-nav" aria-label="Páginas">
-    <button class="nav-item" data-nav="hoje" type="button" title="Hoje"><svg class="ico"><use href="#i-hoje"/></svg><span class="lbl">Hoje</span></button>
+    <button class="nav-item" data-nav="hoje" type="button" title="Agenda"><svg class="ico"><use href="#i-hoje"/></svg><span class="lbl">Agenda</span></button>
     <button class="nav-item" data-nav="revisoes" type="button" title="Revisões"><svg class="ico"><use href="#i-revisoes"/></svg><span class="lbl">Revisões</span><span class="nav-count js-revcount" hidden></span></button>
     <button class="nav-item" data-nav="materias" type="button" title="Matérias"><svg class="ico"><use href="#i-materias"/></svg><span class="lbl">Matérias</span></button>
     <button class="nav-item" data-nav="provas" type="button" title="Provas"><svg class="ico"><use href="#i-provas"/></svg><span class="lbl">Provas</span></button>
     <button class="nav-item" data-nav="notas" type="button" title="Notas"><svg class="ico"><use href="#i-notas"/></svg><span class="lbl">Notas</span></button>
     <button class="nav-item" data-nav="tempo" type="button" title="Tempo"><svg class="ico"><use href="#i-tempo"/></svg><span class="lbl">Tempo</span></button>
     <button class="nav-item" data-nav="assistente" type="button" title="Assistente"><svg class="ico"><use href="#i-assistente"/></svg><span class="lbl">Assistente</span></button>
+    <button class="nav-item" data-nav="dados" type="button" title="Sincronizar"><svg class="ico"><use href="#i-sync"/></svg><span class="lbl">Sincronizar</span></button>
   </nav>
   <button class="nav-timer" data-nav="tempo" data-ntimer type="button" hidden aria-label="Cronômetro em andamento"><i class="nt-dot"></i><span class="lbl"><b class="nt-clock">00:00:00</b><span class="sub nt-sub"></span></span></button>
 </aside>
@@ -597,8 +605,8 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
 <div class="wrap">
   <header class="top">
     <div>
-      <div class="eyebrow" id="pageEyebrow">Agenda e aulas do dia</div>
-      <h1 id="pageTitle">Hoje</h1>
+      <div class="eyebrow" id="pageEyebrow">Semana, compromissos, aulas e revisões</div>
+      <h1 id="pageTitle">Agenda</h1>
     </div>
     <div class="top-r">
       <div class="meta num" id="todayLabel"></div>
@@ -622,7 +630,30 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     <button class="bigbtn" id="timerBtn" type="button">Iniciar</button>
   </section>
 
-  <div class="grid" id="viewHoje" hidden>
+  <div id="viewHoje" hidden style="display:flex;flex-direction:column;gap:20px">
+  <section class="panel" id="viewGrade" aria-labelledby="hGrade">
+    <div class="panel-head">
+      <div>
+        <h2 id="hGrade">Agenda da semana</h2>
+        <span class="count" id="gradeRange"></span>
+      </div>
+      <div class="gnav">
+        <button class="btn small" id="gPrev" type="button" aria-label="Semana anterior">‹</button>
+        <button class="btn small" id="gToday" type="button">Esta semana</button>
+        <button class="btn small" id="gNext" type="button" aria-label="Próxima semana">›</button>
+      </div>
+    </div>
+    <div class="gsum" id="gradeSum"></div>
+    <div class="gmsg" id="gradeMsg" hidden></div>
+    <div class="gscroll"><div id="gradeBody"></div></div>
+    <div class="legend">
+      <span><i class="sw" style="background:color-mix(in srgb,#3B82C4 20%,var(--card));border-color:#3B82C4"></i>Aula ou compromisso (cor da matéria)</span>
+      <span><i class="sw rev"></i>Revisão ou entrega a fazer (toque em ✓ para concluir)</span>
+      <span><i class="sw ses"></i>Tempo estudado (cronômetro)</span>
+      <span><i class="sw win"></i>Janela de estudo</span>
+    </div>
+  </section>
+  <div class="grid">
     <div class="col">
       <section class="panel" aria-labelledby="hojeTitle">
         <div class="panel-head">
@@ -678,6 +709,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
         <button class="btn primary" id="hAddBtn" type="submit">Adicionar ao Google Calendar</button>
       </form>
     </div>
+  </div>
   </div>
 
   <div id="viewRevisoes" hidden style="display:flex;flex-direction:column;gap:20px">
@@ -807,22 +839,6 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
       <div class="panel-head"><h2 id="hMatCards">Suas matérias</h2><span class="count" id="matCount"></span></div>
       <div class="mcards" id="matCards"></div>
     </section>
-    <section class="panel" aria-labelledby="hExp">
-      <h2 id="hExp">Exportar e backup</h2>
-      <p class="plan" style="margin:0">Baixe seus dados como arquivos. O navegador pede a sua confirmação antes de salvar.</p>
-      <p class="plan" id="expLocal" style="margin:0" hidden>Seus dados ficam só neste aparelho. Para levar para outro aparelho, use <b>Sincronizar</b> (QR ou código, sem conta). O arquivo .json serve de backup, e "Importar backup" traz ele de volta. <a href="ajuda.html" target="_blank" rel="noopener">Tutorial: como usar o Cycle</a></p>
-      <div class="hnav"><button class="btn primary" id="syncBtn" type="button" hidden>Sincronizar com outro aparelho</button><button class="btn" data-act="exp" data-w="notas" type="button">Anotações (.md)</button><button class="btn" data-act="exp" data-w="tudo" type="button">Todos os dados (.json)</button><button class="btn" data-act="exp" data-w="agenda" type="button">Agenda (.ics)</button><button class="btn" id="impBtn" type="button" hidden>Importar backup (.json)</button><input type="file" id="impFile" accept=".json,application/json" hidden></div>
-      <div id="agSec" hidden>
-        <h3 style="margin:14px 0 4px;font-size:15px">Google Agenda</h3>
-        <p class="plan" style="margin:0 0 8px">Toque em <b>Trazer meu Google Agenda</b>: o Google abre numa aba nova, já na página de exportação (entre na sua conta se pedir). Clique em <b>Exportar</b>, volte aqui e escolha o .zip que o Google baixou. É uma cópia do momento; para atualizar, repita.</p>
-        <p class="plan" id="agMobile" style="margin:0 0 8px" hidden>No celular o Google não deixa exportar. Faça a exportação no computador e passe o .zip para este aparelho (e-mail, nuvem ou cabo); depois use <b>Já tenho o arquivo: escolher</b>.</p>
-        <div class="hnav"><a class="btn primary" id="agOpen" href="https://calendar.google.com/calendar/u/0/r/settings/export" target="_blank" rel="noopener">Trazer meu Google Agenda</a><button class="btn ghost" id="agImpBtn" type="button">Já tenho o arquivo: escolher</button><button class="btn ghost danger" id="agDelBtn" type="button" hidden>Remover agenda importada</button><input type="file" id="agFile" accept=".zip,.ics,application/zip,text/calendar" hidden></div>
-        <div class="rbar" id="agStep2" hidden style="flex-direction:column;align-items:stretch;gap:8px"><span><b>Agora, na aba do Google:</b> clique em <b>Exportar</b>. Quando o arquivo .zip terminar de baixar, volte aqui e toque no botão.</span><div><button class="btn small primary" id="agPick" type="button">Escolher o arquivo baixado</button></div></div>
-        <p class="plan" id="agStatus" style="margin:8px 0 0" hidden></p>
-        <div class="rbar" id="agBox" hidden style="flex-direction:column;align-items:stretch;gap:8px"><span id="agTxt"></span><div id="agList" style="display:flex;flex-direction:column;gap:4px"></div><div style="display:flex;gap:8px"><button class="btn small primary" id="agOk" type="button">Importar as marcadas</button><button class="btn small ghost" id="agNo" type="button">Cancelar</button></div></div>
-      </div>
-      <div class="rbar" id="impBox" hidden><span id="impTxt"></span><button class="btn small primary" id="impOk" type="button">Substituir os dados</button><button class="btn small ghost" id="impNo" type="button">Cancelar</button></div>
-    </section>
       <details class="panel" open>
         <summary>Matérias</summary>
         <div id="subjList" class="bars"></div>
@@ -894,28 +910,6 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
           <button class="btn small" id="manBtn" type="button">Adicionar</button>
         </div>
       </section>
-  <section class="panel" id="viewGrade" aria-labelledby="hGrade">
-    <div class="panel-head">
-      <div>
-        <h2 id="hGrade">Grade da semana</h2>
-        <span class="count" id="gradeRange"></span>
-      </div>
-      <div class="gnav">
-        <button class="btn small" id="gPrev" type="button" aria-label="Semana anterior">‹</button>
-        <button class="btn small" id="gToday" type="button">Esta semana</button>
-        <button class="btn small" id="gNext" type="button" aria-label="Próxima semana">›</button>
-      </div>
-    </div>
-    <div class="gsum" id="gradeSum"></div>
-    <div class="gmsg" id="gradeMsg" hidden></div>
-    <div class="gscroll"><div id="gradeBody"></div></div>
-    <div class="legend">
-      <span><i class="sw" style="background:color-mix(in srgb,#3B82C4 20%,var(--card));border-color:#3B82C4"></i>Aula ou compromisso (cor da matéria)</span>
-      <span><i class="sw rev"></i>Revisão agendada</span>
-      <span><i class="sw ses"></i>Tempo estudado (cronômetro)</span>
-      <span><i class="sw win"></i>Janela de estudo</span>
-    </div>
-  </section>
   </div>
 
   <div id="viewNotas" hidden style="display:flex;flex-direction:column;gap:20px">
@@ -939,6 +933,25 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
         </ul>
       </div>
     </details>
+  </div>
+
+  <div id="viewDados" hidden style="display:flex;flex-direction:column;gap:20px">
+    <section class="panel" aria-labelledby="hExp">
+      <h2 id="hExp">Sincronizar, importar e exportar</h2>
+      <p class="plan" style="margin:0">Baixe seus dados como arquivos. O navegador pede a sua confirmação antes de salvar.</p>
+      <p class="plan" id="expLocal" style="margin:0" hidden>Seus dados ficam só neste aparelho. Para levar para outro aparelho, use <b>Sincronizar</b> (QR ou código, sem conta). O arquivo .json serve de backup, e "Importar backup" traz ele de volta. <a href="ajuda.html" target="_blank" rel="noopener">Tutorial: como usar o Cycle</a></p>
+      <div class="hnav"><button class="btn primary" id="syncBtn" type="button" hidden>Sincronizar com outro aparelho</button><button class="btn" data-act="exp" data-w="notas" type="button">Anotações (.md)</button><button class="btn" data-act="exp" data-w="tudo" type="button">Todos os dados (.json)</button><button class="btn" data-act="exp" data-w="agenda" type="button">Agenda (.ics)</button><button class="btn" id="impBtn" type="button" hidden>Importar backup (.json)</button><input type="file" id="impFile" accept=".json,application/json" hidden></div>
+      <div id="agSec" hidden>
+        <h3 style="margin:14px 0 4px;font-size:15px">Google Agenda</h3>
+        <p class="plan" style="margin:0 0 8px">Toque em <b>Trazer meu Google Agenda</b>: o Google abre numa aba nova, já na página de exportação (entre na sua conta se pedir). Clique em <b>Exportar</b>, volte aqui e escolha o .zip que o Google baixou. É uma cópia do momento; para atualizar, repita.</p>
+        <p class="plan" id="agMobile" style="margin:0 0 8px" hidden>No celular o Google não deixa exportar. Faça a exportação no computador e passe o .zip para este aparelho (e-mail, nuvem ou cabo); depois use <b>Já tenho o arquivo: escolher</b>.</p>
+        <div class="hnav"><a class="btn primary" id="agOpen" href="https://calendar.google.com/calendar/u/0/r/settings/export" target="_blank" rel="noopener">Trazer meu Google Agenda</a><button class="btn ghost" id="agImpBtn" type="button">Já tenho o arquivo: escolher</button><button class="btn ghost danger" id="agDelBtn" type="button" hidden>Remover agenda importada</button><input type="file" id="agFile" accept=".zip,.ics,application/zip,text/calendar" hidden></div>
+        <div class="rbar" id="agStep2" hidden style="flex-direction:column;align-items:stretch;gap:8px"><span><b>Agora, na aba do Google:</b> clique em <b>Exportar</b>. Quando o arquivo .zip terminar de baixar, volte aqui e toque no botão.</span><div><button class="btn small primary" id="agPick" type="button">Escolher o arquivo baixado</button></div></div>
+        <p class="plan" id="agStatus" style="margin:8px 0 0" hidden></p>
+        <div class="rbar" id="agBox" hidden style="flex-direction:column;align-items:stretch;gap:8px"><span id="agTxt"></span><div id="agList" style="display:flex;flex-direction:column;gap:4px"></div><div style="display:flex;gap:8px"><button class="btn small primary" id="agOk" type="button">Importar as marcadas</button><button class="btn small ghost" id="agNo" type="button">Cancelar</button></div></div>
+      </div>
+      <div class="rbar" id="impBox" hidden><span id="impTxt"></span><button class="btn small primary" id="impOk" type="button">Substituir os dados</button><button class="btn small ghost" id="impNo" type="button">Cancelar</button></div>
+    </section>
   </div>
 
   <div id="viewAssistente" hidden style="display:flex;flex-direction:column;gap:20px">
@@ -968,7 +981,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
 </div>
 <nav class="bnav" aria-label="Páginas">
   <button class="bnav-timer" data-nav="tempo" data-ntimer type="button" hidden><i class="nt-dot"></i><b class="nt-clock">00:00:00</b><span class="nt-sub"></span></button>
-  <button class="b-item" data-nav="hoje" type="button"><span class="b-ico"><svg class="ico"><use href="#i-hoje"/></svg></span>Hoje</button>
+  <button class="b-item" data-nav="hoje" type="button"><span class="b-ico"><svg class="ico"><use href="#i-hoje"/></svg></span>Agenda</button>
   <button class="b-item" data-nav="revisoes" type="button"><span class="b-ico"><svg class="ico"><use href="#i-revisoes"/></svg></span>Revisões<span class="nav-count js-revcount" hidden></span></button>
   <button class="b-item" data-nav="materias" type="button"><span class="b-ico"><svg class="ico"><use href="#i-materias"/></svg></span>Matérias</button>
   <button class="b-item" data-nav="provas" type="button"><span class="b-ico"><svg class="ico"><use href="#i-provas"/></svg></span>Provas</button>
@@ -978,6 +991,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
   <button class="nav-item" data-nav="notas" type="button"><svg class="ico"><use href="#i-notas"/></svg><span class="lbl">Notas</span></button>
   <button class="nav-item" data-nav="tempo" type="button"><svg class="ico"><use href="#i-tempo"/></svg><span class="lbl">Tempo</span></button>
   <button class="nav-item" data-nav="assistente" type="button"><svg class="ico"><use href="#i-assistente"/></svg><span class="lbl">Assistente</span></button>
+  <button class="nav-item" data-nav="dados" type="button"><svg class="ico"><use href="#i-sync"/></svg><span class="lbl">Sincronizar</span></button>
   <button class="nav-item" data-open-search type="button"><svg class="ico"><use href="#i-busca"/></svg><span class="lbl">Buscar</span></button>
 </div>
 </div>
@@ -996,7 +1010,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
 (() => {
   const TZ = "America/Sao_Paulo";
   const STANDALONE = !!window.__CYCLE_STANDALONE__;   // true no app instalável; false dentro do claude.ai
-  const NOMCP = s => STANDALONE ? "O Google Agenda não se conecta nesta versão. Para ver seus compromissos aqui, importe o arquivo exportado em Matérias > Google Agenda." : s;
+  const NOMCP = s => STANDALONE ? "O Google Agenda não se conecta nesta versão. Para ver seus compromissos aqui, importe o arquivo exportado em Sincronizar > Google Agenda." : s;
   const CAL = "Google Calendar";
   const DEF = { windowStart:"14:00", windowEnd:"23:00", duration:30, buffer:10, intervals:[1,3,7,14,30], coverLead:14 };
   const PALETTE = ["#3B82C4","#D0602B","#2F9E6E","#8E5CC7","#C0417A","#B08A00","#1F8FA3","#6B7A2E","#C2453A","#5A6FD6"];
@@ -1283,7 +1297,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
   // Agenda importada de arquivo (só no app instalável, quando não há conexão com o Google Calendar).
   const localCal = () => !S.mcp && !!S.agenda && !!window.__cycleAgenda;
   const agendaEvents = (a, b) => { try { return window.__cycleAgenda.expand(S.agenda.events, a, b); } catch (e) { return []; } };
-  const agendaNote = () => S.agenda ? `Agenda importada em ${new Date(S.agenda.at).toLocaleDateString("pt-BR")} (${S.agenda.n} compromissos). É uma cópia do momento: exporte e importe de novo para atualizar.` : "";
+  const agendaNote = () => S.agenda ? `Agenda importada em ${new Date(S.agenda.at).toLocaleDateString("pt-BR")} (${S.agenda.n} compromisso${S.agenda.n === 1 ? "" : "s"}). É uma cópia do momento: exporte e importe de novo para atualizar.` : "";
   const loadDay = () => { H.events = agendaEvents(H.day, addDays(H.day, 1)); H.status = "local"; H.err = null; };
   const loadWeek = () => { G.events = agendaEvents(G.week, addDays(G.week, 7)); G.status = "local"; G.err = null; };
   const loadBlocks = () => { const a = weekStart(); B.events = agendaEvents(a, addDays(a, 14)).filter(e => e.start?.dateTime && isBlock(e)); B.status = "local"; B.err = null; };
@@ -1296,7 +1310,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
   function renderAgendaInfo(){
     const st = $("agStatus"), del = $("agDelBtn"); if (!st) return;
     st.hidden = !S.agenda; del.hidden = !S.agenda;
-    st.textContent = S.agenda ? `Agenda importada: ${S.agenda.n} compromissos de ${S.agenda.name}, em ${new Date(S.agenda.at).toLocaleDateString("pt-BR")}.` : "";
+    st.textContent = S.agenda ? `Agenda importada: ${S.agenda.n} compromisso${S.agenda.n === 1 ? "" : "s"} de ${S.agenda.name}, em ${new Date(S.agenda.at).toLocaleDateString("pt-BR")}.` : "";
   }
 
   function watchWeek(){
@@ -1314,7 +1328,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
   const refreshGrade = () => { if (S.mcp && (G.unwatch || B.unwatch || H.unwatch)) S.mcp.invalidate(CAL, "list_events").catch(() => {}); };
 
   function renderGrade(){
-    const box = $("gradeBody"); if (G.tab !== "tempo") return;
+    const box = $("gradeBody"); if (G.tab !== "hoje") return;
     const t = today(), days = [...Array(7)].map((_,k) => addDays(G.week,k));
     $("gradeRange").textContent = `${fmtShort(days[0])} – ${fmtShort(days[6])}`;
     let msg = "";
@@ -1341,9 +1355,34 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
       if (!timed[d]) continue;
       const isRev = /^R\d+\s*·/.test(title), sj = matchSubject(title);
       const a = minsOf(s), b = ymd(en) > d ? 1440 : minsOf(en);
-      timed[d].push({ a, b: Math.max(b, a+15), title, rev:isRev, color: sj?.color || null, loc: e.location || "" });
+      timed[d].push({ a, b: Math.max(b, a+15), title, rev:isRev, color: sj?.color || null, sid: sj?.id || null, loc: e.location || "" });
       if (isRev) revCount++; else if (isBlock(e)) blockMin += b - a; else classMin += b - a;
     }
+    // aulas semanais (do horário de cada matéria), sem repetir as que já vieram da agenda importada e sem os dias de prova
+    for (const s of S.subjects) for (const [wd, tm] of classSlots(s.id)) for (const d of days) {
+      if (parseYmd(d).getDay() !== wd || examsOf(s.id).some(e => e.date === d) || (s.skipLectures || []).includes(d)) continue;
+      const a = toMin(tm);
+      if (timed[d].some(x => !x.exam && x.sid === s.id && Math.abs(x.a - a) <= 30)) continue;
+      timed[d].push({ a, b: Math.min(1440, a + 100), title: `Aula · ${s.name}`, color: s.color, sid: s.id, loc: "Aula" });
+      classMin += 100;
+    }
+    // revisões e entregas a fazer: aparecem no dia em que vencem; as atrasadas ficam em hoje
+    const todo = {}; days.forEach(d => { todo[d] = []; });
+    const booked = new Set(G.events.map(e => e.id)), late = [];
+    for (const { c, r, i } of allReviews()) {
+      if (r.done || r.skipped || (r.eventId && booked.has(r.eventId))) continue;
+      const sj = subj(c.subjectId), it = { kind:"rev", text:`R${i + 1} · ${c.title}`, sub:sj.name, color:sj.color, c:c.id, i };
+      if (r.due < t) late.push({ ...it, late:true }); else if (todo[r.due]) { todo[r.due].push(it); revCount++; }
+    }
+    for (const k of S.tasks) {
+      if (k.status === "feita" || !k.due) continue;
+      const sj = subj(k.subjectId), it = { kind:"task", text:`Entrega: ${k.title}`, sub:sj.name, color:sj.color, id:k.id };
+      if (k.due < t) late.push({ ...it, late:true }); else if (todo[k.due]) todo[k.due].push(it);
+    }
+    const todayIn = days.includes(t), lateMore = todayIn ? Math.max(0, late.length - 6) : 0;
+    if (todayIn) todo[t] = [...late.slice(0, 6), ...todo[t]];
+    const hasTodo = days.some(d => todo[d].length);
+    const pill = x => `<i class="gp ${x.late ? "late" : ""}" style="--c:${esc(x.color)}" title="${esc(x.sub + " · " + x.text + (x.late ? " (atrasada)" : ""))}"><button type="button" data-act="${x.kind === "rev" ? "done" : "gtask"}" ${x.kind === "rev" ? `data-c="${esc(x.c)}" data-i="${x.i}"` : `data-id="${esc(x.id)}"`} aria-label="Marcar como feita">✓</button><span>${esc(x.text)}</span></i>`;
     for (const x of S.sessions) {
       if (!sess[x.date] || !x.start) continue;
       const s = new Date(x.start), e = new Date(x.end || (x.start + (x.minutes||0)*60000));
@@ -1369,6 +1408,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     let html = `<div class="gw" style="--rows:${rows};--hpx:${HPX}px"><div class="gh"></div>`;
     html += days.map(d => { const dt = parseYmd(d); return `<div class="gh ${d===t?"today":""}"><span>${WD[dt.getDay()]}</span><b>${pad(dt.getDate())}</b></div>`; }).join("");
     if (hasAllDay) html += `<div class="gad-l">dia todo</div>` + days.map(d => `<div class="gad">${allDay[d].map(x => `<i title="${esc(x)}">${esc(x)}</i>`).join("")}</div>`).join("");
+    if (hasTodo) html += `<div class="gad-l">a fazer</div>` + days.map(d => `<div class="gad">${todo[d].map(pill).join("")}${d === t && lateMore ? `<i>+${lateMore} atrasadas (veja em Revisões)</i>` : ""}</div>`).join("");
     html += `<div class="gtimes">${[...Array(rows)].map((_,i) => `<span style="top:${i*HPX}px">${pad(H0+i)}h</span>`).join("")}</div>`;
     html += days.map(d => {
       let col = `<div class="gcol ${d===t?"today":""}">`;
@@ -1973,18 +2013,19 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
   });
 
   // ---------- páginas ----------
-  const PAGES = { hoje:"Hoje", revisoes:"Revisões", materias:"Matérias", provas:"Provas", notas:"Notas", tempo:"Tempo", assistente:"Assistente" };
-  const VIEW = { hoje:"viewHoje", revisoes:"viewRevisoes", materias:"viewMaterias", provas:"viewProvas", notas:"viewNotas", tempo:"viewTempo", assistente:"viewAssistente" };
+  const PAGES = { hoje:"Agenda", revisoes:"Revisões", materias:"Matérias", provas:"Provas", notas:"Notas", tempo:"Tempo", assistente:"Assistente", dados:"Sincronizar" };
+  const VIEW = { hoje:"viewHoje", revisoes:"viewRevisoes", materias:"viewMaterias", provas:"viewProvas", notas:"viewNotas", tempo:"viewTempo", assistente:"viewAssistente", dados:"viewDados" };
   const LEGACY = { painel:"revisoes", grade:"tempo" };
   const TIMER_PAGES = ["hoje", "revisoes", "tempo"];
   const pageSub = k => ({
-    hoje: "Agenda e aulas do dia",
+    hoje: "Semana, compromissos, aulas e revisões",
     revisoes: `Revisão espaçada · ${intervals().join(" · ")} dias · trabalhos`,
     materias: "Ementas e tópicos por matéria",
     provas: "Datas, ciclos e blocos de estudo",
     notas: "Suas notas, pesos e quanto falta para passar",
-    tempo: "Cronômetro, estatísticas e grade da semana",
-    assistente: "Peça mudanças em português"
+    tempo: "Cronômetro e horas estudadas",
+    assistente: "Peça mudanças em português",
+    dados: "Sincronizar aparelhos, importar e exportar"
   })[k];
 
   function setTab(tab){
@@ -1992,19 +2033,24 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     G.tab = tab;
     Object.keys(VIEW).forEach(k => { $(VIEW[k]).hidden = k !== tab; });
     $("timerBox").hidden = !TIMER_PAGES.includes(tab);
+    if (tab === "hoje") $("viewGrade").after($("timerBox")); else $("viewHoje").before($("timerBox"));   // na Agenda a semana vem primeiro e o cronômetro logo depois
     document.querySelectorAll("[data-nav]").forEach(b => {
       if (!b.classList.contains("nav-item") && !b.classList.contains("b-item")) return;
       const on = b.dataset.nav === tab;
       b.classList.toggle("on", on);
       if (on) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
     });
-    $("moreBtn").classList.toggle("on", ["notas", "tempo", "assistente"].includes(tab));
+    $("moreBtn").classList.toggle("on", ["notas", "tempo", "assistente", "dados"].includes(tab));
     $("pageTitle").textContent = (V.nomes && V.nomes[tab]) || PAGES[tab];
     $("pageEyebrow").textContent = pageSub(tab);
     closeMore();
     try { localStorage.setItem("ciclo.tab", tab); } catch (e) {}
-    if (tab === "hoje") { if (G.ready && (S.mcp ? (!H.unwatch && H.status !== "nomcp") : localCal())) watchDay(); renderHoje(); }
-    if (tab === "tempo") { if (G.ready && (S.mcp ? (!G.unwatch && G.status !== "nomcp") : localCal())) watchWeek(); renderGrade(); }
+    if (tab === "hoje") {
+      if (G.ready && (S.mcp ? (!H.unwatch && H.status !== "nomcp") : localCal())) watchDay();
+      if (G.ready && (S.mcp ? (!G.unwatch && G.status !== "nomcp") : localCal())) watchWeek();
+      renderHoje(); renderGrade();
+    }
+    if (tab === "tempo") renderTime();
     if (tab === "provas") { if (G.ready && !B.unwatch) watchBlocks(); renderProvas(); }
     if (tab === "materias") { renderMaterias(); renderProvas(); }
     if (tab === "notas") renderNotas();
@@ -3536,6 +3582,7 @@ Responda só com JSON neste formato:
     const act = b.dataset.act;
     try {
       if (act === "done") await markDone(b.dataset.c, +b.dataset.i);
+      else if (act === "gtask" && S.db) { await S.db.doc(`tasks/${b.dataset.id}`).update({ status:"feita", doneOn:today(), hoje:false }); toast("Trabalho concluído."); }
       if (act === "quiz") openQuiz(b.dataset.c, +b.dataset.i);
       if (act === "study") {
         if (S.timer?.running) return toast("Pare o cronômetro atual antes.");
@@ -3593,7 +3640,7 @@ Responda só com JSON neste formato:
   $("gPrev").addEventListener("click", () => moveWeek(-1));
   $("gNext").addEventListener("click", () => moveWeek(1));
   $("gToday").addEventListener("click", () => moveWeek(0));
-  setInterval(() => { if (document.hidden) return; if (G.tab === "tempo") renderGrade(); if (G.tab === "provas") renderProvas(); if (G.tab === "hoje") renderHoje(); }, 60000);
+  setInterval(() => { if (document.hidden) return; if (G.tab === "provas") renderProvas(); if (G.tab === "hoje") { renderHoje(); renderGrade(); } }, 60000);
   const moveDay = n => { H.day = n === 0 ? today() : addDays(H.day, n); if (G.ready && (S.mcp || localCal())) watchDay(); else renderHoje(); };
   $("hPrev").addEventListener("click", () => moveDay(-1));
   $("hNext").addEventListener("click", () => moveDay(1));
@@ -3655,8 +3702,7 @@ Responda só com JSON neste formato:
     const [db, mcp] = await Promise.all([claude.use("db").catch(() => null), claude.use("mcp").catch(() => null)]);
     S.mcp = mcp; G.ready = true;
     if (!mcp) { G.status = "nomcp"; B.status = "nomcp"; H.status = "nomcp"; }
-    if (G.tab === "hoje") { mcp ? watchDay() : renderHoje(); }
-    if (G.tab === "tempo") { mcp ? watchWeek() : renderGrade(); }
+    if (G.tab === "hoje") { if (mcp) { watchDay(); watchWeek(); } else { renderHoje(); renderGrade(); } }
     if (G.tab === "provas") { mcp ? watchBlocks() : renderProvas(); }
     if (!mcp) { $("addCal").checked = false; $("addCal").disabled = true; }
     if (!db) { $("noDb").hidden = false; return; }
