@@ -494,6 +494,11 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
 .sico{display:inline-grid;place-items:center;width:20px;font-size:15px;line-height:1;flex:none}
 .mc-cover{margin:-12px -14px 0;height:38px;border-radius:10px 10px 0 0}
 .mat-cover{margin:-18px -18px 0;height:72px;border-radius:12px 12px 0 0}
+.mat-back{align-self:flex-start;position:sticky;top:calc(env(safe-area-inset-top,0px) + 8px);z-index:6;display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:0 22px 0 16px;border:0;border-radius:12px;background:var(--ink);color:var(--paper);font-family:inherit;font-weight:700;font-size:16px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.28)}
+.mat-back .ico{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.mat-back:hover{background:var(--accent);color:var(--accent-ink)}
+.mat-back:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+@media (max-width:640px){.mat-back{align-self:stretch;justify-content:center}}
 .thin{height:5px}
 .pers{display:flex;flex-direction:column;gap:12px;background:var(--paper);border-radius:10px;padding:12px}
 .ico-grid,.capa-grid{display:flex;gap:6px;flex-wrap:wrap}
@@ -808,6 +813,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
 
   <div id="viewMaterias" hidden style="display:flex;flex-direction:column;gap:20px">
     <div id="matDet" hidden style="display:flex;flex-direction:column;gap:20px">
+    <button class="mat-back" data-act="matback" type="button" aria-label="Voltar para a lista de matérias"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg><span>Voltar para Matérias</span></button>
     <section class="panel" id="matHead" aria-label="Matéria"></section>
     <div class="tabs" id="matTabs" role="tablist" aria-label="Seções da matéria" style="overflow-x:auto"></div>
     <div id="matSecEmenta">
@@ -2673,7 +2679,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     const st = stats(s.id), p = st.p;
     const persHtml = MAT.pers ? `<div class="pers"><div class="field"><span>Ícone</span><div class="ico-grid">${ICONS.map(em => `<button class="ico-pick ${s.icone === em ? "on" : ""}" data-act="maticon" data-s="${esc(s.id)}" data-e="${em}" type="button" aria-label="Ícone ${em}">${em}</button>`).join("")}<button class="btn small ghost" data-act="maticon" data-s="${esc(s.id)}" data-e="" type="button">Sem ícone</button></div></div>
       <div class="field"><span>Capa</span><div class="capa-grid">${Object.entries(CAPAS).map(([k, n]) => `<button class="capa-pick ${(s.capa || "solida") === k ? "on" : ""}" data-act="matcapa" data-s="${esc(s.id)}" data-c="${k}" style="background:${capaCss({ ...s, capa:k })}" title="${n}" aria-label="Capa ${n}" type="button"></button>`).join("")}</div></div></div>` : "";
-    $("matHead").innerHTML = `<div class="mat-cover" style="background:${capaCss(s)}"></div><div class="panel-head"><div><button class="btn small ghost" data-act="matback" type="button">‹ Matérias</button><h2 style="margin-top:6px"><span class="subj">${subjIco(s)}${esc(s.name)}</span></h2></div>
+    $("matHead").innerHTML = `<div class="mat-cover" style="background:${capaCss(s)}"></div><div class="panel-head"><div><h2><span class="subj">${subjIco(s)}${esc(s.name)}</span></h2></div>
       <div class="hnav"><button class="btn small pin ${s.fixada ? "on" : ""}" data-act="matpin" data-s="${esc(s.id)}" type="button" aria-pressed="${!!s.fixada}"><svg class="ico"><use href="#i-estrela"/></svg>${s.fixada ? "Fixada" : "Fixar"}</button>${noteBtn(s.id, "")}<button class="btn small" data-act="matpers" type="button" aria-expanded="${MAT.pers}">Personalizar</button><button class="btn small" data-act="exp" data-w="materia" data-s="${esc(s.id)}" type="button">Exportar (.md)</button></div></div>
       ${persHtml}
       <div class="mat-tools"><label class="field"><span>Meta semanal (horas)</span><input type="number" id="matMeta" min="0" max="80" step="0.5" inputmode="decimal" value="${s.metaHoras > 0 ? s.metaHoras : ""}" placeholder="Sem meta"></label>
