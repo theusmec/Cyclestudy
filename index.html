@@ -132,7 +132,9 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
 details.panel summary{cursor:pointer;font-family:var(--display);font-weight:700;font-size:16px;list-style:none;display:flex;justify-content:space-between}
 details.panel summary::after{content:"+";color:var(--muted);font-family:var(--mono)}
 details.panel[open] summary::after{content:"–"}
-.subj-row{display:grid;grid-template-columns:40px 1fr auto;gap:8px;align-items:center}
+.subj-row{display:grid;grid-template-columns:40px 1fr auto auto;gap:8px;align-items:center}
+.subj-del{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:var(--late-soft);border-radius:8px;padding:8px 12px;font-size:13px}
+.subj-del span{flex:1 1 260px}
 .subj-row input[type=color]{padding:2px;height:36px}
 
 .banner{background:var(--late-soft);color:var(--ink);border-radius:10px;padding:12px 14px;font-size:14px}
@@ -1215,12 +1217,50 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
       : `<div class="empty">Sem tempo registrado nesta semana.</div>`;
   }
 
+  // Excluir matéria: apaga também o que pertence a ela (conteúdos e revisões, provas, trabalhos, anotações, notas, tempo estudado).
+  let SUBDEL = null;
+  const subjUsage = sid => ({
+    contents: S.contents.filter(c => c.subjectId === sid).length, exams: S.exams.filter(x => x.subjectId === sid).length, tasks: S.tasks.filter(k => k.subjectId === sid).length,
+    notes: Object.values(S.notes).filter(n => n.subjectId === sid && (n.text || "").trim()).length, grades: S.grades[sid] ? 1 : 0, sessions: S.sessions.filter(z => z.subjectId === sid).length
+  });
+  function subjDelBar(s){
+    const u = subjUsage(s.id), pl = (n, a, b) => `${n} ${n === 1 ? a : b}`;
+    const parts = [u.contents ? pl(u.contents, "conteúdo estudado (com as revisões)", "conteúdos estudados (com as revisões)") : "", u.exams ? pl(u.exams, "prova", "provas") : "", u.tasks ? pl(u.tasks, "trabalho", "trabalhos") : "", u.notes ? pl(u.notes, "anotação", "anotações") : "", u.grades ? "as notas lançadas" : "", u.sessions ? pl(u.sessions, "sessão de estudo", "sessões de estudo") : ""].filter(Boolean);
+    return `<div class="subj-del"><span>Excluir <b>${esc(s.name)}</b>? ${parts.length ? "Isso apaga também: " + parts.join(", ") + "." : "Ela não tem nada cadastrado."} Não dá para desfazer; faça um backup antes se tiver dúvida.</span><button class="btn small danger" data-act="matdelok" data-s="${esc(s.id)}" type="button">Excluir de vez</button><button class="btn small ghost" data-act="matdelno" type="button">Cancelar</button></div>`;
+  }
+  async function deleteSubject(sid){
+    if (!S.db) return toast("Abra pelo claude.ai para salvar.");
+    const s = S.subjects.find(x => x.id === sid); if (!s) { SUBDEL = null; return renderSubjects(); }
+    if (S.timer?.running && S.timer.subjectId === sid) return toast("Pare o cronômetro desta matéria antes de excluir.");
+    const del = path => S.db.doc(path).delete();
+    for (const c of S.contents.filter(c => c.subjectId === sid)) await del(`contents/${c.id}`);
+    for (const x of S.exams.filter(x => x.subjectId === sid)) await del(`exams/${x.id}`);
+    for (const k of S.tasks.filter(k => k.subjectId === sid)) await del(`tasks/${k.id}`);
+    for (const n of Object.values(S.notes).filter(n => n.subjectId === sid)) await del(`notes/${n.id}`);
+    if (S.grades[sid]) await del(`grades/${sid}`);
+    for (const z of S.sessions.filter(z => z.subjectId === sid && z.id)) await del(`sessions/${z.id}`);
+    if ((S.settings.classes || {})[sid]) { const c = { ...S.settings.classes }; delete c[sid]; await patchSettings({ classes: c }); }
+    if (S.agenda?.map && Object.values(S.agenda.map).includes(sid)) {       // itens da agenda importada que viraram essa matéria passam a ser só eventos
+      const map = { ...S.agenda.map }, cls = { ...(S.agenda.cls || {}) };
+      Object.keys(map).forEach(k => { if (map[k] === sid) { delete map[k]; cls[k] = "evento"; } });
+      await S.db.doc("agenda/main").update({ map, cls });
+    }
+    let viewsChanged = false;
+    V.items.forEach(v => { if (v.filtro?.materia === sid) { v.filtro.materia = ""; viewsChanged = true; } });
+    if (viewsChanged) saveViews();
+    if (MAT.id === sid) MAT.id = null;
+    await del(`subjects/${sid}`);
+    SUBDEL = null; renderSubjects();
+    toast(`${s.name} excluída.`);
+  }
+
   function renderSubjects(){
     $("subjList").innerHTML = S.subjects.map(s => `<div class="subj-row">
       <input type="color" id="c-${esc(s.id)}" value="${esc(s.color)}" data-act="color" data-s="${esc(s.id)}" aria-label="Cor de ${esc(s.name)}">
       <input id="n-${esc(s.id)}" value="${esc(s.name)}" data-act="rename" data-s="${esc(s.id)}" aria-label="Nome">
       <label class="check" style="font-size:12px;white-space:nowrap" title="Marque se a prova seguinte também cobra a matéria anterior. Assim as revisões não são cortadas depois da prova."><input type="checkbox" id="cu-${esc(s.id)}" data-act="cumul" data-s="${esc(s.id)}" ${s.cumulative?"checked":""}>Prova cumulativa</label>
-    </div>`).join("");
+      <button class="btn small ghost danger" data-act="matdelask" data-s="${esc(s.id)}" type="button" aria-label="Excluir ${esc(s.name)}">Excluir</button>
+    </div>${SUBDEL === s.id ? subjDelBar(s) : ""}`).join("");
     const ex = $("exSubject"), v = ex.value;
     ex.innerHTML = S.subjects.map(s => `<option value="${esc(s.id)}">${esc(s.name)}</option>`).join("");
     if (v) ex.value = v;
@@ -2583,7 +2623,10 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     const b = e.target.closest("[data-act]"); if (!b) return;
     const act = b.dataset.act;
     try {
-      if (act === "sylpdf") { pdfSid = b.dataset.s; $("sylPdf").click(); }
+      if (act === "matdelask") { SUBDEL = b.dataset.s; renderSubjects(); }
+      else if (act === "matdelno") { SUBDEL = null; renderSubjects(); }
+      else if (act === "matdelok") { b.disabled = true; await deleteSubject(b.dataset.s); }
+      else if (act === "sylpdf") { pdfSid = b.dataset.s; $("sylPdf").click(); }
       else if (act === "subtog") { VM.subs[b.dataset.k] = !VM.subs[b.dataset.k]; renderViews(); }
       else if (act === "subdel") await updSubs(b.dataset.t, subs => { const i = subs.findIndex(y => y.id === b.dataset.i); if (i >= 0) subs.splice(i, 1); });
       else if (act === "matpers") { MAT.pers = !MAT.pers; renderMaterias(); }
@@ -3816,7 +3859,7 @@ Responda só com JSON neste formato:
     const err = e => toast("Falha ao carregar dados (" + (e?.code || "erro") + "). Recarregue a página.");
     db.collection("subjects").orderBy("order").onSnapshot(s => { S.subjects = s.docs.map(d => ({ id:d.id, ...d.data() })); renderAll(); }, err);
     db.collection("contents").onSnapshot(s => { S.contents = s.docs.map(d => ({ id:d.id, ...d.data() })); renderAll(); }, err);
-    db.collection("sessions").where("date", ">=", addDays(today(), -120)).onSnapshot(s => { S.sessions = s.docs.map(d => d.data()); renderTime(); renderGrade(); renderProvas(); }, err);
+    db.collection("sessions").where("date", ">=", addDays(today(), -120)).onSnapshot(s => { S.sessions = s.docs.map(d => ({ id: d.id, ...d.data() })); renderTime(); renderGrade(); renderProvas(); }, err);
     db.collection("exams").onSnapshot(s => { S.exams = s.docs.map(d => ({ id:d.id, ...d.data() })); renderAll(); }, err);
     db.collection("tasks").onSnapshot(s => { S.tasks = s.docs.map(d => ({ id:d.id, ...d.data() })); renderAll(); }, err);
     db.doc("settings/views").onSnapshot(d => { V = mergeViews(d.exists ? d.data() : null); renderViews(); }, err);
