@@ -112,5 +112,86 @@
     return best;
   }
 
-  window.__cycleEmenta = { extract: extract, toSyllabus: toSyllabus };
+  // ---------- Plano de Ensino (UNESP): campos do cabeçalho, seções e tópicos ----------
+  // Rodapé oficial repetido em toda página do plano, às vezes no meio de uma seção (formato real visto em planos da UNESP):
+  //   "ATENÇÃO: Este é um documento oficial da Graduação…" / "https://sistemas.unesp.br/…" / "<Unidade> - Câmpus de X - Avenida …" / "Paulo. E-mail: … Página de Internet: …" / "Câmpus de X" / "PLANO DE ENSINO"
+  var RODAPE = [/^ATEN[ÇC][ÃA]O:\s*Este é um documento oficial/i, /sistemas\.unesp\.br/i, /C[âa]mpus de .+ - (?:Avenida|Av\.|Rua|Rodovia|Pra[çc]a)/i,
+    /E-mail:.*P[áa]gina de Internet/i, /^C[âa]mpus de [^-]+$/i, /^PLANO DE ENSINO$/i];
+  function limpaRodape(lines) { return lines.filter(function (l) { return !RODAPE.some(function (r) { return r.test(l); }); }); }
+
+  // títulos de seção do plano (a linha é só o título)
+  var SECAO = [["objetivos", /^objetivos?$/i], ["conteudo", /^conte[úu]do$/i], ["metodologia", /^metodologia$/i], ["bibliografia", /^bibliografia$/i],
+    ["criterios", /^crit[ée]rios de avalia/i], ["ementa", /^ementa\b/i], ["aprovacao", /^aprova[çc][ãa]o$/i]];
+  var ehTitulo = function (l) { for (var i = 0; i < SECAO.length; i++) if (SECAO[i][1].test(l)) return SECAO[i][0]; return null; };
+  var num = function (s) { return parseFloat(String(s).replace(",", ".")); };
+
+  function cabecalho(lines) {   // rótulo numa linha, valor na seguinte; créditos e horas numa linha de valores abaixo de "Créditos Carga Horária C.H.Total Seriação"
+    var c = {}, i;
+    for (i = 0; i < lines.length - 1; i++) {
+      if (/^Curso$/i.test(lines[i]) && !c.curso) c.curso = lines[i + 1];
+      else if (/^Disciplina$/i.test(lines[i]) && !c.nome) {
+        var m = /^(.+?)\s+-\s+(.+)$/.exec(lines[i + 1]);
+        if (m) { c.codigo = m[1].trim(); c.nome = m[2].trim(); } else c.nome = lines[i + 1];
+      } else if (/^Cr[ée]ditos\b.*Carga/i.test(lines[i]) && c.creditos == null) {
+        var v = /^(\d+(?:[.,]\d+)?)\s+T:\s*[\d.,]+;\s*P:\s*[\d.,]+;.*?([\d.,]+)\s*h\b/i.exec(lines[i + 1]);
+        if (v) { c.creditos = num(v[1]); c.cargaHoraria = num(v[2]); }
+      }
+    }
+    return c;
+  }
+  function secoes(lines) {      // { conteudo: [linhas], … }; a seção "aprovacao" e o que vem depois (nomes, código de autenticidade) é descartada sem ser lida
+    var out = {}, cur = null;
+    lines.forEach(function (l) {
+      var t = ehTitulo(l);
+      if (t) { cur = t === "aprovacao" ? null : t; if (cur && !out[cur]) out[cur] = []; return; }
+      if (cur) out[cur].push(l);
+    });
+    return out;
+  }
+  var CAPS = function (l) { return l.length <= 70 && l === l.toUpperCase() && /[A-ZÀ-Ý]{3}/.test(l); };
+  var MARCA = function (l) { return NUMBER.test(l) || BULLET.test(l) || UNIT.test(l); };
+  // "Título: explicação longa" vira só o título (item numerado muito longo)
+  function encurta(line) {
+    var m = /^(.{3,70}?):\s+(\S.{30,})$/.exec(line);
+    return m && !/^# /.test(line) ? m[1] : line;
+  }
+  // tópicos de uma seção; devolve null se não achar nada que preste
+  function topicosDe(sec) {
+    var avisos = [], lines = sec.slice(), n, i, cut = -1;
+    for (i = 0; i < lines.length; i++) if (/^(?:fontes?|refer[êe]ncias?)\s*:?$/i.test(lines[i])) { cut = i; break; }
+    if (cut >= 0) lines = lines.slice(0, cut);
+    // introdução em prosa antes da lista ("A disciplina contempla…", "Assim o conteúdo contempla:"): a lista começa no "1-" que tem "2-" depois, ou na primeira marca
+    var ini = -1, vistoDois = false;
+    for (i = 0; i < lines.length; i++) { var m1 = /^1\s*[-.)–]\s*\S/.exec(lines[i]); if (m1) { for (var k = i + 1; k < lines.length; k++) if (/^2\s*[-.)–]\s*\S/.test(lines[k])) { vistoDois = true; break; } if (vistoDois) { ini = i; break; } } }
+    if (ini < 0) { for (i = 0; i < lines.length; i++) if (MARCA(lines[i])) { ini = i; break; } if (ini >= 0) while (ini > 0 && CAPS(lines[ini - 1])) ini--; }
+    var marcas = lines.filter(MARCA).length;
+    if (ini > 0 && marcas >= 2) { avisos.push("texto introdutório descartado"); lines = lines.slice(ini); }
+    var built = build(parseItems(lines)), feitos = built.lines;
+    if (marcas < 2 && built.topics < 2 && lines.length) {   // parágrafo corrido numa frase só: separa por vírgulas
+      var joined = norm(lines.join(" ")).replace(/\.$/, ""), partes = joined.split(/\s*,\s*/).filter(function (p) { return p.length > 2; });
+      if (partes.length >= 3) { built = build(partes.map(function (p) { return { depth: 1, text: p.charAt(0).toUpperCase() + p.slice(1), unit: false }; })); avisos.push("tópicos separados por vírgula: confira"); }
+    }
+    n = built.topics; if (n < 2) return null;
+    if (vistoDois) built.lines = built.lines.map(encurta);   // só em lista numerada ("1- Título: explicação…"); em lista com "-" o texto depois do ":" é parte do tópico
+    built.text = built.lines.join("\n"); built.avisos = avisos;
+    return built;
+  }
+  function parsePlano(raw) {
+    var linhas = limpaRodape(String(raw || "").split(/\r?\n/).map(norm).filter(Boolean));
+    var c = cabecalho(linhas), padrao = !!(c.nome && (c.curso || c.codigo)), sec = secoes(linhas), r = { avisos: [] };
+    Object.keys(c).forEach(function (k) { r[k] = c[k]; });
+    r.padrao = padrao; r.confianca = padrao ? "alta" : "baixa";
+    var t = sec.conteudo ? topicosDe(sec.conteudo) : null;
+    if (!t && sec.ementa) { t = topicosDe(sec.ementa); if (t) t.avisos.push("tópicos tirados da seção Ementa"); }
+    if (!t && !padrao) { var g = toSyllabus(raw); if (g && !g.whole && g.topics >= 2) { t = g; t.avisos = []; } }
+    if (t) { r.topicos = t.text; r.nTopicos = t.topics; r.nUnidades = t.units; r.truncado = !!t.truncated; r.avisos = r.avisos.concat(t.avisos || []); }
+    else { r.topicos = ""; r.nTopicos = 0; r.nUnidades = 0; r.avisos.push("não consegui achar os tópicos: cole a lista à mão"); }
+    if (!padrao) { r.avisos.push("não parece um Plano de Ensino da UNESP: confira com atenção"); r.confianca = "baixa"; }
+    else if (r.avisos.some(function (a) { return /vírgula|Ementa|descartado/.test(a); })) r.confianca = "media";
+    if (sec.criterios && sec.criterios.length) r.criterios = sec.criterios.join("\n").slice(0, 4000);
+    if (sec.bibliografia && sec.bibliografia.length) r.bibliografia = sec.bibliografia.join("\n").slice(0, 4000);
+    return r;
+  }
+
+  window.__cycleEmenta = { extract: extract, toSyllabus: toSyllabus, parsePlano: parsePlano };
 })();

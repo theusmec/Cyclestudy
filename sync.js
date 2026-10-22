@@ -1,4 +1,4 @@
-/* Cycle: sincronização entre aparelhos por QR animado ou código, sem servidor e sem conta.
+/* Cycle: sincronização entre aparelhos da mesma conta por QR animado ou código, sem internet e sem servidor.
    Carregado sob demanda (junto de lib/qrcode.js e lib/jsQR.js). Usa window.__cycleDb (shim.js). */
 (function () {
   if (window.__cycleSync) return;
@@ -83,6 +83,7 @@
 
   // ---------- interface ----------
   var $ = function (id) { return document.getElementById(id); };
+  var contaId = function () { var c = window.__cycleConta, u = c && c.usuario(); return u ? u.uid : null; };   // null quando o app roda sem conta
   var modal = null, S = { frames: [], idx: 0, timer: null, sentAt: 0, stream: null, scanTimer: null, asm: new Assembler(), plan: null };
   var lastSync = function () { try { return +localStorage.getItem("cycle.lastSync") || 0; } catch (e) { return 0; } };
   var setLastSync = function (t) { try { localStorage.setItem("cycle.lastSync", String(t)); } catch (e) {} };
@@ -98,7 +99,7 @@
     modal.innerHTML =
       '<div class="qz" role="dialog" aria-modal="true" aria-labelledby="syTitle">' +
       '<div class="qz-head"><div><div class="eyebrow">Sincronizar</div><h2 id="syTitle">Passar dados entre aparelhos</h2></div><button class="btn small ghost" data-sy="close" type="button" aria-label="Fechar">✕</button></div>' +
-      '<p class="plan" style="margin:0">Sem conta e sem servidor: os dados vão direto de um aparelho para o outro, por QR ou por código. Em cada aparelho vale o que foi alterado por último, documento por documento.</p>' +
+      '<p class="plan" style="margin:0">' + (contaId() ? "Para dois aparelhos da mesma conta, mesmo sem internet: os dados vão direto de um para o outro, por QR ou por código." : "Sem conta e sem servidor: os dados vão direto de um aparelho para o outro, por QR ou por código.") + ' Em cada aparelho vale o que foi alterado por último, documento por documento.</p>' +
       '<div class="tabs" role="tablist"><button class="tab" role="tab" aria-selected="true" data-sy="tab" data-t="send" type="button">Enviar</button><button class="tab" role="tab" aria-selected="false" data-sy="tab" data-t="recv" type="button">Receber</button></div>' +
       '<section class="sy-sec" id="sySend">' +
         '<label class="field"><span>O que enviar</span><select id="syWhat"></select></label>' +
@@ -168,7 +169,7 @@
     if (!nDocs) { $("syMsgS").textContent = "Não há nada novo para enviar."; return; }
     var pw = $("syPw").value, btn = $("syGen"); btn.disabled = true; btn.textContent = "Gerando…"; $("syMsgS").textContent = "";
     S.sentAt = Date.now();
-    packCode({ app: "Cycle", formato: 3, em: S.sentAt, desde: since, docs: snap.docs, del: snap.del }, pw).then(function (code) {
+    packCode({ app: "Cycle", formato: 3, em: S.sentAt, desde: since, conta: contaId(), docs: snap.docs, del: snap.del }, pw).then(function (code) {
       S.frames = makeFrames(code); S.idx = 0; S.paused = false; $("syPause").textContent = "Pausar";
       $("syCode").value = code; $("syOut").hidden = false;
       var many = S.frames.length > 60;
@@ -227,6 +228,8 @@
     $("syMsgR").textContent = ""; $("syPlan").hidden = true; code = String(code || "").trim();
     if (!code) { $("syMsgR").innerHTML = '<span class="sy-bad">Cole o código primeiro.</span>'; return; }
     unpackCode(code, $("syPw2").value).then(function (pkg) {
+      var eu = contaId();
+      if (eu && pkg.conta && pkg.conta !== eu) throw err("outra-conta", "Esse código é de outra conta do Cycle. Só dá para receber de um aparelho com a mesma conta.");
       var plan = db.plan(pkg); S.plan = plan;
       var box = $("syPlan");
       if (!plan.total) box.innerHTML = '<p class="sy-ok" style="margin:0">Este aparelho já está com tudo o que veio nesse código.</p>';

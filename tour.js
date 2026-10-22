@@ -6,28 +6,26 @@
   var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
 
   var PASSOS = [
-    { tab: null, titulo: "Bem-vindo ao Cycle", texto: "O Cycle organiza os seus estudos em 8 abas. Este tour passa por cada uma em cerca de 1 minuto.",
-      pontos: ["Estudou algo? Ele agenda as revisões nos dias certos.", "Seus dados ficam só neste aparelho: sem conta e sem servidor.", "Use as setas do teclado ou os botões abaixo. Esc fecha o tour."] },
+    { tab: null, titulo: "Bem-vindo ao Cycle", texto: "O Cycle organiza os seus estudos em 7 abas. Este tour passa por cada uma em cerca de 1 minuto.",
+      pontos: ["Estudou algo? Ele agenda as revisões nos dias certos.", "Seus dados ficam no aparelho e, com a sua conta, sincronizam sozinhos pela nuvem.", "Use as setas do teclado ou os botões abaixo. Esc fecha o tour."] },
     { tab: "hoje", titulo: "Agenda: a sua semana", texto: "A página inicial mostra a semana inteira de uma vez.",
-      pontos: ["Aulas, compromissos importados do Google e provas, nos dias e horários.", "Na linha \"a fazer\": revisões e entregas do dia. Toque no ✓ para concluir ali mesmo.", "Abaixo da semana: o cronômetro de estudo e o painel de hoje."] },
+      pontos: ["Aulas, compromissos importados do Google e provas, nos dias e horários.", "Na linha \"a fazer\": revisões e entregas do dia. Toque no ✓ para concluir ali mesmo.", "Em Lista ou Semana, com cor fixa por tipo: aula, prova, trabalho e compromisso. O botão Fim de semestre começa outro."] },
     { tab: "revisoes", titulo: "Revisões: o que você estudou", texto: "É aqui que você registra o conteúdo do dia.",
-      pontos: ["Ao registrar, o Cycle cria revisões em 1, 3, 7, 14 e 30 dias (dá para ajustar).", "Veja tudo em lista, quadro ou calendário, com filtros.", "Trabalhos também ficam aqui, com subtarefas."] },
+      pontos: ["Ao registrar, o Cycle cria revisões em 1, 3, 7, 14 e 30 dias (dá para ajustar).", "Veja tudo em lista, quadro ou calendário, com filtros.", "Trabalhos também ficam aqui, com subtarefas. O painel de hoje e o botão + Nova revisão também."] },
     { tab: "materias", titulo: "Matérias: ementa, aulas e anotações", texto: "Cada matéria tem a sua página.",
       pontos: ["Ementa: cole os tópicos, importe de PDF ou peça a uma IA gratuita.", "Horários de aula: o Cycle prevê qual tópico cai em cada aula.", "Anotações, meta semanal e o botão grande para voltar à lista."] },
     { tab: "provas", titulo: "Provas: datas e preparo", texto: "Reúne o que falta para chegar bem às provas.",
       pontos: ["Cadastre P1, P2, P3 e Sub com data e horário.", "As revisões se aproximam da prova quando ela está perto.", "Provas vindas do Google Agenda entram sozinhas."] },
     { tab: "notas", titulo: "Notas: média e quanto falta", texto: "Acompanhe o desempenho matéria por matéria.",
       pontos: ["Defina avaliações e pesos (a Sub entra no cálculo).", "O app mostra a média e quanto você precisa tirar para passar.", "\"E se…\" simula notas sem gravar nada."] },
-    { tab: "tempo", titulo: "Tempo: horas estudadas", texto: "O cronômetro vira estatística.",
-      pontos: ["Horas por matéria na semana e por dia.", "Metas semanais por matéria.", "Esqueceu de ligar o cronômetro? Dá para lançar os minutos."] },
-    { tab: "assistente", titulo: "Assistente: pergunte em português", texto: "Funciona sem internet e sem IA, só com os seus dados.",
-      pontos: ["Ex.: \"o que tenho amanhã?\", \"quando é a próxima prova?\", \"quanto falta para passar?\".", "Também cria um trabalho e move revisões atrasadas, sempre pedindo confirmação.", "Fora do assunto, ele avisa e oferece levar a pergunta a um chat."] },
+    { tab: "tempo", titulo: "Metas: horas e cronômetro", texto: "O cronômetro vive aqui e vira estatística.",
+      pontos: ["Horas por matéria na semana e por dia (só o tempo com o cronômetro rodando).", "Meta semanal por matéria, com quanto falta.", "Esqueceu de ligar o cronômetro? Dá para lançar os minutos."] },
     { tab: "dados", titulo: "Sincronizar: dados e Google Agenda", texto: "Tudo o que entra e sai do Cycle passa por aqui.",
-      pontos: ["Levar os dados para outro aparelho por QR ou código, sem conta.", "Backup e restauração; importar o Google Agenda (cria matérias e provas).", "Exportar a agenda (.ics) e as anotações."] },
+      pontos: ["Passar dados entre aparelhos da mesma conta, sem internet, por QR ou código.", "Backup e restauração dos dados.", "Importar e exportar a agenda (.ics) fica na página Agenda."] },
     { tab: null, fim: true, titulo: "Pronto!", texto: "Você já conhece o mapa do Cycle.",
       pontos: ["Ctrl+K abre a busca de tudo.", "O botão Tour, no topo, refaz este passeio quando quiser.", "O tutorial completo explica cada detalhe."] }
   ];
-  var NO_MAIS = { notas: 1, tempo: 1, assistente: 1, dados: 1 };
+  var NO_MAIS = { notas: 1, tempo: 1, dados: 1 };
 
   var card = null, S = null, hl = null, i = 0;
   function estilo() {

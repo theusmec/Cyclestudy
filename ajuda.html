@@ -73,11 +73,10 @@ footer{color:var(--mut);font-size:.9rem}
     <tr><td><b>Matérias</b></td><td>Cadastro das matérias, ementa, horários de aula e anotações.</td></tr>
     <tr><td><b>Provas</b></td><td>Datas das provas e o plano para chegar preparado.</td></tr>
     <tr><td><b>Notas</b></td><td>Notas lançadas, médias, o que falta para passar.</td></tr>
-    <tr><td><b>Tempo</b></td><td>Horas estudadas por matéria e metas semanais.</td></tr>
-    <tr><td><b>Assistente</b></td><td>Pergunte em português sobre a sua agenda, provas, notas, revisões e trabalhos. Funciona sem internet e sem IA.</td></tr>
-    <tr><td><b>Sincronizar</b></td><td>Passar os dados entre aparelhos (QR ou código), backup, importar o Google Agenda e exportar para a agenda.</td></tr>
+    <tr><td><b>Metas</b></td><td>Cronômetro, horas estudadas por matéria na semana e metas semanais.</td></tr>
+    <tr><td><b>Sincronizar</b></td><td>Passar os dados entre aparelhos (QR ou código), backup e restauração. A importação e a exportação de agenda ficam na página Agenda.</td></tr>
   </table></div>
-  <p style="margin-top:10px">No celular, as páginas Notas e Tempo ficam no botão <b>Mais</b>. <kbd>Ctrl</kbd>+<kbd>K</kbd> (no computador) abre a busca e os comandos.</p>
+  <p style="margin-top:10px">No celular, as páginas Notas e Metas ficam no botão <b>Mais</b>. <kbd>Ctrl</kbd>+<kbd>K</kbd> (no computador) abre a busca e os comandos.</p>
 </section>
 
 <section id="instalar">
@@ -111,13 +110,12 @@ footer{color:var(--mut);font-size:.9rem}
 <section id="dia">
   <h2>4. O dia a dia</h2>
   <ul>
-    <li>A <b>Agenda</b> mostra a semana. Em cada dia aparecem as aulas, os compromissos (se você importou o Google Agenda), as provas e, na linha <i>a fazer</i>, as revisões e entregas que vencem nele. Toque no <b>✓</b> para concluir direto ali; o que ficou atrasado aparece no dia de hoje, tracejado. Abaixo da semana ficam o cronômetro e o painel de hoje, que mostra as revisões do dia.</li>
-    <li>O painel <b>Hoje</b> mostra as revisões do dia. Toque em <b>Feita</b> ao terminar, ou em <b>Revisar agora</b> para iniciar o cronômetro naquele conteúdo.</li>
-    <li><b>Cronômetro:</b> escolha a matéria e inicie. O tempo continua contando mesmo se você fechar o app, e vira horas estudadas em <b>Tempo</b>. Esqueceu de ligar? Use <i>Esqueceu o cronômetro?</i> para lançar minutos.</li>
+    <li>A <b>Agenda</b> mostra a semana. Em cada dia aparecem as aulas, os compromissos (se você importou ou cadastrou), as provas e, na linha <i>a fazer</i>, as revisões e entregas que vencem nele. Toque no <b>✓</b> para concluir direto ali; o que ficou atrasado aparece no dia de hoje, tracejado. O painel de hoje e a criação de revisões novas ficam em Revisões.</li>
+    <li>O painel <b>Hoje</b>, na página <b>Revisões</b>, mostra as revisões do dia. Toque em <b>Feita</b> ao terminar, ou em <b>Revisar agora</b> para iniciar o cronômetro naquele conteúdo.</li>
+    <li><b>Cronômetro:</b> escolha a matéria e inicie. O tempo continua contando mesmo se você fechar o app, e vira horas estudadas em <b>Metas</b>. O cronômetro fica só em Metas; enquanto roda, o menu mostra o tempo e o botão <b>Parar</b> em qualquer página. Esqueceu de ligar? Use <i>Esqueceu o cronômetro?</i> para lançar minutos.</li>
     <li><b>Trabalhos:</b> em <b>Revisões</b>, painel <i>Novo trabalho</i>. Eles aceitam subtarefas e aparecem junto das revisões.</li>
     <li><b>Visões:</b> alterne entre <b>Lista</b>, <b>Quadro</b> e <b>Calendário</b>, filtre por matéria ou prova próxima e salve combinações como visões suas.</li>
     <li><b>Anotações:</b> cada matéria e tópico tem anotações em Markdown (títulos, listas, <code>[ ]</code> para checklist). Use <code>[[Nome]]</code> para ligar uma anotação a outra. Há histórico de versões.</li>
-    <li><b>Assistente:</b> na página <b>Assistente</b> você pergunta como falaria com uma pessoa: <i>"o que tenho amanhã?"</i>, <i>"quando é a próxima prova?"</i>, <i>"quais revisões estão atrasadas?"</i>, <i>"quanto falta para passar em Cálculo?"</i>, <i>"quantas horas estudei esta semana?"</i>, <i>"qual o próximo tópico da ementa?"</i>. Ele também faz duas ações: <i>"adiciona trabalho Relatório de Cálculo para sexta"</i> e <i>"move as revisões atrasadas para hoje"</i>. Antes de mudar qualquer coisa ele mostra o resumo e pede confirmação, e o último pedido pode ser desfeito. Ele usa só os dados deste aparelho, não inventa respostas e, se a pergunta for de outro assunto, avisa e oferece copiar a pergunta para o ChatGPT, o Gemini ou o Claude. Digite <b>ajuda</b> para ver tudo o que ele sabe fazer.</li>
     <li><b>Ajustes:</b> em <i>Horários das revisões</i> você muda a janela de estudo, a duração e os intervalos (ex.: <code>1, 3, 7, 14, 30</code>).</li>
   </ul>
 </section>
@@ -146,7 +144,7 @@ footer{color:var(--mut);font-size:.9rem}
 
 <section id="sync">
   <h2>7. Celular e computador juntos</h2>
-  <p>Como não há servidor, os aparelhos trocam dados diretamente entre si, por <b>QR code animado</b> ou por <b>código de texto</b>. Na aba <b>Sincronizar</b> (menu da esquerda; no celular, em <b>Mais</b>), toque em <b>Sincronizar com outro aparelho</b>.</p>
+  <p>Com a sua conta, os dados sincronizam sozinhos quando há internet. Para passar dados entre dois aparelhos <b>da mesma conta</b> sem internet, eles trocam dados diretamente, por <b>QR code animado</b> ou por <b>código de texto</b>. Na aba <b>Sincronizar</b> (menu da esquerda; no celular, em <b>Mais</b>), toque em <b>Sincronizar com outro aparelho</b>.</p>
   <h3>No aparelho que tem os dados (Enviar)</h3>
   <ol class="steps"><li>Escolha o que enviar.</li><li>(Opcional) coloque uma <b>senha</b>. Recomendado se for mandar o código por mensagem.</li><li>Toque em <b>Gerar QR e código</b>. O QR passa em vários quadros; ajuste a velocidade se precisar.</li></ol>
   <h3>No outro aparelho (Receber)</h3>
@@ -161,31 +159,27 @@ footer{color:var(--mut);font-size:.9rem}
 </section>
 
 <section id="agenda">
-  <h2>8. Google Agenda: trazer e levar</h2>
-  <h3>Trazer o seu Google Agenda para o Cycle</h3>
-  <p>Assim você vê seus compromissos (consultas, reuniões, eventos que se repetem) na <b>Agenda</b> da semana e no painel de hoje, ao lado das revisões.</p>
+  <h2>8. Agenda: trazer e levar</h2>
+  <h3>Trazer a sua agenda (Google, Apple, Outlook) para o Cycle</h3>
+  <p>Na página <b>Agenda</b>, toque em <b>Importar</b>. Os compromissos viram itens do seu cronograma, que você pode editar, apagar e que sincronizam pela sua conta.</p>
   <ol class="steps">
-    <li><b>No computador</b>, no Cycle, vá em <b>Sincronizar &gt; Google Agenda</b> e clique em <b>Trazer meu Google Agenda</b>. O Google abre numa aba nova, já na página de exportação. Entre na sua conta se pedir.</li>
-    <li>Nessa página (<b>Importar e exportar</b>), clique em <b>Exportar</b>. O Google baixa um arquivo <code>.zip</code> com uma agenda por arquivo. Se cair na tela inicial do Google Agenda, clique na engrenagem &gt; <b>Configurações</b> &gt; <b>Importar e exportar</b>.</li>
-    <li>Volte à aba do Cycle e toque em <b>Escolher o arquivo baixado</b>. No Chrome e no Edge a janela já abre na pasta Downloads; escolha o <code>.zip</code> <b>sem descompactar</b>.</li>
-    <li>No celular o Google não deixa exportar: faça os passos acima no computador, passe o arquivo para o celular (e-mail, nuvem ou cabo) e use <b>Já tenho o arquivo: escolher</b>.</li>
-    <li>O Cycle lista as agendas que achou. Marque as que você quer (por exemplo, deixe de fora "Feriados" se não precisar) e toque em <b>Importar as marcadas</b>.</li>
+    <li><b>Google Agenda</b> (no computador): o Cycle mostra o link da exportação do Google. Clique em <b>Exportar</b> e guarde o arquivo <code>.zip</code> sem descompactar. No celular o Google não deixa exportar: faça no computador e passe o arquivo para o celular.</li>
+    <li><b>Apple Calendário</b> (no Mac): <b>Calendário &gt; Arquivo &gt; Exportar &gt; Exportar…</b> gera um <code>.ics</code>. <b>iPhone e iPad não exportam arquivo</b>: use um Mac ou, se a conta da Apple já está no Google Agenda, exporte por lá.</li>
+    <li><b>Outlook ou outro</b>: qualquer arquivo <code>.ics</code> serve.</li>
+    <li>De volta ao Cycle, escolha o arquivo (pode escolher vários). Defina o <b>período</b> (padrão: de hoje a 200 dias; marque <i>Incluir o que já passou</i> se quiser) e confira o <b>tipo</b> de cada título: aula, prova, trabalho, compromisso ou ignorar. O Cycle sugere pelo nome e cria as matérias que faltam.</li>
+    <li>Veja o <b>resumo</b> e toque em <b>Importar</b>.</li>
   </ol>
   <ul>
-    <li>O Cycle não consegue buscar o arquivo sozinho: o navegador não deixa um site mexer em outro site nem nos seus Downloads. Por isso são dois toques seus (Exportar no Google e escolher o arquivo); o resto é automático.</li>
-    <li>O app entende eventos que se repetem toda semana ou mês, exceções e eventos de dia inteiro. Compromissos que terminaram há mais de 45 dias são ignorados.</li>
-    <li><b>Você não precisa cadastrar as matérias antes.</b> O Cycle separa cada item da agenda em <b>aula</b>, <b>prova</b>, <b>trabalho</b>, <b>revisão</b> ou <b>evento</b>: um compromisso que se repete toda semana com cara de aula, ou chamado "Aula: ...", vira uma <b>matéria</b> (com o horário de aula preenchido); "P1 · ...", "Prova de ..." e "Sub" viram <b>prova</b> e já entram na página Provas, com a matéria; "Entrega", "Trabalho", "Relatório" ou "Lista" viram <b>trabalho</b>; o que o próprio Cycle exportou ("R1: ...") é reconhecido como <b>revisão</b> e <b>não é contado em duplicidade</b> com as revisões que você já tem.</li>
-    <li><b>Se ele errar, você corrige.</b> Em Sincronizar, abra <b>Como o Cycle entendeu a sua agenda</b> e troque o tipo de qualquer item (Aula, Prova, Trabalho, Revisão, Evento ou Ignorar). Ao trocar para Prova, a prova é lançada em Provas; ao tirar de Prova, ela sai. Você continua livre para adicionar, renomear ou excluir matérias; ao importar de novo, a sua escolha de tipo é mantida.</li>
-    <li>É uma <b>cópia do momento</b>: se você mudar algo no Google Agenda, exporte e importe de novo (a nova importação substitui a anterior).</li>
-    <li>A agenda importada fica só neste aparelho e <b>não</b> vai na sincronização por QR. Importe o arquivo em cada aparelho em que quiser ver os compromissos. Para apagar, use <b>Remover agenda importada</b>.</li>
-    <li>O Cycle não envia nada ao Google e não pede o seu login.</li>
+    <li><b>Importar de novo só acrescenta o que é novo.</b> O que você editou ou apagou no cronograma não volta, e mudanças feitas depois no Google não atualizam o que já veio.</li>
+    <li>Aulas que se repetem toda semana viram o <b>horário semanal</b> da matéria; provas entram em <b>Provas</b>; trabalhos viram entregas; o resto vira compromisso (se repete toda semana, é um só, com "repete até").</li>
+    <li>O Cycle lê o arquivo neste aparelho e não envia nada ao Google nem pede o seu login.</li>
+    <li>Quem já tinha uma agenda importada na versão anterior vê um aviso na Agenda com o botão <b>Converter</b>.</li>
   </ul>
-  <h3>Levar as provas, trabalhos, revisões e aulas do Cycle para o Google Agenda</h3>
-  <p>Na aba <b>Sincronizar</b>, toque em <b>Agenda (.ics)</b>. O arquivo leva as provas, os trabalhos em aberto, as revisões pendentes e as aulas semanais (20 semanas).</p>
-  <ol class="steps"><li>No computador, abra o Google Agenda e vá em <b>Configurações &gt; Importar e exportar</b>.</li><li>Escolha o arquivo e a agenda de destino, e clique em <b>Importar</b>.</li></ol>
+  <h3>Levar o cronograma do Cycle para o Google, Apple ou Outlook</h3>
+  <p>Na página <b>Agenda</b>, toque em <b>Exportar</b>. A lista traz <b>tudo marcado</b> (aulas, provas, trabalhos, compromissos e revisões): <b>desmarque o que não quer levar</b>, escolha até quando as aulas se repetem e toque em <b>Baixar</b>.</p>
+  <ol class="steps"><li><b>Google Agenda</b> (computador): <b>Configurações &gt; Importar e exportar</b>, escolha o arquivo e a agenda de destino, <b>Importar</b>.</li><li><b>Apple</b>: no Mac, arraste o arquivo para o Calendário; no iPhone, abra o arquivo e toque em <b>Adicionar tudo</b>.</li></ol>
   <ul>
-    <li>Funciona também no Apple Calendar e no Outlook, e não precisa de conta nem chave.</li>
-    <li>Cada evento tem um identificador fixo. Se importar de novo depois de mudar uma data, o evento é atualizado, não duplicado. O que você apagar no Cycle continua na agenda até você apagar lá.</li>
+    <li>Cada evento tem um identificador fixo: importar de novo atualiza em vez de duplicar. O que você apagar no Cycle continua na agenda até você apagar lá.</li>
     <li>É uma cópia de um momento, não uma sincronização contínua.</li>
   </ul>
 </section>
@@ -194,7 +188,7 @@ footer{color:var(--mut);font-size:.9rem}
   <h2>9. O que não funciona nesta versão</h2>
   <ul>
     <li><b>Google Agenda automático</b> (ler e criar eventos sozinho, sem arquivo): precisa de uma integração com o Google que esta versão não tem. Use a importação e a exportação por arquivo da seção 8.</li>
-    <li><b>Assistente com IA e Examinador (quiz):</b> não estão ligados. Eles dependem de uma conta de IA, que seria paga por uso, e esta versão não usa chave nem cobra nada de ninguém. No lugar, o <b>Assistente local</b> responde às perguntas conhecidas sobre os seus dados.</li>
+    <li><b>Assistente e Examinador (quiz) com IA:</b> não existem nesta versão. Eles dependeriam de uma conta de IA paga por uso, e o Cycle não usa chave nem cobra nada de ninguém. Para ementa e critérios de avaliação, os botões <b>Pedir a uma IA</b> abrem o ChatGPT, o Gemini ou o Claude no seu navegador.</li>
   </ul>
   <p>Todo o resto (matérias, provas, revisões, notas, cronômetro, anotações, backup e sincronização) funciona sem internet.</p>
 </section>

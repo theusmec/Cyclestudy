@@ -1,6 +1,13 @@
 <!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Cycle</title><meta name="theme-color" content="#1B2430"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Cycle"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/png" href="icons/icon-192.png"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<script>window.CYCLE_VERSION="cycle-v17"</script>
 <script src="shim.js"></script>
+<script src="firebase-config.js"></script>
+<script src="conta.js"></script>
+<script src="cronograma.js"></script>
+<script src="metas.js"></script>
+<script src="retrospectiva.js"></script>
+<script src="interop.js"></script>
 <title>Cycle</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,6 +18,7 @@
   --accent:#D99A00; --accent-ink:#1B2430; --accent-soft:#F6E7B8;
   --late:#B8412A; --late-soft:#F4DCD5; --ok:#2F7D55; --ok-soft:#D7EBDF;
   --timer-bg:#1B2430; --timer-ink:#F4F1E4;
+  --t-aula:#2F6FB0; --t-prova:#B8412A; --t-trab:#9A6A00; --t-comp:#7B4FB8;
   --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
   --body:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
@@ -22,6 +30,7 @@
     --accent:#F0B429; --accent-ink:#161B21; --accent-soft:#3A3120;
     --late:#E8765C; --late-soft:#3A221D; --ok:#6CC495; --ok-soft:#1C3027;
     --timer-bg:#0B0F13; --timer-ink:#F4F1E4;
+    --t-aula:#6BA6E0; --t-prova:#E8765C; --t-trab:#E0A526; --t-comp:#B38AE6;
   }
 }
 :root[data-theme="dark"]{
@@ -30,7 +39,27 @@
   --accent:#F0B429; --accent-ink:#161B21; --accent-soft:#3A3120;
   --late:#E8765C; --late-soft:#3A221D; --ok:#6CC495; --ok-soft:#1C3027;
   --timer-bg:#0B0F13; --timer-ink:#F4F1E4;
+  --t-aula:#6BA6E0; --t-prova:#E8765C; --t-trab:#E0A526; --t-comp:#B38AE6;
 }
+/* cronograma (Agenda) */
+.crseg{display:inline-flex;gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden}.crseg .btn{border:0;border-radius:0;background:none}.crseg .btn[aria-pressed="true"]{background:var(--accent-soft);font-weight:600}
+.crfil{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:4px 0 8px}.crfil select{font:14px var(--body);padding:5px 8px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);max-width:100%}
+.crchip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:none;color:var(--ink);font:500 13px var(--body);cursor:pointer}
+.crchip[aria-pressed="true"]{border-color:var(--t);background:color-mix(in srgb,var(--t) 16%,var(--card))}.crchip .ico{width:15px;height:15px;color:var(--t)}
+.crsem{margin:14px 0 4px;font:600 12px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.crdia{margin:10px 0 4px;font:600 14px var(--body)}.crdia.hoje{color:var(--accent-ink);background:var(--accent-soft);display:inline-block;padding:1px 8px;border-radius:6px}
+.crev{display:flex;gap:10px;align-items:center;flex-wrap:wrap;width:100%;text-align:left;padding:8px 10px;margin:3px 0;border:1px solid var(--line);border-left:4px solid var(--t);border-radius:8px;background:color-mix(in srgb,var(--t) 9%,var(--card));color:var(--ink);font:14px var(--body);cursor:pointer}
+.crev[disabled]{cursor:default}.crev.feito{opacity:.55;text-decoration:line-through}
+.crev .hora{font:500 13px var(--mono);min-width:92px;color:var(--muted)}.crev .tipo{display:inline-flex;align-items:center;gap:5px;font-weight:600;font-size:12px;color:var(--ink)}.crev .tipo .ico{width:16px;height:16px;color:var(--t)}
+.crev .tt{flex:1;min-width:140px;font-weight:600}.crev .mat{font-size:12px;padding:1px 8px;border-radius:999px;border:1px solid var(--c,var(--line));color:var(--ink)}.crev .loc,.crev .imp{font-size:12px;color:var(--muted)}
+.t-aula{--t:var(--t-aula)}.t-prova{--t:var(--t-prova)}.t-trabalho{--t:var(--t-trab)}.t-compromisso{--t:var(--t-comp)}
+#hojeExtras>summary{cursor:pointer;list-style:revert}
+#cwBack .qz{max-width:560px;width:100%}.cw-tipos{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.cw-tipo{display:flex;align-items:center;gap:8px;padding:12px;border-radius:10px;border:2px solid var(--line);background:var(--card);color:var(--ink);font:600 15px var(--body);cursor:pointer;text-align:left}
+.cw-tipo[aria-checked="true"]{border-color:var(--t);background:color-mix(in srgb,var(--t) 14%,var(--card))}.cw-tipo .ico{color:var(--t)}.cw-tipo[disabled]{opacity:.5;cursor:default}
+.cw-form{display:flex;flex-direction:column;gap:12px}.cw-form input[type=text],.cw-form input[type=date],.cw-form input[type=time],.cw-form select,.cw-form textarea{font:16px var(--body);padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);width:100%}
+.cw-dias{display:flex;gap:6px;flex-wrap:wrap}.cw-dias label{display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border:1px solid var(--line);border-radius:999px;font-size:14px;cursor:pointer}.cw-dias input{width:auto;margin:0}
+.cw-rodape{display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between;align-items:center}.cw-erro{color:var(--late);font-size:13px;min-height:1.2em}.cw-resumo{padding:10px 12px;border-radius:10px;background:var(--paper);border:1px solid var(--line)}
+@media (max-width:640px){.crev .hora{min-width:0}.cw-tipos{grid-template-columns:1fr 1fr}}
 *{box-sizing:border-box}
 body{background:var(--paper);color:var(--ink);font:15px/1.5 var(--body)}
 .wrap{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:20px 60px;display:flex;flex-direction:column;gap:20px}
@@ -300,7 +329,7 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .blk.one .tt{overflow:hidden;text-overflow:ellipsis}
 .blk.rev{--c:var(--accent);border-style:dashed;background:var(--accent-soft)}
 .blk.rev .tt{font-weight:500}
-.blk.trab{--c:var(--late);border-style:dashed}
+.blk.trab{--c:var(--t-trab);border-style:dashed}
 .gad i.k-prova{background:var(--late-soft);color:var(--late);font-weight:600}
 .gad i.k-trabalho{border-left:3px solid var(--late)}
 .gad i.k-revisao{background:var(--accent-soft)}
@@ -359,6 +388,12 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
 .brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;font-size:17px;letter-spacing:-.01em;min-width:0}
 .brand .lbl{white-space:nowrap}
 .brand-mark{width:22px;height:22px;flex:none;border-radius:50%;border:4px solid var(--accent);border-right-color:var(--ink)}
+.brand-box{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:1px;padding-left:32px}
+.brand-box .brand{max-width:100%}
+.curso{font-size:12px;line-height:1.3;color:var(--muted);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center}
+.curso .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.mbrand{display:none;flex-direction:column;align-items:center;gap:2px;margin-bottom:-8px;min-width:0}
+.mbrand .curso{font-size:13px}
 .side-toggle,.icon-btn{display:grid;place-items:center;width:32px;height:32px;border-radius:8px;border:1px solid transparent;background:none;color:var(--muted);cursor:pointer;flex:none}
 .side-toggle:hover,.icon-btn:hover{background:var(--paper);color:var(--ink)}
 .side-toggle .ico{transition:transform .18s ease}
@@ -373,6 +408,12 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
 .nav-count{font-family:var(--mono);font-size:12px;font-weight:500;min-width:20px;padding:1px 6px;border-radius:999px;background:var(--accent);color:var(--accent-ink);text-align:center}
 .nav-timer{display:flex;align-items:center;gap:10px;margin-top:auto;width:100%;padding:10px;border-radius:10px;border:0;background:var(--timer-bg);color:var(--timer-ink);font:inherit;font-size:13px;cursor:pointer;text-align:left}
 .nav-timer[hidden]{display:none!important}
+.ntw{display:flex;gap:6px;align-items:stretch;margin-top:auto;width:100%}
+.ntw[hidden],.bnav-tw[hidden]{display:none!important}
+.ntw .nav-timer{margin-top:0;flex:1;min-width:0}
+.nt-stop{border:0;border-radius:10px;padding:0 12px;background:var(--late);color:#fff;font:inherit;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.app.side-off .ntw{flex-direction:column}
+.app.side-off .nt-stop .lbl{display:none}
 .nav-timer .lbl{min-width:0;display:flex;flex-direction:column}
 .nav-timer b{font-family:var(--mono);font-weight:500;font-size:15px;color:var(--accent)}
 .nav-timer .sub{opacity:.75;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -381,6 +422,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
 .app.side-off .lbl{display:none}
 .app.side-off .side-top{flex-direction:column;padding-inline:0}
 .app.side-off .brand{justify-content:center}
+.app.side-off .brand-box{padding-left:0}
 .app.side-off .side-toggle .ico{transform:rotate(180deg)}
 .app.side-off .nav-item,.app.side-off .side-search,.app.side-off .nav-timer{justify-content:center;padding-inline:0}
 .app.side-off .nav-item{position:relative}
@@ -397,6 +439,9 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
 .bnav .nav-count{position:absolute;top:2px;left:calc(50% + 6px);min-width:16px;padding:0 4px;font-size:10px}
 .bnav-timer{grid-column:1 / -1;display:flex;align-items:center;justify-content:center;gap:8px;padding:6px 10px;margin-bottom:2px;border:0;border-radius:8px;background:var(--timer-bg);color:var(--timer-ink);font:inherit;font-size:13px;cursor:pointer}
 .bnav-timer[hidden]{display:none!important}
+.bnav-tw{grid-column:1 / -1;display:flex;gap:6px;margin-bottom:2px}
+.bnav-tw .bnav-timer{flex:1;margin-bottom:0}
+.bnav-tw .nt-stop{padding:6px 14px;border-radius:8px}
 .bnav-timer b{font-family:var(--mono);font-weight:500;color:var(--accent)}
 .more{position:fixed;right:12px;bottom:calc(68px + env(safe-area-inset-bottom,0px));z-index:31;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:6px;display:flex;flex-direction:column;min-width:190px;box-shadow:0 8px 28px rgba(0,0,0,.22)}
 .more[hidden]{display:none!important}
@@ -508,6 +553,72 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
 .mat-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
 .mat-tools .field{max-width:150px}
 .week .col-bar.hit{background:var(--ok);opacity:1}
+.mbar{padding-bottom:8px;border-bottom:1px solid var(--line);grid-template-columns:minmax(0,1fr) auto}
+.mbar .v{white-space:nowrap}
+.mbar:last-child{border-bottom:0}
+.mmeta{grid-column:1 / -1;display:flex;gap:6px 14px;flex-wrap:wrap;align-items:center;justify-content:space-between;font-size:12px;color:var(--muted)}
+.mmeta small{font-size:11px}
+.mset{display:flex;gap:6px;align-items:center}
+.mset input{width:84px;padding:4px 6px;font-size:13px}
+.meta-ok{color:var(--ok);font-weight:600}
+.msem{display:inline-flex;gap:3px;align-items:flex-end;height:20px}
+.msem i{width:6px;background:var(--ink);opacity:.45;border-radius:2px 2px 0 0;display:block}
+.msem i.hit{background:var(--ok);opacity:1}
+.nrform{display:flex;flex-direction:column;gap:10px;background:var(--paper);border-radius:10px;padding:12px;margin-bottom:12px}
+.nrmsg{font-size:13px;color:var(--late)}
+.in-back{z-index:55}
+.in-box{max-width:720px}
+.in-form{display:flex;flex-direction:column;gap:12px}
+.in-form input[type=checkbox],.ex-sum input{width:auto;flex:none;margin:0}
+.ex-grupos{display:flex;flex-direction:column;gap:8px}
+.ex-g{border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.ex-sum{display:flex;align-items:center;gap:8px;cursor:pointer;list-style:none}
+.ex-sum::-webkit-details-marker{display:none}
+.ex-sum::before{content:"▸";color:var(--muted);transition:transform .15s}
+.ex-g[open]>.ex-sum::before{transform:rotate(90deg)}
+.ex-its{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.ex-it{display:flex;gap:8px;align-items:flex-start}
+.ex-it input{margin-top:3px}
+.ex-it small{display:block;color:var(--muted)}
+.im-fontes{display:grid;gap:8px}
+.im-f{background:var(--paper);border-radius:10px;padding:10px 12px}
+.im-f p{margin:4px 0 0;font-size:13px}
+.im-cals{display:flex;flex-direction:column;gap:4px}
+.im-per{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.im-per .check{grid-column:1 / -1}
+.im-rows{display:flex;flex-direction:column;gap:8px}
+.im-row{display:grid;grid-template-columns:1fr;gap:6px;background:var(--paper);border-radius:10px;padding:8px 10px}
+.im-t small{display:block;color:var(--muted)}
+@media(min-width:620px){.im-row{grid-template-columns:minmax(0,1fr) 140px 190px;align-items:center}}
+.rt-back{z-index:60}
+.rt-box{max-width:720px}
+.rt-per{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.rt-msg{margin:0;padding:12px 14px;border-radius:10px;background:var(--accent-soft);font-size:15px}
+.rt-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
+.rt-tile{background:var(--paper);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.rt-tile b{font-family:var(--mono);font-weight:600;font-size:20px}
+.rt-tile span{font-size:12px;color:var(--muted)}
+.rt-h{margin:6px 0 0;font-size:14px}
+.rt-sup,.rt-hab{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+.rt-sup li{display:flex;flex-direction:column;gap:2px;padding:8px 12px;border-radius:8px;background:var(--paper);border-left:3px solid var(--accent)}
+.rt-sup span{font-size:13px;color:var(--muted)}
+.rt-hab li{font-size:14px}
+.rt-graf{position:relative;display:flex;gap:3px;align-items:flex-end;height:110px;border-bottom:1px solid var(--line)}
+.rt-col{flex:1;height:100%;display:flex;align-items:flex-end}
+.rt-col i{display:block;width:100%;background:var(--ink);opacity:.55;border-radius:3px 3px 0 0}
+.rt-col i.hit{background:var(--ok);opacity:1}
+.rt-meta{position:absolute;left:0;right:0;border-top:2px dashed var(--accent);height:0}
+.rt-eixo{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);font-family:var(--mono)}
+.rt-mats{display:flex;flex-direction:column;gap:8px}
+.rt-mat{display:flex;gap:10px;align-items:flex-start}
+.rt-mat>i{width:10px;height:10px;border-radius:50%;margin-top:5px;flex:none}
+.rt-mat>div{display:flex;flex-wrap:wrap;gap:2px 10px;align-items:baseline}
+.rt-mat small{flex-basis:100%;color:var(--muted);font-size:12px}
+.rt-acoes{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.rt-lista{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:13px}
+@media(max-width:560px){.rt-per{grid-template-columns:1fr}}
+.mlong{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.mlong-in{width:90px;padding:4px 6px}
 .subs{grid-column:1 / -1;display:flex;flex-direction:column;gap:6px;background:var(--paper);border-radius:8px;padding:10px 12px}
 .subs ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:2px}
 .subs li{display:flex;justify-content:space-between;align-items:center;gap:8px}
@@ -554,26 +665,13 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
   .gr-row select{grid-column:span 2}
 }
 
-/* assistente */
-.ai-log{display:flex;flex-direction:column;gap:12px}
-.ai-msg{max-width:100%;padding:10px 12px;border-radius:12px;font-size:14px;overflow-wrap:anywhere;display:flex;flex-direction:column;gap:8px}
-.ai-msg.u{align-self:flex-end;max-width:88%;background:var(--ink);color:var(--paper);white-space:pre-wrap}
-.ai-msg.a{align-self:stretch;background:var(--paper);border:1px solid var(--line)}
-.ai-msg.a > div:first-child:not(.ai-act){white-space:pre-wrap}
-.ai-act{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
-.ai-act ul{margin:0;padding-left:18px;font-size:13px;color:var(--muted)}
-.ai-err{font-size:13px;color:var(--late)}
-.ai-res{font-size:13px;color:var(--ok);font-weight:600}
-.ai-foot{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--muted)}
-.ai-chips{display:flex;gap:8px;flex-wrap:wrap}
-.ai-form{display:flex;gap:8px;align-items:flex-end}
-.ai-form textarea{flex:1;min-height:44px;max-height:160px}
-.ai-btns{display:flex;flex-direction:column;gap:6px}
-@media (max-width:480px){.ai-form{flex-direction:column;align-items:stretch}.ai-btns{flex-direction:row}.ai-btns .btn{flex:1}}
+/* modelos de critérios (Notas) */
+.modelo-chips{display:flex;gap:8px;flex-wrap:wrap}
 
 @media (max-width:900px){
   .app{display:block}
   .side{display:none}
+  .mbrand{display:flex}
   .bnav{display:grid}
   .m-only{display:grid}
   .wrap{padding-block:16px calc(96px + env(safe-area-inset-bottom,0px))}
@@ -590,18 +688,18 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
   <symbol id="i-materias" viewBox="0 0 24 24"><path d="M6 4h12a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/><path d="M9.5 4v16"/></symbol>
   <symbol id="i-provas" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 11h6M9 15h4"/></symbol>
   <symbol id="i-tempo" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
-  <symbol id="i-assistente" viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 16v4M17 18h4"/></symbol>
   <symbol id="i-busca" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></symbol>
   <symbol id="i-mais" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.6" fill="currentColor" stroke="none"/></symbol>
   <symbol id="i-recolher" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></symbol>
   <symbol id="i-sync" viewBox="0 0 24 24"><path d="M5 8h13l-3.5-3.5M19 16H6l3.5 3.5"/></symbol>
+  <symbol id="i-conta" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></symbol>
   <symbol id="i-notas" viewBox="0 0 24 24"><path d="M5 20V10M12 20V4M19 20v-7"/></symbol>
   <symbol id="i-nota" viewBox="0 0 24 24"><path d="M5 4h10l4 4v12H5z"/><path d="M15 4v4h4M8 12h8M8 16h5"/></symbol>
   <symbol id="i-estrela" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.9 6.8 19.7l1-5.9-4.3-4.1 5.9-.8z"/></symbol>
 </svg>
 <aside class="side" id="side" aria-label="Menu lateral">
   <div class="side-top">
-    <div class="brand"><span class="brand-mark" aria-hidden="true"></span><span class="lbl">Cycle</span></div>
+    <div class="brand-box"><div class="brand"><span class="brand-mark" aria-hidden="true"></span><span class="lbl">Cycle</span></div><div class="curso lbl" data-curso hidden></div></div>
     <button class="side-toggle" id="sideToggle" type="button" aria-label="Recolher menu" title="Recolher menu (Ctrl+\)"><svg class="ico"><use href="#i-recolher"/></svg></button>
   </div>
   <button class="side-search" data-open-search type="button" aria-label="Buscar"><svg class="ico"><use href="#i-busca"/></svg><span class="lbl">Buscar</span><kbd class="lbl">Ctrl K</kbd></button>
@@ -611,14 +709,15 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     <button class="nav-item" data-nav="materias" type="button" title="Matérias"><svg class="ico"><use href="#i-materias"/></svg><span class="lbl">Matérias</span></button>
     <button class="nav-item" data-nav="provas" type="button" title="Provas"><svg class="ico"><use href="#i-provas"/></svg><span class="lbl">Provas</span></button>
     <button class="nav-item" data-nav="notas" type="button" title="Notas"><svg class="ico"><use href="#i-notas"/></svg><span class="lbl">Notas</span></button>
-    <button class="nav-item" data-nav="tempo" type="button" title="Tempo"><svg class="ico"><use href="#i-tempo"/></svg><span class="lbl">Tempo</span></button>
-    <button class="nav-item" data-nav="assistente" type="button" title="Assistente"><svg class="ico"><use href="#i-assistente"/></svg><span class="lbl">Assistente</span></button>
+    <button class="nav-item" data-nav="tempo" type="button" title="Metas"><svg class="ico"><use href="#i-tempo"/></svg><span class="lbl">Metas</span></button>
     <button class="nav-item" data-nav="dados" type="button" title="Sincronizar"><svg class="ico"><use href="#i-sync"/></svg><span class="lbl">Sincronizar</span></button>
+    <button class="nav-item" data-nav="conta" type="button" title="Conta" hidden><svg class="ico"><use href="#i-conta"/></svg><span class="lbl">Conta</span></button>
   </nav>
-  <button class="nav-timer" data-nav="tempo" data-ntimer type="button" hidden aria-label="Cronômetro em andamento"><i class="nt-dot"></i><span class="lbl"><b class="nt-clock">00:00:00</b><span class="sub nt-sub"></span></span></button>
+  <div class="ntw" data-ntimer hidden><button class="nav-timer" data-nav="tempo" type="button" aria-label="Cronômetro em andamento"><i class="nt-dot"></i><span class="lbl"><b class="nt-clock">00:00:00</b><span class="sub nt-sub"></span></span></button><button class="nt-stop" data-ntstop type="button" aria-label="Parar e salvar o cronômetro" title="Parar e salvar">■<span class="lbl"> Parar</span></button></div>
 </aside>
 <div class="main">
 <div class="wrap">
+  <div class="mbrand"><div class="brand"><span class="brand-mark" aria-hidden="true"></span><span>Cycle</span></div><div class="curso" data-curso hidden></div></div>
   <header class="top">
     <div>
       <div class="eyebrow" id="pageEyebrow">Semana, compromissos, aulas e revisões</div>
@@ -632,24 +731,26 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
   </header>
 
   <div class="gmsg info" id="tourBanner" hidden style="margin-bottom:14px"><span>Primeira vez por aqui? Faça um tour de 1 minuto por todas as abas.</span> <button class="btn small primary" id="tourGo" type="button">Fazer o tour</button> <button class="btn small ghost" id="tourNo" type="button">Agora não</button></div>
+  <div class="gmsg info" id="plConvite" hidden style="margin-bottom:14px"><span>Já tem os Planos de Ensino (PDF) das suas matérias? O Cycle monta as matérias e as ementas para você.</span> <button class="btn small primary" id="plConviteGo" type="button">Importar planos de ensino</button> <button class="btn small ghost" id="plConviteNo" type="button">Agora não</button></div>
   <div class="banner" id="noDb" hidden>Os dados só são salvos quando a página é aberta pelo claude.ai. Nesta visualização nada fica gravado.</div>
-  <section class="timer" id="timerBox" aria-label="Cronômetro">
-    <div class="clock num" id="clock">00:00:00</div>
-    <div class="ctrl">
-      <label for="timerSubject">Matéria</label>
-      <select id="timerSubject"></select>
-      <div class="ctx" id="timerCtx"></div>
-      <div class="stats">
-        <div>Hoje<b id="statToday">0h00</b></div>
-        <div>Semana<b id="statWeek">0h00</b></div>
-        <div>Revisões feitas hoje<b id="statRevs">0</b></div>
-      </div>
-    </div>
-    <button class="bigbtn" id="timerBtn" type="button">Iniciar</button>
-  </section>
 
   <div id="viewHoje" hidden style="display:flex;flex-direction:column;gap:20px">
-  <section class="panel" id="viewGrade" aria-labelledby="hGrade">
+  <section class="panel" id="cronoPanel" aria-labelledby="hCrono">
+    <div class="panel-head">
+      <div><h2 id="hCrono">Cronograma</h2><span class="count" id="cronoCount"></span></div>
+      <div class="hnav">
+        <div class="crseg" role="group" aria-label="Forma de ver"><button class="btn small" id="cronoModoLista" type="button" aria-pressed="true">Lista</button><button class="btn small" id="cronoModoSemana" type="button" aria-pressed="false">Semana</button></div>
+        <button class="btn small primary" id="cronoAdd" type="button">+ Adicionar</button>
+        <button class="btn small" id="cronoImp" type="button">Importar</button>
+        <button class="btn small" id="cronoExp" type="button">Exportar</button>
+        <button class="btn small" id="cronoFim" type="button">Fim de semestre</button>
+      </div>
+    </div>
+    <div class="gmsg info" id="intConv" hidden style="margin-bottom:10px"><span>Sua agenda importada agora vira itens do cronograma: você poderá editar, apagar e sincronizar pela conta.</span> <button class="btn small primary" id="intConvGo" type="button">Converter</button></div>
+    <div class="crfil" id="cronoFiltros"></div>
+    <div id="cronoLista" aria-live="polite"></div>
+  </section>
+  <section class="panel" id="viewGrade" aria-labelledby="hGrade" hidden>
     <div class="panel-head">
       <div>
         <h2 id="hGrade">Agenda da semana</h2>
@@ -665,13 +766,16 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     <div class="gmsg" id="gradeMsg" hidden></div>
     <div class="gscroll"><div id="gradeBody"></div></div>
     <div class="legend">
-      <span><i class="sw" style="background:color-mix(in srgb,#3B82C4 20%,var(--card));border-color:#3B82C4"></i>Aula ou compromisso (cor da matéria)</span>
+      <span><i class="sw" style="background:color-mix(in srgb,#3B82C4 20%,var(--card));border-color:#3B82C4"></i>Aula (azul) ou compromisso (roxo); prova em vermelho, trabalho em âmbar</span>
       <span><i class="sw rev"></i>Revisão ou entrega a fazer (toque em ✓ para concluir)</span>
       <span><i class="sw ses"></i>Tempo estudado (cronômetro)</span>
       <span><i class="sw win"></i>Janela de estudo</span>
     </div>
   </section>
-  <div class="grid">
+  </div>
+
+  <div id="viewRevisoes" hidden style="display:flex;flex-direction:column;gap:20px">
+  <div class="grid" id="hojeBloco">
     <div class="col">
       <section class="panel" aria-labelledby="hojeTitle">
         <div class="panel-head">
@@ -728,9 +832,6 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
       </form>
     </div>
   </div>
-  </div>
-
-  <div id="viewRevisoes" hidden style="display:flex;flex-direction:column;gap:20px">
   <div class="adjust" id="adjustBox" hidden>
     <div>
       <b id="adjustTitle"></b>
@@ -742,9 +843,20 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     <div class="col">
       <section class="panel" id="viewsPanel" aria-labelledby="hViews">
         <div class="panel-head">
-          <h2 id="hViews">Revisões e trabalhos</h2>
-          <span class="count" id="vCount"></span>
+          <div><h2 id="hViews">Revisões e trabalhos</h2><span class="count" id="vCount"></span></div>
+          <button class="btn small primary" id="nrOpen" type="button" aria-expanded="false" aria-controls="nrForm">+ Nova revisão</button>
         </div>
+        <form class="nrform" id="nrForm" novalidate hidden aria-label="Nova revisão">
+          <div class="crseg" role="group" aria-label="Tipo de revisão"><button class="btn small" id="nrModoC" type="button" aria-pressed="true">De um conteúdo já registrado</button><button class="btn small" id="nrModoL" type="button" aria-pressed="false">Lembrete avulso</button></div>
+          <label class="field" id="nrFC"><span>Conteúdo</span><select id="nrCont"></select></label>
+          <div class="row" id="nrFL" hidden>
+            <label class="field"><span>Matéria</span><select id="nrSubj"></select></label>
+            <label class="field"><span>O que rever</span><input id="nrTitle" maxlength="120" autocomplete="off" placeholder="Ex.: Lista 2 de cálculo"></label>
+          </div>
+          <label class="field"><span>Data da revisão</span><input type="date" id="nrDate"></label>
+          <div class="nrmsg" id="nrMsg" role="status" hidden></div>
+          <div class="hnav"><button class="btn small primary" id="nrOk" type="submit">Criar revisão</button><button class="btn small ghost" id="nrNo" type="button">Cancelar</button></div>
+        </form>
         <div class="tabs" id="vTabs" role="tablist" aria-label="Visualização"></div>
         <details class="vfilt" id="vFilt">
           <summary>Filtros e ordem <span class="nav-count" id="vFiltN" hidden></span></summary>
@@ -855,7 +967,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     </div>
     <div id="matOver" style="display:flex;flex-direction:column;gap:20px">
     <section class="panel" aria-labelledby="hMatCards">
-      <div class="panel-head"><h2 id="hMatCards">Suas matérias</h2><span class="count" id="matCount"></span></div>
+      <div class="panel-head"><h2 id="hMatCards">Suas matérias</h2><span style="display:flex;gap:8px;align-items:center"><button class="btn small" id="plBtn" type="button" hidden title="Importar os Planos de Ensino (PDF) das matérias que você cursa">Ementas</button><span class="count" id="matCount"></span></span></div>
       <div class="mcards" id="matCards"></div>
     </section>
       <details class="panel" open>
@@ -916,13 +1028,36 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
   </div>
 
   <div id="viewTempo" hidden style="display:flex;flex-direction:column;gap:20px">
+  <section class="timer" id="timerBox" aria-label="Cronômetro">
+    <div class="clock num" id="clock">00:00:00</div>
+    <div class="ctrl">
+      <label for="timerSubject">Matéria</label>
+      <select id="timerSubject"></select>
+      <div class="ctx" id="timerCtx"></div>
+      <div class="stats">
+        <div>Hoje<b id="statToday">0h00</b></div>
+        <div>Semana<b id="statWeek">0h00</b></div>
+        <div>Revisões feitas hoje<b id="statRevs">0</b></div>
+      </div>
+    </div>
+    <button class="bigbtn" id="timerBtn" type="button">Iniciar</button>
+  </section>
       <section class="panel" aria-labelledby="hTime">
         <div class="panel-head">
-          <h2 id="hTime">Tempo de estudo</h2>
-          <span class="count" id="weekRange"></span>
+          <div><h2 id="hTime">Metas da semana</h2><span class="count" id="weekRange"></span></div>
+          <div class="gnav">
+            <button class="btn small" id="mPrev" type="button" aria-label="Semana anterior">‹</button>
+            <button class="btn small" id="mToday" type="button">Esta semana</button>
+            <button class="btn small" id="mNext" type="button" aria-label="Próxima semana">›</button>
+          </div>
         </div>
+        <div class="hsum" id="metaSum"></div>
+        <div class="hnav" id="metaRetroBox"><button class="btn small" id="metaRetro" type="button">Retrospectiva do semestre</button></div>
+        <div id="metaRetros"></div>
+        <div id="metaLongas"></div>
         <div class="week" id="weekChart"></div>
         <div class="bars" id="bars"></div>
+        <p class="plan" id="metaNota" style="margin:0"></p>
         <div class="manual">
           <label class="field"><span>Esqueceu o cronômetro?</span><select id="manSubject"></select></label>
           <label class="field" style="flex:0 1 90px"><span>Minutos</span><input id="manMin" type="number" min="1" max="600" inputmode="numeric"></label>
@@ -954,57 +1089,22 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     </details>
   </div>
 
+  <div id="viewConta" hidden style="display:flex;flex-direction:column;gap:20px"></div>
+
   <div id="viewDados" hidden style="display:flex;flex-direction:column;gap:20px">
     <section class="panel" aria-labelledby="hExp">
       <h2 id="hExp">Sincronizar, importar e exportar</h2>
       <p class="plan" style="margin:0">Baixe seus dados como arquivos. O navegador pede a sua confirmação antes de salvar.</p>
-      <p class="plan" id="expLocal" style="margin:0" hidden>Seus dados ficam só neste aparelho. Para levar para outro aparelho, use <b>Sincronizar</b> (QR ou código, sem conta). O arquivo .json serve de backup, e "Importar backup" traz ele de volta. <a href="ajuda.html" target="_blank" rel="noopener">Tutorial: como usar o Cycle</a></p>
-      <div class="hnav"><button class="btn primary" id="syncBtn" type="button" hidden>Sincronizar com outro aparelho</button><button class="btn" data-act="exp" data-w="notas" type="button">Anotações (.md)</button><button class="btn" data-act="exp" data-w="tudo" type="button">Todos os dados (.json)</button><button class="btn" data-act="exp" data-w="agenda" type="button">Agenda (.ics)</button><button class="btn" id="impBtn" type="button" hidden>Importar backup (.json)</button><input type="file" id="impFile" accept=".json,application/json" hidden></div>
-      <div id="agSec" hidden>
-        <h3 style="margin:14px 0 4px;font-size:15px">Google Agenda</h3>
-        <p class="plan" style="margin:0 0 8px">Toque em <b>Trazer meu Google Agenda</b>: o Google abre numa aba nova, já na página de exportação (entre na sua conta se pedir). Clique em <b>Exportar</b>, volte aqui e escolha o .zip que o Google baixou. É uma cópia do momento; para atualizar, repita.</p>
-        <p class="plan" id="agMobile" style="margin:0 0 8px" hidden>No celular o Google não deixa exportar. Faça a exportação no computador e passe o .zip para este aparelho (e-mail, nuvem ou cabo); depois use <b>Já tenho o arquivo: escolher</b>.</p>
-        <div class="hnav"><a class="btn primary" id="agOpen" href="https://calendar.google.com/calendar/u/0/r/settings/export" target="_blank" rel="noopener">Trazer meu Google Agenda</a><button class="btn ghost" id="agImpBtn" type="button">Já tenho o arquivo: escolher</button><button class="btn ghost danger" id="agDelBtn" type="button" hidden>Remover agenda importada</button><input type="file" id="agFile" accept=".zip,.ics,application/zip,text/calendar" hidden></div>
-        <div class="rbar" id="agStep2" hidden style="flex-direction:column;align-items:stretch;gap:8px"><span><b>Agora, na aba do Google:</b> clique em <b>Exportar</b>. Quando o arquivo .zip terminar de baixar, volte aqui e toque no botão.</span><div><button class="btn small primary" id="agPick" type="button">Escolher o arquivo baixado</button></div></div>
-        <p class="plan" id="agStatus" style="margin:8px 0 0" hidden></p>
-        <div class="rbar" id="agBox" hidden style="flex-direction:column;align-items:stretch;gap:8px"><span id="agTxt"></span><div id="agList" style="display:flex;flex-direction:column;gap:4px"></div><div style="display:flex;gap:8px"><button class="btn small primary" id="agOk" type="button">Importar as marcadas</button><button class="btn small ghost" id="agNo" type="button">Cancelar</button></div></div>
-        <details class="panel" id="agClsBox" hidden style="margin-top:12px"><summary id="agClsSum">Como o Cycle entendeu a sua agenda</summary>
-          <p class="plan" style="margin:8px 0">O Cycle separa o que veio do Google Agenda em <b>aula</b> (vira uma matéria), <b>prova</b> (entra em Provas), <b>trabalho</b>, <b>revisão</b> e <b>evento</b>. Se errou, troque o tipo: as matérias e provas são ajustadas. <b>Ignorar</b> esconde o item da agenda.</p>
-          <div id="agClsList"></div>
-        </details>
-      </div>
+      <p class="plan" id="expLocal" style="margin:0" hidden>Seus dados ficam neste aparelho e, com conta, também na nuvem. Para passar de um aparelho para outro <b>da mesma conta</b> sem internet, use <b>Sincronizar</b> (QR ou código). O arquivo .json serve de backup, e "Importar backup" traz ele de volta. <a href="ajuda.html" target="_blank" rel="noopener">Tutorial: como usar o Cycle</a></p>
+      <div class="hnav"><button class="btn primary" id="syncBtn" type="button" hidden>Sincronizar com outro aparelho</button><button class="btn" data-act="exp" data-w="notas" type="button">Anotações (.md)</button><button class="btn" data-act="exp" data-w="tudo" type="button">Todos os dados (.json)</button><button class="btn" id="impBtn" type="button" hidden>Importar backup (.json)</button><input type="file" id="impFile" accept=".json,application/json" hidden></div>
       <div class="rbar" id="impBox" hidden><span id="impTxt"></span><button class="btn small primary" id="impOk" type="button">Substituir os dados</button><button class="btn small ghost" id="impNo" type="button">Cancelar</button></div>
     </section>
   </div>
 
-  <div id="viewAssistente" hidden style="display:flex;flex-direction:column;gap:20px">
-    <section class="panel" aria-labelledby="hAssist">
-      <div class="panel-head">
-        <h2 id="hAssist">Assistente</h2>
-        <button class="btn small" id="aiUndo" type="button" hidden>Desfazer último pedido</button>
-      </div>
-      <div class="gmsg" id="aiOff" hidden>O assistente só funciona com a página aberta pelo claude.ai, usando a sua conta do Claude.</div>
-      <p class="plan" id="aiLocalNote" style="margin:0" hidden>Assistente local: responde sobre a sua <b>agenda, provas, notas, revisões e trabalhos</b> com os dados deste aparelho. Não usa internet nem IA, e nunca inventa: se não souber, ele diz. Digite <b>ajuda</b> para ver tudo o que ele faz.</p>
-      <div class="ai-log" id="aiLog" aria-live="polite"></div>
-      <div class="field" id="aiEx"><span>Experimente</span>
-        <div class="ai-chips">
-          <button class="btn small" type="button" data-ai-ex="Move as revisões atrasadas de Cálculo para Fazer hoje.">Mover atrasadas para Fazer hoje</button>
-          <button class="btn small" type="button" data-ai-ex="Cria uma visualização só com as matérias que têm prova nos próximos 30 dias.">Visualização das matérias com prova</button>
-          <button class="btn small" type="button" data-ai-ex="Organiza o quadro por proximidade da prova.">Quadro por proximidade da prova</button>
-          <button class="btn small" type="button" data-ai-ex="Renomeia a página Tempo para Estatísticas.">Renomear a página Tempo</button>
-        </div>
-      </div>
-      <form class="ai-form" id="aiForm">
-        <textarea id="aiInput" rows="2" placeholder="Peça em português. Ex.: adia as revisões de uma matéria em 2 dias" aria-label="Pedido ao assistente"></textarea>
-        <div class="ai-btns"><button class="btn primary" id="aiSend" type="submit">Enviar</button><button class="btn" id="aiStop" type="button" hidden>Parar</button></div>
-      </form>
-      <p class="plan" id="aiFootNote" style="margin:0">O assistente só usa as ações do app e nunca apaga dados. Pede confirmação quando a mudança atinge vários itens ou mexe no Google Calendar, e o último pedido pode ser desfeito. Cada pedido usa o seu plano do Claude.</p>
-    </section>
-  </div>
 </div>
 </div>
 <nav class="bnav" aria-label="Páginas">
-  <button class="bnav-timer" data-nav="tempo" data-ntimer type="button" hidden><i class="nt-dot"></i><b class="nt-clock">00:00:00</b><span class="nt-sub"></span></button>
+  <div class="bnav-tw" data-ntimer hidden><button class="bnav-timer" data-nav="tempo" type="button"><i class="nt-dot"></i><b class="nt-clock">00:00:00</b><span class="nt-sub"></span></button><button class="nt-stop" data-ntstop type="button" aria-label="Parar e salvar o cronômetro">■ Parar</button></div>
   <button class="b-item" data-nav="hoje" type="button"><span class="b-ico"><svg class="ico"><use href="#i-hoje"/></svg></span>Agenda</button>
   <button class="b-item" data-nav="revisoes" type="button"><span class="b-ico"><svg class="ico"><use href="#i-revisoes"/></svg></span>Revisões<span class="nav-count js-revcount" hidden></span></button>
   <button class="b-item" data-nav="materias" type="button"><span class="b-ico"><svg class="ico"><use href="#i-materias"/></svg></span>Matérias</button>
@@ -1013,9 +1113,9 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
 </nav>
 <div class="more" id="morePanel" hidden>
   <button class="nav-item" data-nav="notas" type="button"><svg class="ico"><use href="#i-notas"/></svg><span class="lbl">Notas</span></button>
-  <button class="nav-item" data-nav="tempo" type="button"><svg class="ico"><use href="#i-tempo"/></svg><span class="lbl">Tempo</span></button>
-  <button class="nav-item" data-nav="assistente" type="button"><svg class="ico"><use href="#i-assistente"/></svg><span class="lbl">Assistente</span></button>
+  <button class="nav-item" data-nav="tempo" type="button"><svg class="ico"><use href="#i-tempo"/></svg><span class="lbl">Metas</span></button>
   <button class="nav-item" data-nav="dados" type="button"><svg class="ico"><use href="#i-sync"/></svg><span class="lbl">Sincronizar</span></button>
+  <button class="nav-item" data-nav="conta" type="button" hidden><svg class="ico"><use href="#i-conta"/></svg><span class="lbl">Conta</span></button>
   <button class="nav-item" data-open-search type="button"><svg class="ico"><use href="#i-busca"/></svg><span class="lbl">Buscar</span></button>
 </div>
 </div>
@@ -1034,12 +1134,24 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
 (() => {
   const TZ = "America/Sao_Paulo";
   const STANDALONE = !!window.__CYCLE_STANDALONE__;   // true no app instalável; false dentro do claude.ai
-  const NOMCP = s => STANDALONE ? "O Google Agenda não se conecta nesta versão. Para ver seus compromissos aqui, importe o arquivo exportado em Sincronizar > Google Agenda." : s;
+  const NOMCP = s => STANDALONE ? "" : s;
   const CAL = "Google Calendar";
+  // Marca "Cycle" com o curso embaixo (menu lateral no PC, faixa no topo no celular). O curso vem de settings/main.curso e é sempre texto puro.
+  function renderMarca() {
+    const curso = String((S.settings && S.settings.curso) || "").trim();
+    document.querySelectorAll("[data-curso]").forEach(el => {
+      el.textContent = "";
+      el.hidden = !curso;
+      if (!curso) { el.removeAttribute("title"); return; }
+      const sr = document.createElement("span"); sr.className = "sr"; sr.textContent = "Curso: ";
+      el.append(sr, curso); el.title = curso;
+    });
+    const box = document.querySelector(".brand-box"); if (box) { if (curso) box.title = curso; else box.removeAttribute("title"); }
+  }
   const DEF = { windowStart:"14:00", windowEnd:"23:00", duration:30, buffer:10, intervals:[1,3,7,14,30], coverLead:14 };
   const PALETTE = ["#3B82C4","#D0602B","#2F9E6E","#8E5CC7","#C0417A","#B08A00","#1F8FA3","#6B7A2E","#C2453A","#5A6FD6"];
 
-  const S = { db:null, mcp:null, sample:null, subjects:[], contents:[], sessions:[], exams:[], tasks:[], notes:{}, grades:{}, settings:{...DEF}, timer:null, tick:null, pendingDelete:null, busy:false };
+  const S = { db:null, mcp:null, sample:null, subjects:[], contents:[], sessions:[], exams:[], tasks:[], events:[], retros:[], notes:{}, grades:{}, settings:{...DEF}, timer:null, tick:null, pendingDelete:null, busy:false };
   const $ = id => document.getElementById(id);
   const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
@@ -1151,7 +1263,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
   function reviewAdjustments(){
     const out = [], t = today();
     for (const c of S.contents) (c.reviews||[]).forEach((r, i) => {
-      if (r.done || r.skipped) return;
+      if (r.done || r.skipped || r.manual) return;
       const a = adjustDue(c.subjectId, c.studiedOn, r.due);
       if (a.skipped) out.push({ c, i, r, kind:"skip", reason:a.reason });
       else if (a.moved && a.due !== r.due && a.due >= t) out.push({ c, i, r, kind:"move", to:a.due, reason:a.reason });
@@ -1201,29 +1313,43 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
       </div>`; }).join("") : `<div class="empty">Nenhum conteúdo registrado ainda.</div>`;
   }
 
+  function renderRetros(){
+    const box = $("metaRetros"); if (!box) return;
+    box.innerHTML = S.retros.length ? `<div class="rt-lista"><b>Semestres anteriores</b>${S.retros.map(x => `<button class="btn small" data-retro="${esc(x.id)}" type="button">${esc(x.nome)} · ${fmtShort(x.ini)} a ${fmtShort(x.fim)}</button>`).join("")}</div>` : "";
+  }
+  const M = { ws: null };
   function renderTime(){
-    const t = today(), ws = weekStart();
-    const inWeek = S.sessions.filter(x => x.date >= ws);
-    const sum = arr => arr.reduce((a,x) => a + (x.minutes||0), 0);
+    const t = today(), cur = weekStart(), ws = M.ws || cur;
+    const sumM = arr => arr.reduce((a,x) => a + (x.minutes||0), 0);
+    const inWeek = S.sessions.filter(x => x.date >= cur);
     const running = S.timer?.running ? (Date.now() - S.timer.startedAt)/60000 : 0;
-    const todayMin = sum(inWeek.filter(x => x.date === t)) + running;
+    const todayMin = sumM(inWeek.filter(x => x.date === t)) + running;
     $("statToday").textContent = hm(todayMin);
-    $("statWeek").textContent = hm(sum(inWeek) + running);
+    $("statWeek").textContent = hm(sumM(inWeek) + running);
     $("statRevs").textContent = allReviews().filter(x => x.r.done && x.r.doneOn === t).length;
-    $("weekRange").textContent = `${fmtShort(ws)} – ${fmtShort(addDays(ws,6))}`;
+    const isCur = ws === cur, we = addDays(ws, 6);
+    $("weekRange").textContent = `${isCur ? "Esta semana · " : ""}${fmtShort(ws)} – ${fmtShort(we)}`;
+    $("mNext").disabled = isCur; $("mToday").disabled = isCur;
+    $("mPrev").disabled = addDays(ws, -1) < addDays(t, -120);
+    const MT = window.__cycleMetas; if (!MT) return;
+    const r = MT.semana(S.sessions, S.subjects, ws, isCur && running > 0 && S.timer.subjectId ? { sid: S.timer.subjectId, min: running, dia: t } : null);
+    $("metaSum").innerHTML = `<span>Estudado <b>${hm(r.total)}</b></span><span>Cronômetro <b>${hm(r.cronometro)}</b></span>${r.manual ? `<span>Lançado à mão <b>${hm(r.manual)}</b></span>` : ""}${r.comMeta ? `<span>Metas batidas <b>${r.batidas} de ${r.comMeta}</b></span>` : ""}`;
 
-    const perDay = [...Array(7)].map((_,k) => { const d = addDays(ws,k); return { d, m: sum(inWeek.filter(x => x.date === d)) + (d===t?running:0) }; });
-    const maxD = Math.max(60, ...perDay.map(p => p.m));
-    $("weekChart").innerHTML = perDay.map(p => `<div class="c ${p.d===t?"today":""}" title="${fmtShort(p.d)}: ${hm(p.m)}"><div class="col-bar" style="height:${Math.max(2, p.m/maxD*70)}px"></div><div class="lbl">${WD[parseYmd(p.d).getDay()]}</div></div>`).join("");
+    const maxD = Math.max(60, ...r.dias.map(p => p.min));
+    $("weekChart").innerHTML = r.dias.map(p => `<div class="c ${p.d===t?"today":""}" title="${fmtShort(p.d)}: ${hm(p.min)}"><div class="col-bar" style="height:${Math.max(2, p.min/maxD*70)}px"></div><div class="lbl">${WD[parseYmd(p.d).getDay()]}</div></div>`).join("");
 
-    const per = {};
-    inWeek.forEach(x => per[x.subjectId] = (per[x.subjectId]||0) + (x.minutes||0));
-    if (running && S.timer.subjectId) per[S.timer.subjectId] = (per[S.timer.subjectId]||0) + running;
-    const rows = Object.entries(per).sort((a,b) => b[1]-a[1]);
-    const max = Math.max(1, ...rows.map(r => r[1]));
-    $("bars").innerHTML = rows.length ? rows.map(([id, m]) => { const s = subj(id);
-      return `<div class="bar"><div class="n"><i class="dot" style="background:${esc(s.color)}"></i>${esc(s.name)}</div><div class="v">${hm(m)}</div><div class="track"><div class="fill" style="width:${m/max*100}%;background:${esc(s.color)}"></div></div></div>`; }).join("")
-      : `<div class="empty">Sem tempo registrado nesta semana.</div>`;
+    const max = Math.max(1, ...r.linhas.map(l => Math.max(l.min, l.meta)));
+    $("bars").innerHTML = r.linhas.length ? r.linhas.map(l => { const s = subj(l.sid);
+      const st = l.meta ? (l.bateu ? `<span class="meta-ok">meta batida</span>` : `faltam ${hm(l.falta)}`) : "";
+      const sm = l.sem8.map(w => `<i title="Semana de ${fmtShort(w.a)}: ${hm(w.min)}" class="${l.meta && w.min >= l.meta ? "hit" : ""}" style="height:${Math.max(2, w.min / Math.max(60, l.meta, ...l.sem8.map(x => x.min)) * 18)}px"></i>`).join("");
+      return `<div class="bar mbar" data-sid="${esc(l.sid)}"><div class="n"><i class="dot" style="background:${esc(s.color)}"></i>${esc(s.name)}</div><div class="v">${hm(l.min)}${l.meta ? ` de ${hm(l.meta)}` : ""}</div>
+        <div class="track"><div class="fill" style="width:${l.meta ? l.pct : l.min / max * 100}%;background:${l.bateu ? "var(--ok)" : esc(s.color)}"></div></div>
+        <div class="mmeta"><span>${st}${l.manual ? ` <small>(inclui ${hm(l.manual)} lançados à mão)</small>` : ""}</span><span class="msem" title="Últimas 8 semanas">${sm}</span><label class="mset">Meta (h/sem) <input type="number" min="0" max="80" step="0.5" inputmode="decimal" data-meta="${esc(l.sid)}" value="${s.metaHoras > 0 ? s.metaHoras : ""}" placeholder="sem meta" aria-label="Meta semanal de ${esc(s.name)} em horas"></label></div></div>`; }).join("")
+      : `<div class="empty">Cadastre uma matéria para acompanhar o tempo.</div>`;
+    $("metaNota").textContent = r.total ? (isCur ? "" : "Metas comparadas com a meta atual de cada matéria.") + (addDays(ws, -7) < addDays(t, -120) ? " O Cycle guarda no aparelho os últimos 120 dias de sessões." : "") : (isCur ? "Sem tempo registrado nesta semana. Inicie o cronômetro acima." : "Sem tempo registrado nesta semana.");
+
+    const lg = MT.longas(S.sessions);
+    $("metaLongas").innerHTML = lg.map(z => `<div class="gmsg mlong" data-sess="${esc(z.id)}"><span>Sessão longa: <b>${hm(z.minutes)}</b> de ${esc(subj(z.subjectId).name)} em ${fmtShort(z.date)}. Se foi esquecimento do cronômetro, ajuste.</span> <input type="number" min="1" max="1440" inputmode="numeric" class="mlong-in" value="${Math.round(z.minutes)}" aria-label="Minutos corretos"> <button class="btn small primary" data-mlong="ajustar" type="button">Ajustar (min)</button> <button class="btn small ghost" data-mlong="certo" type="button">Está certo</button></div>`).join("");
   }
 
   // Excluir matéria: apaga também o que pertence a ela (conteúdos e revisões, provas, trabalhos, anotações, notas, tempo estudado).
@@ -1367,81 +1493,11 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     if (S.mcp) return;
     if (localCal()) { loadDay(); loadWeek(); loadBlocks(); }
     else { G.status = B.status = H.status = "nomcp"; G.events = []; B.events = []; H.events = []; }
-    renderHoje(); renderGrade(); renderProvas(); renderAgendaInfo();
+    renderHoje(); renderGrade(); renderProvas(); renderCrono();
   }
-  // Classificação da agenda importada: cria as matérias (aulas), lança as provas e guarda a ligação grupo -> matéria.
-  const AG_COLORS = ["#3B82C4", "#D9534F", "#2E9E6B", "#B7791F", "#8E5BD0", "#D1568C", "#14899E", "#E2762B", "#5B6BC0", "#7A9A2E"];
+  // ferramentas da importação de agenda (interop.js)
   const hash36 = s => { let h = 5381; for (const c of s) h = ((h << 5) + h + c.charCodeAt(0)) | 0; return (h >>> 0).toString(36); };
   const examKindOf = t => /(^|[\s·|:])sub(?=$|[\s·|:])|substitutiva/i.test(t) ? "Sub" : /(^|[^a-z0-9])p\s*3(?![a-z0-9])|3[ªa]\s*prova/i.test(t) ? "P3" : /(^|[^a-z0-9])p\s*2(?![a-z0-9])|2[ªa]\s*prova/i.test(t) ? "P2" : "P1";
-  async function applyAgenda(doc, only){
-    const A = window.__cycleAgenda; if (!A || !S.db || !doc) return { text:"" };
-    const ctx = { cls: doc.cls || {}, map: { ...(doc.map || {}) } }, made = new Map(), t0 = today(), classesPatch = {};
-    let nSubj = 0, nExam = 0, nGone = 0;
-    const all = () => [...S.subjects, ...made.values()];
-    const find = name => { const n = norm(name); if (n.length < 3) return null; return all().find(s => norm(s.name) === n) || all().find(s => { const m = norm(s.name); return m.length >= 5 && n.length >= 5 && (m.includes(n) || n.includes(m)); }) || null; };
-    const ensure = async name => {
-      let s = find(name); if (s) return s;
-      const id = "ag-" + (norm(name).replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40) || hash36(name));
-      s = { id, name: name.trim(), color: AG_COLORS[all().length % AG_COLORS.length], order: all().length };
-      await S.db.doc(`subjects/${id}`).set({ name: s.name, color: s.color, order: s.order });
-      made.set(id, s); nSubj++; return s;
-    };
-    for (const g of A.groups(doc.events, ctx, addDays(t0, -30), addDays(t0, 365))) {
-      if (only && g.key !== only) continue;
-      const name = A.deriveName(g.title, g.kind);
-      if (g.kind === "aula") {
-        const s = await ensure(name || g.title); ctx.map[g.key] = s.id;
-        if (!(S.settings.classes?.[s.id] || []).length && !classesPatch[s.id]) {
-          const sl = g.events.flatMap(A.slotsOf), uniq = sl.filter((x, i) => sl.findIndex(y => y.d === x.d && y.t === x.t) === i);
-          if (uniq.length) classesPatch[s.id] = uniq;
-        }
-      } else if (g.kind === "prova") {
-        const s = name ? await ensure(name) : null;
-        if (s) {
-          ctx.map[g.key] = s.id;
-          for (const e of A.expand(g.events, t0, addDays(t0, 365), { cls: {}, map: {} })) {
-            const date = e.start.date || ymd(new Date(e.start.dateTime)), time = e.start.dateTime ? (d => `${pad(d.getHours())}:${pad(d.getMinutes())}`)(new Date(e.start.dateTime)) : "10:00";
-            const id = "ag-" + hash36(g.key + "|" + date);
-            if (S.exams.some(x => x.id === id || (x.subjectId === s.id && x.date === date))) continue;
-            await S.db.doc(`exams/${id}`).set({ subjectId: s.id, kind: examKindOf(g.title), date, time, src: "agenda", agKey: g.key }); nExam++;
-          }
-        } else delete ctx.map[g.key];
-      } else {
-        const s = name ? find(name) : null; if (s) ctx.map[g.key] = s.id; else delete ctx.map[g.key];
-      }
-      if (g.kind !== "prova") for (const x of S.exams.filter(x => x.agKey === g.key)) { await S.db.doc(`exams/${x.id}`).delete(); nGone++; }
-    }
-    await S.db.doc("agenda/main").update({ map: ctx.map });
-    if (Object.keys(classesPatch).length) await patchSettings({ classes: { ...(S.settings.classes || {}), ...classesPatch } });
-    const bits = [nSubj ? `${nSubj} matéria${nSubj === 1 ? "" : "s"} criada${nSubj === 1 ? "" : "s"}` : "", nExam ? `${nExam} prova${nExam === 1 ? "" : "s"} em Provas` : "", nGone ? `${nGone} prova${nGone === 1 ? "" : "s"} removida${nGone === 1 ? "" : "s"}` : "", Object.keys(classesPatch).length ? "horários de aula preenchidos" : ""].filter(Boolean);
-    return { text: bits.length ? bits.join(", ") + "." : "Nada novo para criar." };
-  }
-  const CLS_OPTS = [["aula", "Aula (matéria)"], ["prova", "Prova"], ["trabalho", "Trabalho"], ["revisao", "Revisão"], ["evento", "Evento"], ["ignorar", "Ignorar"]];
-  function renderAgendaClasses(){
-    const box = $("agClsBox"); if (!box) return;
-    if (!localCal()) { box.hidden = true; return; }
-    const ctx = { cls: S.agenda.cls || {}, map: S.agenda.map || {} };
-    let gs = []; try { gs = window.__cycleAgenda.groups(S.agenda.events, ctx, today(), addDays(today(), 120)); } catch (e) {}
-    const ord = { aula:0, prova:1, trabalho:2, revisao:3, evento:4, ignorar:5 };
-    gs.sort((a, b) => ord[a.kind] - ord[b.kind] || b.count - a.count || a.title.localeCompare(b.title));
-    box.hidden = !gs.length;
-    const cnt = k => gs.filter(g => g.kind === k).length;
-    const pl = (k, s, m) => `${cnt(k)} ${cnt(k) === 1 ? s : m}`;
-    $("agClsSum").textContent = `Como o Cycle entendeu a sua agenda: ${pl("aula", "matéria", "matérias")}, ${pl("prova", "prova", "provas")}, ${pl("trabalho", "trabalho", "trabalhos")}, ${pl("revisao", "revisão", "revisões")}, ${pl("evento", "evento", "eventos")}`;
-    const keep = document.activeElement?.closest?.("#agClsList");
-    if (keep) return;                                                 // não redesenha enquanto a pessoa mexe numa lista
-    $("agClsList").innerHTML = gs.slice(0, 300).map(g => {
-      const sid = ctx.map[g.key], sj = sid && S.subjects.find(s => s.id === sid);
-      return `<div class="clsrow"><div class="ct"><b>${esc(g.title)}</b><span>${g.count}× nos próximos meses${g.next ? ` · próximo ${fmtShort(g.next)}` : ""}${sj ? ` · matéria ${esc(sj.name)}` : ""}</span></div><select data-agcls="${esc(g.key)}" aria-label="Tipo de ${esc(g.title)}">${CLS_OPTS.map(([v, l]) => `<option value="${v}" ${g.kind === v ? "selected" : ""}>${l}</option>`).join("")}</select></div>`;
-    }).join("") + (gs.length > 300 ? `<p class="plan">Mostrando 300 de ${gs.length} itens.</p>` : "");
-  }
-
-  function renderAgendaInfo(){
-    const st = $("agStatus"), del = $("agDelBtn"); if (!st) return;
-    st.hidden = !S.agenda; del.hidden = !S.agenda;
-    st.textContent = S.agenda ? `Agenda importada: ${S.agenda.n} compromisso${S.agenda.n === 1 ? "" : "s"} de ${S.agenda.name}, em ${new Date(S.agenda.at).toLocaleDateString("pt-BR")}.` : "";
-    renderAgendaClasses();
-  }
 
   function watchWeek(){
     G.unwatch?.(); G.unwatch = null;
@@ -1485,15 +1541,24 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
       if (!timed[d] || dupOfCycle(e, d)) continue;
       const isRev = e.kind ? e.kind === "revisao" : /^R\d+\s*·/.test(title), sj = (e.sid && S.subjects.find(x => x.id === e.sid)) || matchSubject(title);
       const a = minsOf(s), b = ymd(en) > d ? 1440 : minsOf(en);
-      timed[d].push({ a, b: Math.max(b, a+15), title, rev:isRev, exam:e.kind === "prova", trab:e.kind === "trabalho", color: sj?.color || null, sid: sj?.id || null, loc: e.location || "" });
+      timed[d].push({ a, b: Math.max(b, a+15), title, rev:isRev, exam:e.kind === "prova", trab:e.kind === "trabalho", color: sj?.color || null, cor: sj ? "var(--t-aula)" : "var(--t-comp)", sid: sj?.id || null, loc: e.location || "" });
       if (isRev) revCount++; else if (isBlock(e)) blockMin += b - a; else classMin += b - a;
+    }
+    // aulas avulsas e compromissos criados no cronograma (coleção events)
+    if (window.__cycleCrono) for (const o of window.__cycleCrono.ocorrencias(S.events, days[0], days[6], { addDays, parseYmd, ymd })) {
+      const ev = o.ev, sj = ev.sid && S.subjects.find(x => x.id === ev.sid), cor = ev.type === "aula" ? "var(--t-aula)" : "var(--t-comp)";
+      const title = (ev.type === "aula" ? "Aula · " + (sj ? sj.name : "") + (ev.title ? " · " + ev.title : "") : ev.title) || "(sem título)";
+      if (ev.allDay || !ev.start) { allDay[o.date].push({ t:title, k:"" }); continue; }
+      const a = toMin(ev.start), b = Math.max(a + 15, ev.end ? toMin(ev.end) : a + 60);
+      timed[o.date].push({ a, b: Math.min(1440, b), title, cor, color: sj?.color || null, sid: sj?.id || null, loc: ev.loc || "" });
+      classMin += Math.min(1440, b) - a;
     }
     // aulas semanais (do horário de cada matéria), sem repetir as que já vieram da agenda importada e sem os dias de prova
     for (const s of S.subjects) for (const [wd, tm] of classSlots(s.id)) for (const d of days) {
       if (parseYmd(d).getDay() !== wd || examsOf(s.id).some(e => e.date === d) || (s.skipLectures || []).includes(d)) continue;
       const a = toMin(tm);
       if (timed[d].some(x => !x.exam && x.sid === s.id && Math.abs(x.a - a) <= 30)) continue;
-      timed[d].push({ a, b: Math.min(1440, a + 100), title: `Aula · ${s.name}`, color: s.color, sid: s.id, loc: "Aula" });
+      timed[d].push({ a, b: Math.min(1440, a + 100), title: `Aula · ${s.name}`, color: s.color, cor: "var(--t-aula)", sid: s.id, loc: "Aula" });
       classMin += 100;
     }
     // revisões e entregas a fazer: aparecem no dia em que vencem; as atrasadas ficam em hoje
@@ -1547,7 +1612,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
         if (it.b <= H0*60) continue;
         const top = y(it.a), h = Math.max(18, y(it.b) - top - 2), w = 100/it.lanes;
         const one = h < 34, time = `${fromMin(it.a)}–${fromMin(Math.min(it.b,1439))}`;
-        const style = `top:${top+1}px;height:${h}px;left:calc(${it.lane*w}% + 3px);width:calc(${w}% - 13px);${it.exam || it.rev || it.trab ? "" : it.color ? `--c:${esc(it.color)}` : "--c:var(--muted)"}`;
+        const style = `top:${top+1}px;height:${h}px;left:calc(${it.lane*w}% + 3px);width:calc(${w}% - 13px);${it.exam || it.rev || it.trab ? "" : it.cor ? `--c:${it.cor}` : it.color ? `--c:${esc(it.color)}` : "--c:var(--muted)"}`;
         col += `<div class="blk ${it.rev?"rev":""} ${it.exam?"exam":""} ${it.trab?"trab":""} ${one?"one":""}" style="${style}" title="${esc(time + " · " + it.title + (it.loc ? " · " + it.loc : ""))}"><span class="h">${time}</span><span class="tt">${esc(it.title)}</span></div>`;
       }
       for (const s of sess[d]) {
@@ -1740,6 +1805,20 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
       if (type === "rev" && it.rv) it.title = it.rv.c.title;
       items.push(it);
     }
+    if (STANDALONE && !localCal()) {      // sem agenda importada à parte: aulas semanais e compromissos do cronograma
+      const b0 = parseYmd(d).getTime();
+      for (const s of S.subjects) for (const [wd, tm] of classSlots(s.id)) {
+        if (parseYmd(d).getDay() !== wd || examsOf(s.id).some(e => e.date === d) || (s.skipLectures || []).includes(d)) continue;
+        const a = toMin(tm);
+        items.push({ id:`aula-${s.id}-${tm}`, a, b:Math.min(1440, a + 100), start: b0 + a*60000, end: b0 + Math.min(1440, a + 100)*60000, title:`Aula · ${s.name}`, type:"aula", subject:s, loc:"", link:"" });
+      }
+      if (window.__cycleCrono) for (const o of window.__cycleCrono.ocorrencias(S.events, d, d, { addDays, parseYmd, ymd })) {
+        const ev = o.ev, sj = ev.sid && S.subjects.find(x => x.id === ev.sid) || null, title = (ev.type === "aula" ? "Aula" + (sj ? " · " + sj.name : "") + (ev.title ? " · " + ev.title : "") : ev.title) || "(sem título)";
+        if (ev.allDay || !ev.start) { allDay.push(title); continue; }
+        const a = toMin(ev.start), b = Math.max(a + 15, ev.end ? toMin(ev.end) : a + 60);
+        items.push({ id:`ev-${ev.id}-${d}`, a, b:Math.min(1440, b), start: b0 + a*60000, end: b0 + Math.min(1440, b)*60000, title, type: ev.type === "aula" ? "aula" : "comp", subject:sj, loc:ev.loc || "", link:"" });
+      }
+    }
     for (const x of S.exams.filter(x => x.date === d)) {
       const a = toMin(x.time || "10:00"), base = parseYmd(d).getTime();
       items.push({ id:"exam-"+x.id, a, b:Math.min(1440, a+120), start: base + a*60000, end: base + Math.min(1440,a+120)*60000, title:`${x.kind} · ${subj(x.subjectId).name}`, type:"exam", subject:subj(x.subjectId), loc:"", link:"" });
@@ -1757,7 +1836,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     return gaps;
   }
   function renderHoje(){
-    if (G.tab !== "hoje") return;
+    if (G.tab !== "revisoes") return;
     const d = H.day, t = today(), isToday = d === t, nowMs = Date.now(), nowM = minsOf(new Date());
     $("hojeTitle").textContent = isToday ? "Hoje" : d === addDays(t,1) ? "Amanhã" : d === addDays(t,-1) ? "Ontem" : fmtShort(d);
     $("hojeDate").textContent = parseYmd(d).toLocaleDateString("pt-BR", { weekday:"long", day:"numeric", month:"long" });
@@ -1926,7 +2005,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     if (it.tipo === "trabalho" && subsOf(it.k).length) bits.push(subsChip(it));
     return bits.join("");
   }
-  const confirmDel = it => `<span class="confirm">Excluir este trabalho? ${A("vdelok", it, "Excluir", "danger")}${A("vdelno", it, "Cancelar", "ghost")}</span>`;
+  const confirmDel = it => `<span class="confirm">Excluir ${it.tipo === "trabalho" ? "este trabalho" : "esta revisão"}? ${A("vdelok", it, "Excluir", "danger")}${A("vdelno", it, "Cancelar", "ghost")}</span>`;
   function itemActions(it){
     if (VM.del === it.key) return confirmDel(it);
     const out = [];
@@ -1941,7 +2020,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
       out.push(A("vdone", it, it.tipo === "trabalho" ? "Feito" : "Feita", "primary"));
       out.push(A("resch", it, "Reagendar", "ghost"));
     }
-    if (it.tipo === "trabalho") out.push(A("vdel", it, "Excluir", "ghost danger"));
+    if (it.tipo === "trabalho" || it.r?.manual) out.push(A("vdel", it, "Excluir", "ghost danger"));
     return out.join("");
   }
   const rowHtml = it => `<li class="rv ${it.late ? "late" : ""} ${it.tipo === "trabalho" ? "task" : ""} ${it.done ? "done" : ""}"><div class="stage" title="${it.tipo === "trabalho" ? "Trabalho" : "Revisão " + it.stage}">${it.tipo === "trabalho" ? "T" : "R" + it.stage}</div><div><div class="title">${esc(it.title)}</div><div class="sub">${itemSub(it)}</div></div><div class="actions">${itemActions(it)}</div>${subsBlock(it)}</li>`;
@@ -1954,7 +2033,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
       mv = it.done ? A("vreopen", it, "Reabrir") : it.status === "pendente" ? A("vmove", it, "Fazer hoje →", "", "hoje") : A("vmove", it, "← Pendente", "ghost", "pendente") + A("vdone", it, "Feita", "primary");
       if (!it.done) mv += A("resch", it, "Reagendar", "ghost");
       if (it.tipo === "trabalho" && !it.done) mv += A("subtog", it, "Subtarefas" + (subsOf(it.k).length ? ` ${subsDone(it.k)}/${subsOf(it.k).length}` : ""), "ghost");
-      if (it.tipo === "trabalho") mv += A("vdel", it, "Excluir", "ghost danger");
+      if (it.tipo === "trabalho" || it.r?.manual) mv += A("vdel", it, "Excluir", "ghost danger");
     }
     const when = it.done ? (it.doneOn ? "feita " + fmtShort(it.doneOn) : "feita") : it.late ? `<span class="tag-late">${dl} dia${dl > 1 ? "s" : ""} de atraso</span>` : (it.tipo === "trabalho" ? "prazo " : "") + dueLbl(it);
     return `<div class="kcard ${it.late ? "late" : ""} ${it.done ? "done" : ""}" draggable="true" data-k="${esc(it.key)}">
@@ -2070,7 +2149,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     const btn = $("rBarOk"); btn.disabled = true; btn.textContent = "Reagendando…";
     try {
       if (it.tipo === "revisao") {
-        const a = adjustDue(it.sid, it.c.studiedOn, to);
+        const a = it.r.manual ? { due:to } : adjustDue(it.sid, it.c.studiedOn, to);
         if (a.skipped) { toast(`Essa data fica depois da prova. Escolha outra.`); return; }
         const nd = a.moved ? a.due : to;
         const reviews = it.c.reviews.map(r => ({ ...r })), r = reviews[it.i];
@@ -2110,6 +2189,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
       else if (act === "vdelok") {
         const it = findItem(b.dataset.k); VM.del = null;
         if (it?.tipo === "trabalho" && S.db) { await S.db.doc(`tasks/${it.k.id}`).delete(); toast("Trabalho excluído."); }
+        else if (it?.tipo === "revisao" && it.r.manual && S.db) await excluirRevisaoManual(it);
       }
     } catch (err) { toast("Algo falhou: " + (err?.message || err?.code || "erro")); }
   });
@@ -2153,47 +2233,48 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
   });
 
   // ---------- páginas ----------
-  const PAGES = { hoje:"Agenda", revisoes:"Revisões", materias:"Matérias", provas:"Provas", notas:"Notas", tempo:"Tempo", assistente:"Assistente", dados:"Sincronizar" };
-  const VIEW = { hoje:"viewHoje", revisoes:"viewRevisoes", materias:"viewMaterias", provas:"viewProvas", notas:"viewNotas", tempo:"viewTempo", assistente:"viewAssistente", dados:"viewDados" };
+  const PAGES = { hoje:"Agenda", revisoes:"Revisões", materias:"Matérias", provas:"Provas", notas:"Notas", tempo:"Metas", dados:"Sincronizar", conta:"Conta" };
+  const VIEW = { hoje:"viewHoje", revisoes:"viewRevisoes", materias:"viewMaterias", provas:"viewProvas", notas:"viewNotas", tempo:"viewTempo", dados:"viewDados", conta:"viewConta" };
   const LEGACY = { painel:"revisoes", grade:"tempo" };
-  const TIMER_PAGES = ["hoje", "revisoes", "tempo"];
   const pageSub = k => ({
     hoje: "Semana, compromissos, aulas e revisões",
     revisoes: `Revisão espaçada · ${intervals().join(" · ")} dias · trabalhos`,
     materias: "Ementas e tópicos por matéria",
     provas: "Datas, ciclos e blocos de estudo",
     notas: "Suas notas, pesos e quanto falta para passar",
-    tempo: "Cronômetro e horas estudadas",
-    assistente: STANDALONE ? "Pergunte sobre agenda, provas, notas e revisões" : "Peça mudanças em português",
-    dados: "Sincronizar aparelhos, importar e exportar"
+    tempo: "Cronômetro, horas estudadas e metas semanais",
+    dados: "Sincronizar aparelhos, importar e exportar",
+    conta: "Seu acesso, curso e dados na nuvem"
   })[k];
 
   function setTab(tab){
     tab = LEGACY[tab] || tab; if (!VIEW[tab]) tab = "hoje";
     G.tab = tab;
     Object.keys(VIEW).forEach(k => { $(VIEW[k]).hidden = k !== tab; });
-    $("timerBox").hidden = !TIMER_PAGES.includes(tab);
-    if (tab === "hoje") $("viewGrade").after($("timerBox")); else $("viewHoje").before($("timerBox"));   // na Agenda a semana vem primeiro e o cronômetro logo depois
     document.querySelectorAll("[data-nav]").forEach(b => {
       if (!b.classList.contains("nav-item") && !b.classList.contains("b-item")) return;
       const on = b.dataset.nav === tab;
       b.classList.toggle("on", on);
       if (on) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
     });
-    $("moreBtn").classList.toggle("on", ["notas", "tempo", "assistente", "dados"].includes(tab));
+    $("moreBtn").classList.toggle("on", ["notas", "tempo", "dados", "conta"].includes(tab));
     $("pageTitle").textContent = (V.nomes && V.nomes[tab]) || PAGES[tab];
     $("pageEyebrow").textContent = pageSub(tab);
     closeMore();
     try { localStorage.setItem("ciclo.tab", tab); } catch (e) {}
-    if (tab === "hoje") {
+    if (tab === "revisoes") {
       if (G.ready && (S.mcp ? (!H.unwatch && H.status !== "nomcp") : localCal())) watchDay();
+      renderHoje();
+    }
+    if (tab === "hoje") {
       if (G.ready && (S.mcp ? (!G.unwatch && G.status !== "nomcp") : localCal())) watchWeek();
-      renderHoje(); renderGrade();
+      renderGrade(); renderCrono();
     }
     if (tab === "tempo") renderTime();
     if (tab === "provas") { if (G.ready && !B.unwatch) watchBlocks(); renderProvas(); }
     if (tab === "materias") { renderMaterias(); renderProvas(); }
     if (tab === "notas") renderNotas();
+    if (tab === "conta" && window.__cycleConta) window.__cycleConta.renderPagina();
     window.scrollTo({ top:0 });
   }
 
@@ -2490,34 +2571,6 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     const nl = noteLines(s, 3); if (nl.length) L.push("## Anotações", "", ...nl);
     return saveFile(`cycle-${sid}-${t}.md`, L.join("\n"));
   }
-  // Agenda (.ics): provas, trabalhos, revisões e aulas semanais. Abre no Google Agenda, Apple Calendar e Outlook.
-  // Os UIDs são fixos, então importar de novo atualiza os eventos em vez de duplicar.
-  function buildICS(){
-    const t = today(), nowZ = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+/, ""), out = [];
-    const d8 = s => s.replace(/-/g, ""), hm = s => s.replace(":", "") + "00";
-    const tx = s => String(s ?? "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
-    const fold = l => { const enc = new TextEncoder(); let o = "", cur = ""; for (const ch of l) { if (enc.encode(cur + ch).length > (o ? 74 : 75)) { o += (o ? "\r\n " : "") + cur; cur = ch; } else cur += ch; } return o + (o ? "\r\n " : "") + cur; };
-    const ev = (uid, summary, lines, desc) => { out.push("BEGIN:VEVENT", `UID:${uid}@cycle`, `DTSTAMP:${nowZ}`, `SUMMARY:${tx(summary)}`, ...lines); if (desc) out.push(`DESCRIPTION:${tx(desc)}`); out.push("END:VEVENT"); };
-    const allDay = day => [`DTSTART;VALUE=DATE:${d8(day)}`, `DTEND;VALUE=DATE:${d8(addDays(day, 1))}`, "TRANSP:TRANSPARENT"];
-    const timed = (day, time, min) => { const [h, m] = time.split(":").map(Number), e = h * 60 + m + min, eh = Math.min(23, Math.floor(e / 60)), em = e >= 1440 ? 59 : e % 60; return [`DTSTART;TZID=${TZ}:${d8(day)}T${hm(time)}`, `DTEND;TZID=${TZ}:${d8(day)}T${hm(pad(eh) + ":" + pad(em))}`]; };
-    let n = { provas:0, trabalhos:0, revisoes:0, aulas:0 };
-    for (const e of S.exams) { if (!e.date || e.date < t) continue; const s = subj(e.subjectId); ev(`prova-${e.id}`, `${e.kind || "Prova"} · ${s.name}`, e.time ? timed(e.date, e.time, 120) : allDay(e.date)); n.provas++; }
-    for (const k of S.tasks) { if (k.status === "feita" || !k.due || k.due < t) continue; ev(`trabalho-${k.id}`, `Entrega: ${k.title} · ${subj(k.subjectId).name}`, allDay(k.due)); n.trabalhos++; }
-    for (const { c, r, i } of allReviews()) { if (r.done || r.skipped || !r.due || r.due < t) continue; ev(`revisao-${c.id}-${i}`, `R${i + 1}: ${c.title} · ${subj(c.subjectId).name}`, allDay(r.due)); n.revisoes++; }
-    for (const s of S.subjects) classSlots(s.id).forEach(([wd, tm], i) => {
-      let day = t; for (let k = 0; k < 7 && parseYmd(day).getDay() !== wd; k++) day = addDays(day, 1);
-      ev(`aula-${s.id}-${wd}-${tm}`, `Aula: ${s.name}`, [...timed(day, tm, 100), "RRULE:FREQ=WEEKLY;COUNT=20"]); n.aulas++;
-    });
-    const head = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Cycle//Agenda//PT-BR", "CALSCALE:GREGORIAN", "METHOD:PUBLISH", "X-WR-CALNAME:Cycle", `X-WR-TIMEZONE:${TZ}`,
-      "BEGIN:VTIMEZONE", `TZID:${TZ}`, "BEGIN:STANDARD", "DTSTART:19700101T000000", "TZOFFSETFROM:-0300", "TZOFFSETTO:-0300", "TZNAME:-03", "END:STANDARD", "END:VTIMEZONE"];
-    return { n, text: [...head, ...out, "END:VCALENDAR"].map(fold).join("\r\n") + "\r\n" };
-  }
-  function exportAgenda(){
-    const { n, text } = buildICS(), total = n.provas + n.trabalhos + n.revisoes + n.aulas;
-    if (!total) return toast("Não há nada para a agenda: sem provas, trabalhos, revisões ou aulas pela frente.");
-    window.__lastICS = text;
-    return saveFile(`cycle-agenda-${today()}.ics`, text).then(() => toast(`Agenda pronta: ${n.provas} provas, ${n.trabalhos} trabalhos, ${n.revisoes} revisões, ${n.aulas} aulas. No Google Agenda: Configurações > Importar e exportar.`));
-  }
   function exportAll(){
     const data = { app:"Cycle", formato:2, bruto: window.__cycleDb ? window.__cycleDb.dump() : undefined, exportadoEm:new Date().toISOString(), observacao:"Sessões de estudo incluem apenas os últimos 120 dias.", materias:S.subjects, conteudos:S.contents, trabalhos:S.tasks, provas:S.exams, sessoes:S.sessions, anotacoes:Object.values(S.notes), notas:S.grades, visoes:V, configuracoes:S.settings };
     return saveFile(`cycle-dados-${today()}.json`, JSON.stringify(data, null, 2));
@@ -2551,64 +2604,6 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     $("impNo").addEventListener("click", () => { pending = null; $("impBox").hidden = true; });
     $("impOk").addEventListener("click", async () => { if (!pending) return; await window.__cycleDb.load(pending, true); pending = null; $("impBox").hidden = true; toast("Backup importado."); });
 
-    // importar o Google Agenda exportado (.zip ou .ics)
-    $("agSec").hidden = false;
-    try { $("agMobile").hidden = !window.matchMedia("(pointer: coarse)").matches; } catch (e) {}
-    let pendingAg = null;
-    // abre o seletor de arquivo já na pasta Downloads (Chrome/Edge no computador); nos outros navegadores usa o seletor comum
-    async function pickAgenda(){
-      if (window.showOpenFilePicker) {
-        try {
-          const [h] = await window.showOpenFilePicker({ startIn: "downloads", types: [{ description: "Agenda do Google (.zip ou .ics)", accept: { "application/zip": [".zip"], "text/calendar": [".ics"] } }] });
-          return readAgenda(await h.getFile());
-        } catch (e) { if (e && e.name === "AbortError") return; }
-      }
-      $("agFile").click();
-    }
-    $("agImpBtn").addEventListener("click", pickAgenda);
-    $("agPick").addEventListener("click", pickAgenda);
-    // "Trazer meu Google Agenda": abre a exportação do Google em outra aba e mostra o passo seguinte; ao voltar, avisa
-    let waitingGoogle = false;
-    $("agOpen").addEventListener("click", () => { $("agStep2").hidden = false; waitingGoogle = true; });
-    document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "visible" && waitingGoogle) { waitingGoogle = false; $("agStep2").scrollIntoView({ block: "center", behavior: "smooth" }); toast("Já baixou o .zip? Toque em “Escolher o arquivo baixado”."); }
-    });
-    $("agFile").addEventListener("change", () => { const f = $("agFile").files[0]; $("agFile").value = ""; if (f) readAgenda(f); });
-    async function readAgenda(f){
-      try {
-        if (!window.__cycleAgenda) await loadScript("agenda.js");
-        toast("Lendo a agenda…");
-        pendingAg = await window.__cycleAgenda.load(f);
-        $("agTxt").textContent = `Achei ${pendingAg.calendars.length} agenda(s). Marque as que você quer ver no Cycle. Isto substitui a agenda importada antes.`;
-        $("agList").innerHTML = pendingAg.calendars.map((c, i) => `<label class="check"><input type="checkbox" data-ag="${i}" checked> ${esc(c.name)} (${c.events.length} compromissos)</label>`).join("");
-        $("agBox").hidden = false; $("agStep2").hidden = true;
-        $("agBox").scrollIntoView({ block: "center", behavior: "smooth" });
-      } catch (e) { pendingAg = null; toast(e?.code ? e.message : "Não consegui ler esse arquivo de agenda."); }
-    }
-    $("agNo").addEventListener("click", () => { pendingAg = null; $("agBox").hidden = true; });
-    $("agOk").addEventListener("click", async () => {
-      if (!pendingAg) return;
-      const sel = [...$("agList").querySelectorAll("input[data-ag]:checked")].map(x => pendingAg.calendars[+x.dataset.ag]);
-      if (!sel.length) return toast("Marque pelo menos uma agenda.");
-      const A = window.__cycleAgenda, known = S.subjects.map(s => A.norm(s.name)), events = sel.flatMap(c => c.events);
-      events.forEach(ev => { ev.k = A.guess(ev, known); });
-      const doc = { name: sel.map(c => c.name).join(", ").slice(0, 120), at: new Date().toISOString(), n: events.length, events, cls: S.agenda?.cls || {}, map: S.agenda?.map || {} };
-      pendingAg = null; $("agBox").hidden = true; toast("Classificando a agenda…");
-      await S.db.doc("agenda/main").set(doc);
-      const r = await applyAgenda(doc);
-      toast("Agenda importada. " + r.text);
-    });
-    $("agClsList").addEventListener("change", async e => {
-      const sel = e.target.closest("select[data-agcls]"); if (!sel || !S.agenda) return;
-      const key = sel.dataset.agcls, cls = { ...(S.agenda.cls || {}), [key]: sel.value };
-      try {
-        await S.db.doc("agenda/main").update({ cls });
-        const r = await applyAgenda({ ...S.agenda, cls }, key);
-        toast(r.text === "Nada novo para criar." ? "Tipo atualizado." : "Tipo atualizado. " + r.text);
-      } catch (err) { toast("Não consegui atualizar: " + (err?.message || "erro")); }
-      sel.blur(); renderAgendaClasses();
-    });
-    $("agDelBtn").addEventListener("click", async () => { await S.db.doc("agenda/main").delete(); toast("Agenda importada removida."); });
   }
 
   // joga uma lista de tópicos no campo da ementa da matéria (sem salvar: a pessoa revisa)
@@ -2667,7 +2662,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
       else if (act === "clsdel") { const sid = b.dataset.s; await saveClasses(sid, classSlots(sid).filter((_, i) => i !== +b.dataset.i).map(x => ({ d:x[0], t:x[1] }))); }
       else if (act === "maticon" && S.db) await S.db.doc(`subjects/${b.dataset.s}`).update({ icone: b.dataset.e || null });
       else if (act === "matcapa" && S.db) await S.db.doc(`subjects/${b.dataset.s}`).update({ capa: b.dataset.c });
-      else if (act === "exp") { if (b.dataset.w === "notas") await exportNotes(); else if (b.dataset.w === "tudo") await exportAll(); else if (b.dataset.w === "agenda") await exportAgenda(); else if (b.dataset.w === "materia") await exportMateria(b.dataset.s); }
+      else if (act === "exp") { if (b.dataset.w === "notas") await exportNotes(); else if (b.dataset.w === "tudo") await exportAll(); else if (b.dataset.w === "materia") await exportMateria(b.dataset.s); }
     } catch (err) { toast("Algo falhou: " + (err?.message || err?.code || "erro")); }
   });
 
@@ -2706,7 +2701,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     const st = stats(s.id), p = st.p;
     const persHtml = MAT.pers ? `<div class="pers"><div class="field"><span>Ícone</span><div class="ico-grid">${ICONS.map(em => `<button class="ico-pick ${s.icone === em ? "on" : ""}" data-act="maticon" data-s="${esc(s.id)}" data-e="${em}" type="button" aria-label="Ícone ${em}">${em}</button>`).join("")}<button class="btn small ghost" data-act="maticon" data-s="${esc(s.id)}" data-e="" type="button">Sem ícone</button></div></div>
       <div class="field"><span>Capa</span><div class="capa-grid">${Object.entries(CAPAS).map(([k, n]) => `<button class="capa-pick ${(s.capa || "solida") === k ? "on" : ""}" data-act="matcapa" data-s="${esc(s.id)}" data-c="${k}" style="background:${capaCss({ ...s, capa:k })}" title="${n}" aria-label="Capa ${n}" type="button"></button>`).join("")}</div></div></div>` : "";
-    $("matHead").innerHTML = `<div class="mat-cover" style="background:${capaCss(s)}"></div><div class="panel-head"><div><h2><span class="subj">${subjIco(s)}${esc(s.name)}</span></h2></div>
+    $("matHead").innerHTML = `<div class="mat-cover" style="background:${capaCss(s)}"></div><div class="panel-head"><div><h2><span class="subj">${subjIco(s)}${esc(s.name)}</span></h2>${(s.codigo || s.cargaHoraria || s.creditos) ? `<div class="plan" style="margin:2px 0 0">${[s.codigo ? esc(s.codigo) : "", s.cargaHoraria ? s.cargaHoraria + " h" : "", s.creditos ? s.creditos + " créditos" : ""].filter(Boolean).join(" · ")}</div>` : ""}</div>
       <div class="hnav"><button class="btn small pin ${s.fixada ? "on" : ""}" data-act="matpin" data-s="${esc(s.id)}" type="button" aria-pressed="${!!s.fixada}"><svg class="ico"><use href="#i-estrela"/></svg>${s.fixada ? "Fixada" : "Fixar"}</button>${noteBtn(s.id, "")}<button class="btn small" data-act="matpers" type="button" aria-expanded="${MAT.pers}">Personalizar</button><button class="btn small" data-act="exp" data-w="materia" data-s="${esc(s.id)}" type="button">Exportar (.md)</button></div></div>
       ${persHtml}
       <div class="mat-tools"><label class="field"><span>Meta semanal (horas)</span><input type="number" id="matMeta" min="0" max="80" step="0.5" inputmode="decimal" value="${s.metaHoras > 0 ? s.metaHoras : ""}" placeholder="Sem meta"></label>
@@ -2840,7 +2835,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
         ${conf ? `<button class="btn small danger" data-act="grdel" data-s="${esc(sid)}" data-i="${esc(i.id)}" type="button">Remover?</button>` : `<button class="btn small ghost" data-act="grdel" data-s="${esc(sid)}" data-i="${esc(i.id)}" type="button" aria-label="Remover avaliação">✕</button>`}</div>`;
     }).join("");
     const st = G_ST[c.status], hasExams = examsOf(sid).some(e => !g.itens.some(i => norm(i.nome) === norm(e.kind)));
-    const models = !g.itens.length ? `<div class="field"><span>Comece por um modelo</span><div class="ai-chips">${Object.entries(G_MODELOS).map(([k, m]) => `<button class="btn small" data-act="grmodelo" data-s="${esc(sid)}" data-m="${k}" type="button">${esc(m.nome)}</button>`).join("")}</div></div>` : "";
+    const models = !g.itens.length ? `<div class="field"><span>Comece por um modelo</span><div class="modelo-chips">${Object.entries(G_MODELOS).map(([k, m]) => `<button class="btn small" data-act="grmodelo" data-s="${esc(sid)}" data-m="${k}" type="button">${esc(m.nome)}</button>`).join("")}</div></div>` : "";
     return `<div class="gr">
       <div class="mat-tools"><label class="field"><span>Média mínima para passar</span><input id="${fid("minima")}" type="number" min="0.1" max="10" step="0.1" inputmode="decimal" data-g="minima" data-s="${esc(sid)}" value="${g.minima}"></label>
         <button class="btn small" data-act="gradd" data-s="${esc(sid)}" type="button">Adicionar avaliação</button>${STANDALONE ? `<button class="btn small" data-act="gria" data-s="${esc(sid)}" type="button" title="Pede a uma IA (ChatGPT, Gemini ou Claude) para ler o plano de ensino e devolver as avaliações e os pesos">Critérios com IA</button>` : ""}${hasExams ? `<button class="btn small" data-act="grimport" data-s="${esc(sid)}" type="button">Importar das provas cadastradas</button>` : ""}</div>
@@ -2920,16 +2915,8 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     renderPins();
   }
 
-  // ---------- assistente (IA) ----------
-  // A IA só devolve um plano em JSON com ações de um catálogo fechado. O app valida, mostra o resumo,
-  // pede confirmação quando a mudança atinge vários itens ou o Google Calendar, guarda um snapshot e permite desfazer.
-  const AI = { log:[], hist:[], idx:[], busy:false, ctrl:null, sn:null };
+  // ---------- utilitários de dados ----------
   const clone = x => JSON.parse(JSON.stringify(x));
-  const sleep = ms => new Promise(r => setTimeout(r, ms));
-  const statusLbl = s => ({ pendente:"Pendente", hoje:"Fazer hoje", feita:"Feita" })[s] || s;
-  const isDate = s => /^\d{4}-\d{2}-\d{2}$/.test(String(s || "")) && !isNaN(parseYmd(String(s)));
-  const labelOf = it => `${it.tipo === "revisao" ? "R" + it.stage : "Trabalho"} · ${subj(it.sid).name}: ${it.title}`;
-  const OKORD = ["data", "materia", "prova", "intervalo"];
 
   function resolveSubject(x){
     if (x == null || x === "") return null;
@@ -2939,383 +2926,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     const part = n.length >= 3 ? S.subjects.filter(s => norm(s.name).includes(n) || n.includes(norm(s.name))) : [];
     return part.sort((a, b) => a.name.length - b.name.length)[0] || null;
   }
-  function resolvePage(x){
-    if (VIEW[x]) return x; const n = norm(x);
-    return Object.keys(VIEW).find(k => norm(pageName(k)) === n || norm(PAGES[k]) === n) || null;
-  }
-  function resolveView(x){
-    const n = norm(x);
-    return V.items.find(v => v.id === x) || V.items.find(v => norm(v.name) === n) || V.items.find(v => v.layout === n) || null;
-  }
-  function cleanFiltro(f){
-    const o = {}; f = f || {};
-    if (f.materia) { const s = resolveSubject(f.materia); if (!s) throw new Error(`matéria não encontrada: ${f.materia}`); o.materia = s.id; }
-    if (f.tipo) { if (!["revisao", "trabalho"].includes(f.tipo)) throw new Error("tipo inválido"); o.tipo = f.tipo; }
-    if (f.status) { if (!["pendente", "hoje", "feita"].includes(f.status)) throw new Error("status inválido"); o.status = f.status; }
-    if (f.periodo != null && f.periodo !== "") { const p = String(f.periodo); if (!["hoje", "7", "14", "30", "todas"].includes(p)) throw new Error("período inválido"); o.periodo = p; }
-    if (f.atrasadas != null) o.atrasadas = !!f.atrasadas;
-    if (f.prova != null && f.prova !== "") { const n = +f.prova; if (!(n > 0)) throw new Error("prova inválida"); o.prova = n <= 7 ? "7" : n <= 14 ? "14" : "30"; }
-    return o;
-  }
-  const filtroTxt = f => { const p = []; if (f.materia) p.push("matéria " + subj(f.materia).name); if (f.tipo) p.push(f.tipo === "revisao" ? "só revisões" : "só trabalhos"); if (f.status) p.push("status " + statusLbl(f.status)); if (f.periodo) p.push("período " + f.periodo); if (f.atrasadas) p.push("só atrasadas"); if (f.prova) p.push("prova em até " + f.prova + " dias"); return p.length ? "Filtro: " + p.join(", ") : "Sem filtros extras"; };
 
-  // Seletor de itens (revisões e trabalhos). Vazio é rejeitado, para nunca mexer em tudo por engano.
-  function selectItems(sel, allowEmpty){
-    sel = sel || {};
-    const used = Object.keys(sel).filter(k => sel[k] !== undefined && sel[k] !== null && sel[k] !== "" && sel[k] !== false);
-    if (!used.length && !allowEmpty) throw new Error("seletor vazio");
-    const all = buildItems();
-    if (Array.isArray(sel.ids) && sel.ids.length) {
-      const keys = sel.ids.map(n => AI.idx[(+n) - 1]).filter(Boolean);
-      return keys.map(k => all.find(x => x.key === k)).filter(Boolean);
-    }
-    let sid = null;
-    if (sel.materia) { const s = resolveSubject(sel.materia); if (!s) throw new Error(`matéria não encontrada: ${sel.materia}`); sid = s.id; }
-    if (sel.de && !isDate(sel.de)) throw new Error("data 'de' inválida");
-    if (sel.ate && !isDate(sel.ate)) throw new Error("data 'ate' inválida");
-    return all.filter(it => (!sid || it.sid === sid) && (sel.status ? it.status === sel.status : !it.done) && (!sel.tipo || it.tipo === sel.tipo)
-      && (!sel.atrasadas || it.late) && (!sel.intervalo || (it.tipo === "revisao" && it.stage === +sel.intervalo))
-      && (!sel.de || it.due >= sel.de) && (!sel.ate || it.due <= sel.ate) && (sel.provaEmDias == null || sel.provaEmDias === "" || (it.examDays != null && it.examDays <= +sel.provaEmDias)));
-  }
-
-  // snapshots para desfazer
-  const snapContent = c => { if (!AI.sn.contents[c.id]) AI.sn.contents[c.id] = clone(c.reviews); };
-  const snapTask = k => { if (!AI.sn.tasks[k.id]) AI.sn.tasks[k.id] = { status:k.status || "aberta", hoje:!!k.hoje, doneOn:k.doneOn || "", due:k.due, subs: clone(subsOf(k)) }; };
-  const snapSubject = (sid, keys = ["syllabus"]) => {
-    const cur = AI.sn.subjects[sid] || (AI.sn.subjects[sid] = {}), s = subj(sid);
-    keys.forEach(k => { if (!(k in cur)) cur[k] = k === "syllabus" ? clone(s.syllabus || []) : (s[k] ?? null); });
-  };
-  const snapViews = () => { if (!AI.sn.views) AI.sn.views = clone(V); };
-  const snapGrade = sid => { if (!(sid in AI.sn.grades)) AI.sn.grades[sid] = S.grades[sid] ? clone(S.grades[sid]) : null; };
-  const needDb = () => { if (!S.db) throw new Error("abra pelo claude.ai para salvar"); };
-
-  async function runMove(keys, to){
-    needDb();
-    const t = today(), byC = {}; let n = 0;
-    for (const k of keys) {
-      const it = findItem(k); if (!it || it.status === to) continue;
-      if (it.tipo === "revisao") (byC[it.c.id] ||= { c:it.c, list:[] }).list.push(it);
-      else {
-        if (to === "pendente" && it.due === t) continue;
-        snapTask(it.k);
-        await S.db.doc(`tasks/${it.k.id}`).update(to === "feita" ? { status:"feita", doneOn:t, hoje:false } : { status:"aberta", doneOn:"", hoje: to === "hoje" });
-        n++;
-      }
-    }
-    for (const { c, list } of Object.values(byC)) {
-      snapContent(c); const reviews = c.reviews.map(r => ({ ...r }));
-      for (const it of list) {
-        if (to === "feita") reviews[it.i] = { ...reviews[it.i], done:true, doneOn:t, doneAt:Date.now() };
-        else { const { doneOn, doneAt, ...rest } = reviews[it.i]; reviews[it.i] = { ...rest, done:false, ovr:{ day:t, s:to } }; }
-        n++;
-      }
-      await S.db.doc(`contents/${c.id}`).update({ reviews });
-    }
-    return [`${n} item(ns) movido(s) para ${statusLbl(to)}.`];
-  }
-  async function runResch(moves){
-    needDb();
-    const byC = {}; let n = 0;
-    for (const m of moves) {
-      const it = findItem(m.key); if (!it || it.done || it.due === m.to) continue;
-      if (it.tipo === "trabalho") { snapTask(it.k); await S.db.doc(`tasks/${it.k.id}`).update({ due:m.to }); n++; }
-      else (byC[it.c.id] ||= { c:it.c, list:[] }).list.push({ it, to:m.to });
-    }
-    for (const { c, list } of Object.values(byC)) {
-      snapContent(c); if (!AI.sn.cal.includes(c.id)) AI.sn.cal.push(c.id);
-      const reviews = c.reviews.map(r => ({ ...r }));
-      for (const { it, to } of list) {
-        const r = reviews[it.i];
-        if (r.eventId && S.mcp) { try { await S.mcp.callTool(CAL, "delete_event", { eventId:r.eventId, notificationLevel:"NONE" }); } catch (e) {} }
-        reviews[it.i] = { ...r, due:to, movedFrom:r.due, eventId:"", slot:"" }; n++;
-      }
-      await S.db.doc(`contents/${c.id}`).update({ reviews });
-      if (S.mcp) await scheduleReviews({ ...c, reviews });
-    }
-    refreshGrade();
-    return [`${n} item(ns) reagendado(s).`];
-  }
-
-  // Catálogo fechado: cada ação valida os parâmetros e devolve { titulo, lines, count, confirm, run }.
-  // Agenda de um dia, com o que o app já sabe: aulas do horário, compromissos importados, provas, revisões e entregas.
-  function agendaDia(d){
-    const out = [], wd = parseYmd(d).getDay();
-    for (const s of S.subjects) {
-      if (examsOf(s.id).some(e => e.date === d) || (s.skipLectures || []).includes(d)) continue;
-      for (const [w, tm] of classSlots(s.id)) if (w === wd) out.push({ a: toMin(tm), sid: s.id, txt: `${tm} · Aula · ${s.name}` });
-    }
-    if (localCal()) for (const e of agendaEvents(d, addDays(d, 1))) {
-      if (dupOfCycle(e, d)) continue;
-      const title = e.summary || "(sem título)", lbl = ({ prova:"Prova", trabalho:"Trabalho", revisao:"Revisão" })[e.kind];
-      if (e.start?.date) { out.push({ a: -1, txt: `Dia todo · ${lbl ? lbl + ": " : ""}${title}` }); continue; }
-      if (!e.start?.dateTime) continue;
-      const s0 = new Date(e.start.dateTime), a = minsOf(s0);
-      if (ymd(s0) !== d) continue;
-      if (e.sid && out.some(x => x.sid === e.sid && Math.abs(x.a - a) <= 30)) continue;       // aula que já veio do horário da matéria
-      out.push({ a, sid: e.sid, txt: `${fromMin(a)} · ${lbl ? lbl + ": " : ""}${title}${e.location ? " (" + e.location + ")" : ""}` });
-    }
-    for (const x of S.exams.filter(x => x.date === d)) out.push({ a: toMin(x.time || "10:00"), txt: `${x.time || "10:00"} · Prova ${x.kind} · ${subj(x.subjectId).name}` });
-    for (const it of buildItems().filter(it => !it.done && it.due === d)) out.push({ a: 9999, txt: it.tipo === "revisao" ? `Revisão R${it.stage}: ${it.title} (${subj(it.sid).name})` : `Entrega: ${it.title} (${subj(it.sid).name})` });
-    return out.sort((p, q) => p.a - q.a).map(x => x.txt);
-  }
-  const subjOf = a => { if (!a.materia) return null; const s = resolveSubject(a.materia); if (!s) throw new Error(`matéria não encontrada: ${a.materia}`); return s; };
-  const readOnly = (titulo, lines) => ({ titulo, lines, count:0, confirm:false, run: async () => [] });
-
-  const ACTIONS = {
-    ajuda(a){
-      return readOnly(a.saudacao ? "Olá! Eu sou o assistente do Cycle." : "O que eu sei fazer", [
-        "Consultas: agenda de hoje, de amanhã, de um dia ou da semana; próxima prova; revisões atrasadas ou de hoje; trabalhos e prazos; notas e quanto falta para passar; horas estudadas; próximo tópico da ementa; próxima aula.",
-        "Ações (pedem confirmação e dá para desfazer): criar um trabalho e mover as revisões atrasadas para hoje.",
-        "Dica: cite a matéria para filtrar, por exemplo \"quanto falta para passar em ...\".",
-        "Eu uso só os dados deste aparelho, sem internet e sem IA. Fora disso eu aviso que não sei."]);
-    },
-    agenda(a){
-      if (!isDate(a.de) || !isDate(a.ate) || a.ate < a.de) throw new Error("datas inválidas");
-      const t = today(), lines = [], um = a.de === a.ate;
-      for (let d = a.de, k = 0; d <= a.ate && k < 31; d = addDays(d, 1), k++) {
-        const head = d === t ? "Hoje" : d === addDays(t, 1) ? "Amanhã" : fmtShort(d);
-        agendaDia(d).forEach(i => lines.push(um ? i : `${head} · ${i}`));
-      }
-      const late = buildItems().filter(it => !it.done && it.late).length;
-      if (a.de <= t && t <= a.ate && late) lines.push(`${late} item(ns) atrasado(s): veja em Revisões.`);
-      if (!lines.length) lines.push("Nada marcado neste período.");
-      if (!S.agenda) lines.push("Para ver aqui os compromissos do Google Agenda, importe a agenda na aba Sincronizar.");
-      const nome = d => d === t ? "hoje" : d === addDays(t, 1) ? "amanhã" : fmtShort(d);
-      return readOnly(um ? `Agenda de ${nome(a.de)}` : `Agenda de ${fmtShort(a.de)} a ${fmtShort(a.ate)}`, lines);
-    },
-    proxima_prova(a){
-      const t = today(), s = subjOf(a);
-      const list = S.exams.filter(e => e.date >= t && (!s || e.subjectId === s.id)).sort((x, y) => (x.date + (x.time || "")).localeCompare(y.date + (y.time || "")));
-      if (!list.length) return readOnly("Próxima prova", ["Nenhuma prova futura cadastrada. Cadastre em Provas ou importe o Google Agenda."]);
-      const q = e => { const d = dayDiff(t, e.date); return `${e.kind} de ${subj(e.subjectId).name}: ${fmtShort(e.date)} ${e.time || ""}, ${d <= 0 ? "hoje" : d === 1 ? "amanhã" : "em " + d + " dias"}`; };
-      return readOnly("Próxima prova", [q(list[0]), ...list.slice(1, 6).map(e => "Depois: " + q(e))]);
-    },
-    horas(a){
-      const t = today(), ws = weekStart(), s = subjOf(a), hojeP = a.periodo === "hoje", by = {};
-      S.sessions.filter(x => (hojeP ? x.date === t : x.date >= ws) && (!s || x.subjectId === s.id)).forEach(x => { by[x.subjectId] = (by[x.subjectId] || 0) + (x.minutes || 0); });
-      if (S.timer?.running && (!s || S.timer.subjectId === s.id)) by[S.timer.subjectId] = (by[S.timer.subjectId] || 0) + (Date.now() - S.timer.startedAt) / 60000;
-      const total = Object.values(by).reduce((p, q) => p + q, 0), lines = [`Total ${hojeP ? "hoje" : "nesta semana"}: ${hm(total)}`];
-      Object.entries(by).sort((p, q) => q[1] - p[1]).forEach(([id, m]) => lines.push(`${subj(id).name}: ${hm(m)}`));
-      if (!hojeP) S.subjects.filter(x => (!s || x.id === s.id) && x.metaHoras > 0).forEach(x => lines.push(`Meta de ${x.name}: ${hm((by[x.id] || 0))} de ${x.metaHoras} h`));
-      if (!total) lines.push("Nenhum tempo registrado ainda. Use o cronômetro na Agenda.");
-      return readOnly(hojeP ? "Tempo estudado hoje" : "Tempo estudado na semana", lines);
-    },
-    proxima_aula(a){
-      const s = subjOf(a), rows = S.subjects.filter(x => !s || x.id === s.id).map(x => ({ x, c: classDates(x.id, 1)[0] })).filter(r => r.c)
-        .sort((p, q) => (p.c.date + p.c.time).localeCompare(q.c.date + q.c.time));
-      return readOnly("Próxima aula", rows.length ? rows.slice(0, 8).map(r => `${r.x.name}: ${fmtShort(r.c.date)} ${r.c.time}`) : ["Nenhum horário de aula cadastrado. Cadastre na página da matéria."]);
-    },
-    proximo_topico(a){
-      const s = subjOf(a), lines = [];
-      for (const x of S.subjects.filter(x => !s || x.id === s.id)) {
-        const p = subjPlan(x.id), it = p && p.items.find(i => !i.seenOn); if (!it) continue;
-        lines.push(`${x.name}: ${it.title}${it.target ? ` (aula de ${fmtShort(it.target)} ${it.cls || ""})` : ""}`);
-      }
-      return readOnly("Próximo tópico da ementa", lines.length ? lines.slice(0, 12) : ["Nenhum tópico pendente. Cadastre a ementa na página da matéria (dá para importar de PDF)."]);
-    },
-    criar_trabalho(a){
-      needDb();
-      const s = resolveSubject(a.materia); if (!s) throw new Error("matéria não encontrada");
-      const title = String(a.titulo || "").trim().slice(0, 80) || "Trabalho";
-      if (!isDate(a.data)) throw new Error("data inválida"); if (a.data < today()) throw new Error("essa data já passou");
-      return { titulo:`Criar o trabalho "${title}"`, lines:[`Matéria: ${s.name}`, `Prazo: ${fmtShort(a.data)}`], count:1, confirm:true, run: async () => {
-        const ref = await S.db.collection("tasks").add({ subjectId:s.id, title, due:a.data, status:"aberta", hoje:false, createdAt:Date.now() });
-        (AI.sn.createdTasks ||= []).push(ref.id);
-        return [`Trabalho criado: ${title} (${s.name}), prazo ${fmtShort(a.data)}.`];
-      } };
-    },
-    consultar(a){
-      const ent = a.entidade, t = today();
-      let lines = [];
-      if (ent === "itens") {
-        const items = sortItems(selectItems(a.seletor, true), "data");
-        lines = items.slice(0, 25).map(it => `${dueLbl(it)} · ${labelOf(it)} · ${it.late ? "atrasada" : statusLbl(it.status)}`);
-        if (items.length > 25) lines.push(`e mais ${items.length - 25}`);
-        if (!items.length) lines.push("Nenhum item encontrado.");
-      } else if (ent === "provas") {
-        lines = S.exams.filter(e => e.date >= t).sort((x, y) => x.date.localeCompare(y.date)).map(e => `${fmtShort(e.date)} ${e.time || ""} · ${e.kind} ${subj(e.subjectId).name}`);
-        if (!lines.length) lines.push("Nenhuma prova futura cadastrada.");
-      } else if (ent === "materias") {
-        lines = S.subjects.map(s => { const p = subjPlan(s.id); return `${s.name}${p ? ` · ementa ${p.seen}/${p.total}` : ""}`; });
-      } else if (ent === "topicos") {
-        const s = a.seletor?.materia ? resolveSubject(a.seletor.materia) : null;
-        const list = (s ? [s] : S.subjects).flatMap(x => (x.syllabus || []).filter(tp => !tp.seenOn).slice(0, 8).map(tp => `${x.name}: ${tp.title}`));
-        lines = list.slice(0, 25); if (!lines.length) lines.push("Nenhum tópico pendente.");
-      } else if (ent === "notas") {
-        const s = a.seletor?.materia ? resolveSubject(a.seletor.materia) : null;
-        lines = (s ? [s] : S.subjects).map(x => { const c = gradeCalc(x.id); return `${x.name}: ${c.status === "vazio" ? "sem avaliações" : `média parcial ${fmtN(c.parcial)} · ${G_ST[c.status][1]}. ${gradeNeedTxt(c)}`}`; });
-      } else throw new Error("entidade inválida");
-      return { titulo:`Consulta: ${ent}`, lines, count:0, confirm:false, run: async () => [] };
-    },
-    mover_itens(a){
-      const to = a.statusDestino; if (!["pendente", "hoje", "feita"].includes(to)) throw new Error("statusDestino inválido");
-      const items = selectItems(a.seletor).filter(it => it.status !== to && !(it.tipo === "trabalho" && to === "pendente" && it.due === today()));
-      if (!items.length) return { skip:`Nenhum item para mover para "${statusLbl(to)}".` };
-      return { titulo:`Mover ${items.length} item(ns) para "${statusLbl(to)}"`, lines:items.map(it => `${labelOf(it)} (${statusLbl(it.status)} → ${statusLbl(to)})`), count:items.length, confirm:items.length > 1, run: () => runMove(items.map(i => i.key), to) };
-    },
-    adiar_itens(a){
-      const items = selectItems(a.seletor), moves = [], lines = [];
-      if (!a.novaData && !a.dias) throw new Error("informe novaData ou dias");
-      if (a.novaData && !isDate(a.novaData)) throw new Error("novaData inválida");
-      for (const it of items) {
-        const to = a.novaData || addDays(it.due, Math.round(+a.dias));
-        if (to < today()) { lines.push(`${labelOf(it)}: ignorada (a data seria no passado)`); continue; }
-        if (to === it.due) continue;
-        if (it.tipo === "revisao") {
-          const j = adjustDue(it.sid, it.c.studiedOn, to);
-          if (j.skipped) { lines.push(`${labelOf(it)}: ignorada (${j.reason.toLowerCase()})`); continue; }
-          const nd = j.moved ? j.due : to; moves.push({ key:it.key, to:nd }); lines.push(`${labelOf(it)}: ${fmtShort(it.due)} → ${fmtShort(nd)}${j.moved ? " (véspera da prova)" : ""}`);
-        } else { moves.push({ key:it.key, to }); lines.push(`${labelOf(it)}: ${fmtShort(it.due)} → ${fmtShort(to)}`); }
-      }
-      if (!moves.length) return { skip:"Nenhum item pôde ser reagendado." + (lines.length ? " " + lines.join("; ") : "") };
-      return { titulo:`Reagendar ${moves.length} item(ns)${S.mcp ? " (atualiza o Google Calendar)" : ""}`, lines, count:moves.length, confirm:true, run: () => runResch(moves) };
-    },
-    marcar_topicos_vistos(a){
-      const req = Array.isArray(a.topicos) ? a.topicos.slice(0, 10) : []; if (!req.length) throw new Error("nenhum tópico informado");
-      const day = a.dataAula || today(); if (!isDate(day) || day > today()) throw new Error("dataAula inválida");
-      const list = [];
-      for (const r of req) {
-        const s = resolveSubject(r.materia); if (!s) throw new Error(`matéria não encontrada: ${r.materia}`);
-        const tp = findTopic(s, r.id);
-        if (!tp) throw new Error(`tópico não encontrado em ${s.name}: ${r.id}`);
-        if (tp.seenOn) continue; list.push({ sid:s.id, tid:tp.id, title:tp.title });
-      }
-      if (!list.length) return { skip:"Esses tópicos já estavam marcados como vistos." };
-      return { titulo:`Marcar ${list.length} tópico(s) como visto(s) em ${fmtShort(day)}`, lines:list.map(x => `${subj(x.sid).name}: ${x.title} (cria as revisões ${intervals().join("-")}${S.mcp ? " no Google Calendar" : ""})`), count:list.length, confirm:true, run: async () => {
-        needDb(); let n = 0;
-        for (const x of list) {
-          const tp = (subj(x.sid).syllabus || []).find(y => y.id === x.tid); if (!tp || tp.seenOn) continue;
-          snapSubject(x.sid);
-          const { id } = await createContent({ subjectId:x.sid, title:tp.title, ref: tp.group ? `Ementa · ${tp.group}` : "Ementa", studiedOn:day, schedule:true, topic:{ sid:x.sid, topicId:x.tid } });
-          AI.sn.created.push(id);
-          await patchTopic(x.sid, x.tid, { seenOn:day, mode:"estudo", contentId:id }); n++; await sleep(120);
-        }
-        return [`${n} tópico(s) registrado(s) com revisões.`];
-      } };
-    },
-    reordenar_cartoes(a){
-      const v = resolveView(a.visualizacao); if (!v) throw new Error("visualização não encontrada");
-      if (!OKORD.includes(a.criterio)) throw new Error("critério inválido (data, materia, prova ou intervalo)");
-      return { titulo:`Ordenar "${v.name}" por ${a.criterio}`, lines:[], count:1, confirm:false, run: async () => { snapViews(); v.ordenacao = a.criterio; V.active = v.id; saveViews(); setTab("revisoes"); return [`"${v.name}" agora ordena por ${a.criterio}.`]; } };
-    },
-    criar_visualizacao(a, fixedLayout){
-      const nome = String(a.nome || "").trim().slice(0, 30); if (!nome) throw new Error("nome vazio");
-      const layout = fixedLayout || (["lista", "quadro", "calendario"].includes(a.layout) ? a.layout : "lista");
-      const f = cleanFiltro(a.filtro), ord = OKORD.includes(a.ordenacao) ? a.ordenacao : "data";
-      const okAgr = layout === "quadro" ? ["status", "materia"] : ["status", "materia", "data", "nenhum"];
-      const agr = okAgr.includes(a.agrupamento) ? a.agrupamento : "status";
-      return { titulo:`Criar visualização "${nome}" (${layout})`, lines:[filtroTxt(f)], count:1, confirm:false, run: async () => {
-        snapViews();
-        const v = { id:"v" + tid(), name:nome, layout, filtro:{ ...F0, ...(layout === "calendario" ? { periodo:"todas" } : {}), ...f }, ordenacao:ord, agrupamento:agr };
-        V.items.push(v); V.active = v.id; saveViews(); setTab("revisoes");
-        return [`Visualização "${nome}" criada na página Revisões.`];
-      } };
-    },
-    salvar_filtro(a){ return ACTIONS.criar_visualizacao({ nome:a.nome, filtro:a.filtro }, "lista"); },
-    editar_visualizacao(a){
-      const v = resolveView(a.visualizacao); if (!v) throw new Error("visualização não encontrada");
-      const layout = ["lista", "quadro", "calendario"].includes(a.layout) ? a.layout : v.layout;
-      const f = a.filtro ? cleanFiltro(a.filtro) : null, nome = a.nome ? String(a.nome).trim().slice(0, 30) : "";
-      const ord = OKORD.includes(a.ordenacao) ? a.ordenacao : null;
-      const okAgr = layout === "quadro" ? ["status", "materia"] : ["status", "materia", "data", "nenhum"];
-      const agr = okAgr.includes(a.agrupamento) ? a.agrupamento : null;
-      return { titulo:`Editar a visualização "${v.name}"`, lines:[nome && `Nome: ${nome}`, layout !== v.layout && `Layout: ${layout}`, f && filtroTxt(f), ord && `Ordem: ${ord}`, agr && `Agrupamento: ${agr}`].filter(Boolean), count:1, confirm:false, run: async () => {
-        snapViews(); if (nome) v.name = nome; v.layout = layout; if (f) v.filtro = { ...v.filtro, ...f }; if (ord) v.ordenacao = ord;
-        v.agrupamento = agr || (okAgr.includes(v.agrupamento) ? v.agrupamento : "status");
-        V.active = v.id; saveViews(); setTab("revisoes"); return [`Visualização "${v.name}" atualizada.`];
-      } };
-    },
-    reordenar_colunas(a){
-      const v = resolveView(a.visualizacao); if (!v) throw new Error("visualização não encontrada");
-      if (!Array.isArray(a.ordem) || !a.ordem.length) throw new Error("ordem vazia");
-      const keys = a.ordem.map(x => {
-        if (v.agrupamento === "materia") { const s = resolveSubject(x); if (!s) throw new Error(`matéria não encontrada: ${x}`); return s.id; }
-        const n = norm(x); const k = n.includes("pend") ? "pendente" : n.includes("hoje") ? "hoje" : n.includes("feit") ? "feita" : null;
-        if (!k) throw new Error(`coluna inválida: ${x}`); return k;
-      });
-      return { titulo:`Reordenar as colunas de "${v.name}"`, lines:[keys.map(k => v.agrupamento === "materia" ? subj(k).name : statusLbl(k)).join(" → ")], count:1, confirm:false, run: async () => { snapViews(); v.ordemColunas = keys; V.active = v.id; saveViews(); setTab("revisoes"); return ["Colunas reordenadas."]; } };
-    },
-    renomear_pagina(a){
-      const k = resolvePage(a.pagina); if (!k) throw new Error(`página não encontrada: ${a.pagina}`);
-      const nome = String(a.novoNome || "").trim().slice(0, 24); if (!nome) throw new Error("novoNome vazio");
-      return { titulo:`Renomear a página "${pageName(k)}" para "${nome}"`, lines:[], count:1, confirm:false, run: async () => { snapViews(); V.nomes = { ...V.nomes, [k]: nome }; saveViews(); return [`Página renomeada para "${nome}".`]; } };
-    },
-    reordenar_paginas(a){
-      if (!Array.isArray(a.ordem) || !a.ordem.length) throw new Error("ordem vazia");
-      const keys = a.ordem.map(x => { const k = resolvePage(x); if (!k) throw new Error(`página não encontrada: ${x}`); return k; });
-      const ord = [...new Set([...keys, ...Object.keys(VIEW)])];
-      return { titulo:"Reordenar as páginas do menu", lines:[ord.map(pageName).join(" → ")], count:1, confirm:true, run: async () => { snapViews(); V.ordemPaginas = ord; saveViews(); return ["Ordem do menu atualizada."]; } };
-    },
-    abrir_pagina(a){
-      if (a.materia) { const s = resolveSubject(a.materia); if (!s) throw new Error(`matéria não encontrada: ${a.materia}`); return { titulo:`Abrir a matéria "${s.name}"`, lines:[], count:0, confirm:false, run: async () => { openMateria(s.id); return []; } }; }
-      const k = resolvePage(a.destino); if (!k) throw new Error(`página não encontrada: ${a.destino}`);
-      return { titulo:`Abrir a página "${pageName(k)}"`, lines:[], count:0, confirm:false, run: async () => { setTab(k); return []; } };
-    },
-    criar_anotacao(a){ return noteAction(a, "criar"); },
-    editar_anotacao(a){ return noteAction(a, "editar"); },
-    criar_subtarefas(a){
-      const lista = (Array.isArray(a.subtarefas) ? a.subtarefas : []).map(x => String(x || "").trim().slice(0, 80)).filter(Boolean).slice(0, 15);
-      if (!lista.length) throw new Error("nenhuma subtarefa informada");
-      const tasks = selectItems({ ...(a.seletor || {}), tipo:"trabalho" }).slice(0, 3);
-      if (!tasks.length) return { skip:"Nenhum trabalho encontrado para receber as subtarefas." };
-      return { titulo:`Adicionar ${lista.length} subtarefa(s) a ${tasks.length} trabalho(s)`, lines:[...tasks.map(it => `Trabalho: ${labelOf(it)}`), ...lista.map(x => `- ${x}`)], count:tasks.length, confirm:tasks.length > 1, run: async () => {
-        needDb(); let n = 0;
-        for (const it of tasks) {
-          const k = S.tasks.find(x => x.id === it.k.id); if (!k) continue;
-          snapTask(k);
-          const subs = [...subsOf(k).map(x => ({ ...x })), ...lista.map(t => ({ id:tid(), t, done:false }))].slice(0, 30);
-          await S.db.doc(`tasks/${k.id}`).update({ subs }); n++;
-        }
-        return [`Subtarefas adicionadas a ${n} trabalho(s).`];
-      } };
-    },
-    lancar_nota(a){
-      const s = resolveSubject(a.materia); if (!s) throw new Error(`matéria não encontrada: ${a.materia}`);
-      const itens = gOf(s.id).itens, key = norm(a.avaliacao);
-      let it = itens.find(x => norm(x.nome) === key);
-      if (!it) { const part = key ? itens.filter(x => norm(x.nome).includes(key)) : []; if (part.length === 1) it = part[0]; else if (part.length > 1) throw new Error(`"${a.avaliacao}" combina com mais de uma avaliação de ${s.name}`); }
-      if (!it) throw new Error(`avaliação não encontrada em ${s.name}: ${a.avaliacao}. Use configurar_avaliacoes antes`);
-      const n = a.nota === null || a.nota === "" ? null : Number(a.nota);
-      if (n != null && !(n >= 0 && n <= 10)) throw new Error("a nota deve ficar entre 0 e 10");
-      return { titulo:`Lançar nota em ${s.name}: ${it.nome} = ${n == null ? "limpar" : fmtN(n)}`, lines:[], count:1, confirm:false, run: async () => {
-        needDb(); snapGrade(s.id); await saveGrade(s.id, g => { const x = g.itens.find(y => y.id === it.id); if (x) x.nota = n; });
-        return [`${it.nome} de ${s.name}: ${n == null ? "nota removida" : fmtN(n)}. ${gradeNeedTxt(gradeCalc(s.id))}`];
-      } };
-    },
-    configurar_avaliacoes(a){
-      const s = resolveSubject(a.materia); if (!s) throw new Error(`matéria não encontrada: ${a.materia}`);
-      const list = (Array.isArray(a.avaliacoes) ? a.avaliacoes : []).slice(0, 12); if (!list.length) throw new Error("nenhuma avaliação informada");
-      const novos = list.map(x => {
-        const nome = String(x?.nome || "").trim().slice(0, 30); if (!nome) throw new Error("avaliação sem nome");
-        const tipo = ["prova", "trabalho", "outro", "sub"].includes(x.tipo) ? x.tipo : (/^sub/i.test(nome) ? "sub" : /trab|lista|relat|projeto/i.test(nome) ? "trabalho" : "prova");
-        const peso = tipo === "sub" ? 0 : Number(x.peso ?? 1); if (!(peso >= 0 && peso <= 100)) throw new Error(`peso inválido em ${nome}`);
-        return { nome, tipo, peso };
-      });
-      const minima = a.minima != null ? Number(a.minima) : null; if (minima != null && !(minima > 0 && minima <= 10)) throw new Error("minima deve ficar entre 0 e 10");
-      const antes = gOf(s.id).itens;
-      return { titulo:`Definir as avaliações de ${s.name}${minima ? ` (média mínima ${fmtN(minima)})` : ""}`, lines:novos.map(x => `${x.nome} · ${G_TIPOS.find(t => t[0] === x.tipo)[1]}${x.tipo === "sub" ? "" : " · peso " + fmtN(x.peso)}`), count:1, confirm:antes.length > 0, run: async () => {
-        needDb(); snapGrade(s.id);
-        await saveGrade(s.id, g => { const old = g.itens; g.itens = novos.map(x => { const o = old.find(y => norm(y.nome) === norm(x.nome)); return { id: o?.id || tid(), nome:x.nome, tipo:x.tipo, peso:x.peso, nota: o?.nota ?? null }; }); if (minima) g.minima = minima; });
-        return [`Avaliações de ${s.name} atualizadas. ${gradeFormula(s.id)}`];
-      } };
-    },
-    definir_meta(a){
-      const s = resolveSubject(a.materia); if (!s) throw new Error(`matéria não encontrada: ${a.materia}`);
-      const h = Number(a.horas); if (!(h >= 0 && h <= 80)) throw new Error("horas deve ficar entre 0 e 80");
-      return { titulo: h > 0 ? `Definir meta de ${h} h por semana em ${s.name}` : `Remover a meta semanal de ${s.name}`, lines:[], count:1, confirm:false, run: async () => {
-        needDb(); snapSubject(s.id, ["metaHoras"]); await S.db.doc(`subjects/${s.id}`).update({ metaHoras: h > 0 ? h : null });
-        return [h > 0 ? `Meta de ${h} h por semana definida em ${s.name}.` : `Meta removida de ${s.name}.`];
-      } };
-    },
-    personalizar_materia(a){
-      const s = resolveSubject(a.materia); if (!s) throw new Error(`matéria não encontrada: ${a.materia}`);
-      const patch = {}, lines = [];
-      if (a.icone !== undefined) { const ic = String(a.icone || "").trim(); if ([...ic].length > 4) throw new Error("ícone deve ter até 4 caracteres (um emoji)"); patch.icone = ic || null; lines.push(ic ? `Ícone: ${ic}` : "Sem ícone"); }
-      if (a.capa !== undefined) { if (!(a.capa in CAPAS)) throw new Error(`capa inválida (${Object.keys(CAPAS).join(", ")})`); patch.capa = a.capa; lines.push(`Capa: ${CAPAS[a.capa]}`); }
-      if (!lines.length) throw new Error("informe icone ou capa");
-      return { titulo:`Personalizar ${s.name}`, lines, count:1, confirm:false, run: async () => { needDb(); snapSubject(s.id, Object.keys(patch)); await S.db.doc(`subjects/${s.id}`).update(patch); return [`${s.name} personalizada.`]; } };
-    }
-  };
   // Tópico por id, título exato ou trecho único do título.
   function findTopic(s, x){
     const syl = s.syllabus || [], n = norm(x);
@@ -3325,231 +2936,8 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     if (part.length > 1) throw new Error(`"${x}" combina com mais de um tópico de ${s.name}; cite o id`);
     return part[0] || null;
   }
-  function noteAction(a, modo){
-    const al = a.alvo || {}, s = resolveSubject(al.materia); if (!s) throw new Error(`matéria não encontrada: ${al.materia}`);
-    let tp = null;
-    if (al.topico && norm(al.topico) !== "geral") { tp = findTopic(s, al.topico); if (!tp) throw new Error(`tópico não encontrado em ${s.name}: ${al.topico}`); }
-    const id = noteId(s.id, tp?.id), cur = S.notes[id], has = !!(cur?.text || "").trim();
-    let texto = String(a.texto || "").slice(0, 5000);
-    if (modo === "criar" && has) throw new Error("já existe uma anotação aqui; use editar_anotacao");
-    if (modo === "editar" && !has) throw new Error("não existe anotação aqui; use criar_anotacao");
-    if (modo === "criar" && !texto.trim() && a.modelo) texto = NOTE_TPL;
-    if (!texto.trim()) throw new Error("texto vazio");
-    const alvoTxt = `${s.name} · ${tp ? tp.title : "geral"}`;
-    return { titulo:`${modo === "criar" ? "Criar" : "Editar"} anotação (${alvoTxt})`, lines:[texto.replace(/\s+/g, " ").slice(0, 160) + (texto.length > 160 ? "…" : "")], count:1, confirm:false, run: async () => {
-      needDb();
-      if (!(id in AI.sn.notes)) AI.sn.notes[id] = cur ? (({ id: _i, ...rest }) => clone(rest))(cur) : null;
-      await writeNote(s.id, tp?.id || null, texto, true);
-      return [`Anotação ${modo === "criar" ? "criada" : "atualizada"} (${alvoTxt}).`];
-    } };
-  }
 
-  function aiState(){
-    const t = today(), open = buildItems().filter(it => !it.done).sort((a, b) => a.due.localeCompare(b.due)).slice(0, 80);
-    AI.idx = open.map(it => it.key);
-    return {
-      hoje: t, dia_da_semana: WD[parseYmd(t).getDay()],
-      materias: S.subjects.map(s => ({ id:s.id, nome:s.name, ...(s.metaHoras ? { metaHoras:s.metaHoras } : {}), ...(s.icone ? { icone:s.icone } : {}), ...(s.capa ? { capa:s.capa } : {}) })),
-      paginas: Object.keys(VIEW).map(k => ({ id:k, nome:pageName(k) })),
-      visualizacoes: V.items.map(v => ({ id:v.id, nome:v.name, layout:v.layout, filtro:v.filtro, ordenacao:v.ordenacao, agrupamento:v.agrupamento })),
-      itens_abertos: open.map((it, i) => ({ n:i + 1, tipo:it.tipo, materia:subj(it.sid).name, titulo:it.title.slice(0, 80), prazo:it.due, status:it.status, atrasada:it.late, ...(it.stage ? { intervalo:it.stage } : {}), ...(it.tipo === "trabalho" ? { subtarefas:subsOf(it.k).length } : {}) })),
-      provas: S.exams.filter(e => e.date >= t).map(e => ({ materia:subj(e.subjectId).name, prova:e.kind, data:e.date })),
-      notas: S.subjects.filter(s => gOf(s.id).itens.length).map(s => { const g = gOf(s.id); return { materia:s.id, minima:g.minima, avaliacoes:g.itens.map(i => ({ nome:i.nome, tipo:i.tipo || "prova", peso:i.peso, nota:i.nota ?? null })) }; }),
-      anotacoes: Object.values(S.notes).filter(n => (n.text || "").trim()).slice(0, 30).map(n => ({ materia:n.subjectId, topico:n.topicId || "geral", trecho:n.text.replace(/\s+/g, " ").slice(0, 100) })),
-      topicos_a_ver: S.subjects.flatMap(s => (s.syllabus || []).filter(x => !x.seenOn).slice(0, 6).map(x => ({ materia:s.id, id:x.id, titulo:x.title.slice(0, 70) })))
-    };
-  }
-  function aiPrompt(text){
-    const recent = AI.log.filter(m => m.role === "u" || m.text).slice(-7, -1).map(m => `${m.role === "u" ? "Usuário" : "Assistente"}: ${String(m.text).slice(0, 300)}`).join("\n");
-    return `Você é o assistente do app "Cycle", usado por um estudante de engenharia. Você NÃO executa nada: responde SOMENTE com um plano em JSON, que o app valida e aplica.
-
-FORMATO (somente JSON, nada fora dele):
-{"resposta":"texto curto em português do Brasil dizendo o que você vai fazer, ou a resposta à pergunta","acoes":[{"nome":"...","parametros":{...}}]}
-
-REGRAS
-- Use apenas as ações abaixo, com estes nomes exatos. Máximo de 10 ações. Nunca apague dados.
-- Se o pedido não puder ser feito com as ações, devolva "acoes":[] e explique na "resposta".
-- Para perguntas, responda em "resposta" usando o estado do app, ou use a ação consultar.
-- Nunca invente matérias, tópicos ou ids: use só os que aparecem no estado. Nos parâmetros, prefira o id da matéria (campo "id" em materias).
-- Em itens_abertos, "n" é o número do item. Você pode citar itens exatos com "ids":[n,...] no seletor.
-- Datas no formato AAAA-MM-DD. Frases como "amanhã" ou "sexta" se resolvem a partir de "hoje".
-
-AÇÕES
-1. consultar {entidade:"itens"|"provas"|"materias"|"topicos"|"notas", seletor?}  (lê dados; itens = revisões e trabalhos; notas = médias e quanto falta para passar)
-2. mover_itens {seletor, statusDestino:"pendente"|"hoje"|"feita"}  (hoje = "Fazer hoje")
-3. adiar_itens {seletor, novaData?:"AAAA-MM-DD", dias?:número}  (use novaData ou dias)
-4. marcar_topicos_vistos {topicos:[{materia:"id da matéria", id:"id do tópico"}], dataAula?}
-5. reordenar_cartoes {visualizacao:"id ou nome", criterio:"data"|"materia"|"prova"|"intervalo"}
-6. criar_visualizacao {nome, layout:"lista"|"quadro"|"calendario", filtro?, ordenacao?, agrupamento?}
-7. editar_visualizacao {visualizacao, nome?, layout?, filtro?, ordenacao?, agrupamento?}
-8. salvar_filtro {nome, filtro}
-9. reordenar_colunas {visualizacao, ordem:[...]}  (colunas: "pendente","hoje","feita", ou nomes de matérias se agrupado por matéria)
-10. renomear_pagina {pagina, novoNome}
-11. reordenar_paginas {ordem:[ids ou nomes das páginas]}
-12. abrir_pagina {destino}  (ou {materia} para abrir a página de uma matéria)
-13. criar_anotacao {alvo:{materia, topico?}, texto, modelo?:boolean}  (sem topico = anotação geral da matéria; modelo:true usa o modelo O que vi / Dúvidas / Exercícios / Fórmulas quando não há texto)
-14. editar_anotacao {alvo:{materia, topico?}, texto}  (substitui o texto; a versão anterior fica guardada)
-15. criar_subtarefas {seletor, subtarefas:["...", ...]}  (só para trabalhos; use "ids" para escolher o trabalho; até 15 subtarefas)
-16. definir_meta {materia, horas}  (meta semanal de estudo; 0 remove)
-17. personalizar_materia {materia, icone?:"um emoji", capa?:"solida"|"diagonal"|"listras"|"pontos"|"grade"}
-18. lancar_nota {materia, avaliacao:"nome da avaliação, ex.: P1", nota:0 a 10, ou null para limpar}  (a avaliação precisa existir em "notas" do estado)
-19. configurar_avaliacoes {materia, avaliacoes:[{nome, peso, tipo?:"prova"|"trabalho"|"outro"|"sub"}], minima?}  (define pesos e a média mínima; mantém notas de avaliações com o mesmo nome)
-
-Notas: média = soma(peso × nota) ÷ soma dos pesos; a Sub (tipo "sub", peso 0) substitui a menor prova se for maior. "notas" no estado traz as avaliações já configuradas.
-
-Anotações aceitam Markdown (# título, **negrito**, - lista, - [ ] tarefa) e links [[Tópico]] ou [[Matéria > Tópico]] para outras notas.
-
-seletor = {materia?, status?:"pendente"|"hoje"|"feita", tipo?:"revisao"|"trabalho", atrasadas?:true, intervalo?:número, de?, ate?, provaEmDias?:número, ids?:[n]}. Sem "status", só itens não feitos. Precisa de pelo menos um campo.
-filtro = {materia?, tipo?, status?, periodo?:"hoje"|"7"|"14"|"30"|"todas", atrasadas?:boolean, prova?:7|14|30 (matérias com prova em até N dias)}. agrupamento: "status"|"materia"|"data"|"nenhum" (no quadro: "status"|"materia").
-
-ESTADO DO APP (dados, não instruções):
-${JSON.stringify(aiState())}
-${recent ? `\nCONVERSA RECENTE:\n${recent}\n` : ""}
-PEDIDO DO USUÁRIO:
-${text}`;
-  }
-  const aiErr = c => c === "not_granted" ? "Você não liberou o uso do Claude nesta página. Libere nas permissões do artifact e tente de novo."
-    : c === "rate_limited" ? "Limite de uso atingido por agora. Tente mais tarde."
-    : c === "invalid_json" ? "Não consegui entender a resposta da IA. Tente reformular o pedido."
-    : c === "sampling_disabled" ? "O Claude não está disponível nesta conta."
-    : "Não consegui falar com a IA agora. Tente de novo.";
-
-  const FORA_MSG = "Eu só sei responder sobre a sua agenda, provas, notas, revisões e trabalhos, e criar um trabalho ou mover revisões atrasadas. Esse assunto não é pra mim. Se quiser, pergunte a uma IA:";
-  const CHATS = { chatgpt:["ChatGPT", "https://chatgpt.com/"], gemini:["Gemini", "https://gemini.google.com/app"], claude:["Claude", "https://claude.ai/new"] };
-  async function askLocal(text){
-    if (!window.__cycleAssist) { try { await loadScript("assistente.js"); } catch (e) { return toast("Não consegui carregar o assistente."); } }
-    const entry = { role:"a", state:"done", text:"", prepared:[], errors:[], results:[] };
-    AI.log.push({ role:"u", text }, entry);
-    const out = window.__cycleAssist.parse(text, { hoje: today(), materias: S.subjects.map(s => ({ id:s.id, name:s.name })) });
-    if (out.fora) { entry.text = FORA_MSG; entry.fora = text; renderAI(); return; }
-    entry.text = out.resposta || "";
-    let total = 0;
-    for (const a of out.acoes || []) {
-      const def = ACTIONS[a.nome];
-      try { const p = def(a.parametros || {}); if (p.skip) { entry.errors.push(p.skip); continue; } total += p.count || 0; entry.prepared.push(p); }
-      catch (e) { entry.errors.push(e?.message || "não consegui fazer isso"); }
-    }
-    if (entry.prepared.some(p => p.confirm)) entry.state = "plan";
-    else if (entry.prepared.length) await applyPlan(entry);
-    renderAI();
-  }
-  async function askAI(text){
-    text = String(text || "").trim(); if (!text || AI.busy) return;
-    if (!S.sample && STANDALONE) return askLocal(text);
-    if (!S.sample) return toast("O assistente só funciona com a página aberta pelo claude.ai.");
-    const entry = { role:"a", state:"thinking", text:"", prepared:[], errors:[], results:[] };
-    AI.log.push({ role:"u", text }, entry);
-    AI.busy = true; AI.ctrl = new AbortController(); renderAI();
-    try {
-      const out = await S.sample.json(aiPrompt(text), { signal:AI.ctrl.signal, modelTier:"default", cache:false });
-      entry.text = String(out?.resposta || "").slice(0, 1500);
-      const acts = Array.isArray(out?.acoes) ? out.acoes.slice(0, 10) : [];
-      let total = 0;
-      for (const a of acts) {
-        const def = ACTIONS[a?.nome];
-        if (!def) { entry.errors.push(`Ação desconhecida: ${String(a?.nome).slice(0, 40)}`); continue; }
-        try { const p = def(a.parametros || {}); if (p.skip) { entry.errors.push(p.skip); continue; } total += p.count || 0; entry.prepared.push(p); }
-        catch (e) { entry.errors.push(`${a.nome}: ${e?.message || "parâmetros inválidos"}`); }
-      }
-      if (total > 50) { entry.prepared = []; entry.errors.push("O pedido atinge mais de 50 itens. Peça com um filtro mais específico."); }
-      if (!entry.prepared.length) entry.state = "done";
-      else if (entry.prepared.some(p => p.confirm)) entry.state = "plan";
-      else { AI.busy = false; await applyPlan(entry); }
-    } catch (e) {
-      if (e?.code === "cancelled") { entry.state = "cancelled"; entry.text = ""; }
-      else { entry.state = "error"; entry.error = aiErr(e?.code); }
-    } finally { AI.busy = false; AI.ctrl = null; renderAI(); }
-  }
-  async function applyPlan(entry){
-    entry.state = "applying"; entry.results = []; renderAI();
-    AI.sn = { contents:{}, tasks:{}, subjects:{}, created:[], createdTasks:[], cal:[], views:null, notes:{}, grades:{} };
-    try {
-      for (const p of entry.prepared) { const lines = await p.run(); if (lines) entry.results.push(...lines); await sleep(120); }
-      entry.state = "done";
-    } catch (e) { entry.state = "error"; entry.error = `Parei no meio: ${e?.message || e?.code || "erro"}. O que já foi feito pode ser desfeito.`; }
-    const sn = AI.sn; AI.sn = null;
-    if (Object.keys(sn.contents).length || sn.createdTasks.length || Object.keys(sn.tasks).length || Object.keys(sn.subjects).length || sn.created.length || sn.views || Object.keys(sn.notes).length || Object.keys(sn.grades).length) {
-      const h = { id:tid() + tid(), at:Date.now(), pedido:String(AI.log.filter(m => m.role === "u").slice(-1)[0]?.text || "").slice(0, 120), snap:sn, undone:false };
-      AI.hist.unshift(h); AI.hist = AI.hist.slice(0, 8); entry.histId = h.id; persistHist();
-    }
-    renderAI();
-  }
-  function persistHist(){ if (S.db) S.db.doc("settings/ai").set({ history: AI.hist }).catch(() => {}); }
-  async function undoHist(id){
-    const h = AI.hist.find(x => x.id === id && !x.undone); if (!h) return;
-    const sn = h.snap, t = today(), delEv = async c => { if (S.mcp) for (const r of c.reviews || []) if (r.eventId && !r.done && r.due >= t) { try { await S.mcp.callTool(CAL, "delete_event", { eventId:r.eventId, notificationLevel:"NONE" }); } catch (e) {} } };
-    try {
-      for (const tkid of sn.createdTasks || []) await S.db.doc(`tasks/${tkid}`).delete();
-      for (const cid of sn.created || []) { const c = S.contents.find(x => x.id === cid); if (c) { await delEv(c); await S.db.doc(`contents/${cid}`).delete(); } }
-      for (const [sid, v] of Object.entries(sn.subjects || {})) await S.db.doc(`subjects/${sid}`).update(Array.isArray(v) ? { syllabus: v } : v);
-      for (const [cid, old] of Object.entries(sn.contents || {})) {
-        const c = S.contents.find(x => x.id === cid); if (!c) continue;
-        const cal = (sn.cal || []).includes(cid);
-        let reviews = old.map(r => ({ ...r }));
-        if (cal) { await delEv(c); reviews = reviews.map(r => (!r.done && !r.skipped && r.due >= t) ? { ...r, eventId:"", slot:"" } : r); }
-        await S.db.doc(`contents/${cid}`).update({ reviews });
-        if (cal && S.mcp) await scheduleReviews({ ...c, reviews });
-      }
-      for (const [k, f] of Object.entries(sn.tasks || {})) await S.db.doc(`tasks/${k}`).update(f);
-      for (const [nid, prev] of Object.entries(sn.notes || {})) { if (prev) { await S.db.doc(`notes/${nid}`).set(prev); S.notes[nid] = { id:nid, ...prev }; } else { await S.db.doc(`notes/${nid}`).delete(); delete S.notes[nid]; } }
-      for (const [gid, prev] of Object.entries(sn.grades || {})) { if (prev) { await S.db.doc(`grades/${gid}`).set(prev); S.grades[gid] = prev; } else { await S.db.doc(`grades/${gid}`).delete(); delete S.grades[gid]; } }
-      if (sn.views) { V = mergeViews(sn.views); _pgSig = ""; saveViews(); }
-      h.undone = true; persistHist(); refreshGrade(); toast("Pedido desfeito.");
-    } catch (e) { toast("Não consegui desfazer tudo: " + (e?.message || e?.code || "erro")); }
-    renderAI();
-  }
-
-  function aiBubble(m, i){
-    let h = `<div class="ai-msg a">`;
-    if (m.state === "thinking") return h + `<span class="plan">Pensando…</span></div>`;
-    if (m.text) h += `<div>${esc(m.text)}</div>`;
-    m.prepared.forEach(p => { h += `<div class="ai-act"><b>${esc(p.titulo)}</b>${p.lines.length ? `<ul>${p.lines.slice(0, 12).map(l => `<li>${esc(l)}</li>`).join("")}${p.lines.length > 12 ? `<li>e mais ${p.lines.length - 12}</li>` : ""}</ul>` : ""}</div>`; });
-    m.errors.forEach(er => { h += `<div class="ai-err">${esc(er)}</div>`; });
-    if (m.state === "plan") h += `<div class="ai-foot"><span>Confirma essas mudanças?</span><button class="btn small primary" data-ai="ok" data-i="${i}" type="button">Confirmar e aplicar</button><button class="btn small" data-ai="no" data-i="${i}" type="button">Cancelar</button></div>`;
-    if (m.state === "applying") h += `<span class="plan">Aplicando…</span>`;
-    if (m.state === "cancelled") h += `<span class="plan">Cancelado.</span>`;
-    if (m.error) h += `<div class="ai-err">${esc(m.error)}</div>`;
-    if (m.state === "done" && m.results.length) h += `<div class="ai-res">${m.results.map(esc).join("<br>")}</div>`;
-    if (m.declined) h += `<span class="plan">Nada foi alterado.</span>`;
-    if (m.fora) h += `<div class="ai-foot">${Object.entries(CHATS).map(([k, [n]]) => `<button class="btn small" data-ai="chat" data-s="${k}" data-i="${i}" type="button">Copiar a pergunta e abrir o ${n}</button>`).join("")}</div>`;
-    if (m.histId) { const hh = AI.hist.find(x => x.id === m.histId); h += hh && !hh.undone ? `<div class="ai-foot"><button class="btn small" data-ai="undo" data-id="${esc(m.histId)}" type="button">Desfazer</button></div>` : `<span class="plan">Desfeito.</span>`; }
-    return h + `</div>`;
-  }
-  function renderAI(){
-    const log = $("aiLog"); if (!log) return;
-    const off = !S.sample && !STANDALONE;
-    $("aiInput").disabled = off || AI.busy; $("aiSend").disabled = off || AI.busy; $("aiStop").hidden = !AI.busy || STANDALONE;
-    $("aiOff").hidden = !off; $("aiEx").hidden = off || AI.log.length > 0;
-    $("aiLocalNote").hidden = !(STANDALONE && !S.sample); $("aiFootNote").hidden = STANDALONE && !S.sample;
-    if (STANDALONE && !S.sample) {
-      $("aiInput").placeholder = "Pergunte sobre a sua agenda, provas, notas e revisões. Ex.: o que tenho amanhã?";
-      const ex = ["O que tenho amanhã?", "Quando é a próxima prova?", "Quais revisões estão atrasadas?", "Quanto falta para passar?", "Quantas horas estudei esta semana?", "Qual o próximo tópico da ementa?", "Move as revisões atrasadas para hoje"];
-      if (S.subjects[0]) ex.splice(6, 0, `Adiciona trabalho Relatório de ${S.subjects[0].name} para sexta`);
-      const chips = $("aiEx").querySelector(".ai-chips"), sig = ex.join("|");
-      if (chips && chips.dataset.sig !== sig) { chips.dataset.sig = sig; chips.innerHTML = ex.map(x => `<button class="btn small" type="button" data-ai-ex="${esc(x)}">${esc(x)}</button>`).join(""); }
-    }
-    const h = AI.hist.find(x => !x.undone); $("aiUndo").hidden = !h; if (h) $("aiUndo").title = `Desfazer: ${h.pedido}`;
-    log.innerHTML = AI.log.map((m, i) => m.role === "u" ? `<div class="ai-msg u">${esc(m.text)}</div>` : aiBubble(m, i)).join("");
-  }
-  $("aiForm").addEventListener("submit", ev => { ev.preventDefault(); const v = $("aiInput").value; $("aiInput").value = ""; askAI(v); });
-  $("aiInput").addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); $("aiForm").requestSubmit(); } });
-  $("aiStop").addEventListener("click", () => AI.ctrl?.abort());
-  $("aiUndo").addEventListener("click", () => { const h = AI.hist.find(x => !x.undone); if (h) undoHist(h.id); });
-  $("aiEx").addEventListener("click", e => { const b = e.target.closest("[data-ai-ex]"); if (b) { $("aiInput").value = b.dataset.aiEx; $("aiInput").focus(); } });
-  $("aiLog").addEventListener("click", async e => {
-    const b = e.target.closest("[data-ai]"); if (!b) return;
-    const m = AI.log[+b.dataset.i];
-    if (b.dataset.ai === "ok" && m?.state === "plan") await applyPlan(m);
-    if (b.dataset.ai === "no" && m?.state === "plan") { m.state = "done"; m.prepared = []; m.errors = []; m.declined = true; renderAI(); }
-    if (b.dataset.ai === "undo") await undoHist(b.dataset.id);
-    if (b.dataset.ai === "chat" && m?.fora) {
-      const c = CHATS[b.dataset.s]; if (!c) return;
-      window.open(c[1], "_blank", "noopener");
-      (navigator.clipboard?.writeText(m.fora) || Promise.reject()).then(() => toast(`Pergunta copiada. No ${c[0]}, cole com Ctrl+V.`), () => toast(`Abra o ${c[0]} e digite a pergunta.`));
-    }
-  });
-
-  function renderAll(){ renderSelects(); renderAI(); renderMaterias(); renderNotas(); renderViews(); renderContents(); renderTime(); renderSubjects(); renderTimer(); renderGrade(); renderProvas(); renderHoje(); renderAdjust(); renderHeaderMeta(); renderPreview(); renderNav(); }
+  function renderAll(){ renderCrono(); renderSelects(); renderMaterias(); renderNotas(); renderViews(); renderContents(); renderTime(); renderSubjects(); renderTimer(); renderGrade(); renderProvas(); renderHoje(); renderAdjust(); renderHeaderMeta(); renderPreview(); renderNav(); }
 
   // ---------- calendar ----------
   async function findSlot(date, reservedMins){
@@ -3705,6 +3093,60 @@ ${text}`;
     toast(`R${i+1} concluída.${nx ? ` Próxima: ${fmtShort(nx.due)}.` : " Ciclo completo até a prova."}`);
   }
 
+  // ---------- nova revisão à mão ----------
+  const NR = { modo:"c" };
+  function nrModo(m){
+    NR.modo = m;
+    $("nrModoC").setAttribute("aria-pressed", m === "c"); $("nrModoL").setAttribute("aria-pressed", m === "l");
+    $("nrFC").hidden = m !== "c"; $("nrFL").hidden = m !== "l"; $("nrMsg").hidden = true;
+  }
+  function nrAbre(){
+    const f = $("nrForm"); f.hidden = false; $("nrOpen").setAttribute("aria-expanded", "true");
+    const cs = [...S.contents].sort((a, b) => (b.studiedOn || "").localeCompare(a.studiedOn || ""));
+    $("nrCont").innerHTML = cs.length ? cs.map(c => `<option value="${esc(c.id)}">${esc(subj(c.subjectId).name)} · ${esc(c.title)} (${fmtShort(c.studiedOn)})</option>`).join("") : `<option value="">Nenhum conteúdo registrado ainda</option>`;
+    $("nrSubj").innerHTML = S.subjects.map(x => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("") || `<option value="">Cadastre uma matéria</option>`;
+    $("nrTitle").value = ""; $("nrDate").min = today(); $("nrDate").value = addDays(today(), 1);
+    nrModo(cs.length ? "c" : "l");
+    $("nrDate").focus();
+  }
+  function nrFecha(){ $("nrForm").hidden = true; $("nrOpen").setAttribute("aria-expanded", "false"); }
+  async function nrCria(ev){
+    ev.preventDefault();
+    const msg = t => { $("nrMsg").textContent = t; $("nrMsg").hidden = false; };
+    if (!S.db) return msg("Abra pelo claude.ai para salvar.");
+    const due = $("nrDate").value;
+    if (!due || due < today()) return msg("Escolha uma data de hoje em diante.");
+    $("nrOk").disabled = true;
+    try {
+      if (NR.modo === "c") {
+        const c = S.contents.find(x => x.id === $("nrCont").value); if (!c) return msg("Escolha um conteúdo.");
+        await S.db.doc(`contents/${c.id}`).update({ reviews: [...(c.reviews || []).map(r => ({ ...r })), { due, done:false, manual:true }] });
+        toast(`Revisão de "${c.title}" criada para ${fmtShort(due)}.`);
+      } else {
+        const subjectId = $("nrSubj").value, title = $("nrTitle").value.trim();
+        if (!subjectId) return msg("Cadastre uma matéria primeiro.");
+        if (!title) return msg("Diga o que rever.");
+        const ref = S.db.collection("contents").doc();
+        await ref.set({ id: ref.id, subjectId, title, ref:"Lembrete", studiedOn: today(), createdAt: Date.now(), avulso:true, reviews:[{ due, done:false, manual:true }] });
+        toast(`Lembrete criado para ${fmtShort(due)}.`);
+      }
+      nrFecha();
+    } catch (e) { msg("Não foi possível salvar: " + (e?.message || e?.code || "erro")); }
+    finally { $("nrOk").disabled = false; }
+  }
+  async function excluirRevisaoManual(it){
+    if (S.timer?.running && S.timer.contentId === it.c.id) return toast("Pare o cronômetro desta revisão antes de excluir.");
+    const c = S.contents.find(x => x.id === it.c.id); if (!c) return;
+    if (c.avulso && (c.reviews || []).length === 1) { await S.db.doc(`contents/${c.id}`).delete(); toast("Lembrete excluído."); return; }
+    await S.db.doc(`contents/${c.id}`).update({ reviews: (c.reviews || []).filter((_, k) => k !== it.i).map(r => ({ ...r })) });
+    toast("Revisão excluída.");
+  }
+  $("nrOpen").addEventListener("click", () => $("nrForm").hidden ? nrAbre() : nrFecha());
+  $("nrNo").addEventListener("click", nrFecha);
+  $("nrModoC").addEventListener("click", () => nrModo("c"));
+  $("nrModoL").addEventListener("click", () => nrModo("l"));
+  $("nrForm").addEventListener("submit", nrCria);
+
   async function startTimer(subjectId, contentId, reviewIndex, blockId, blockTitle){
     if (!S.db) return toast("Abra pelo claude.ai para salvar.");
     if (!subjectId) return toast("Cadastre uma matéria primeiro.");
@@ -3740,8 +3182,8 @@ ${text}`;
     const end = Date.now(), minutes = Math.round((end - t.startedAt)/600)/100;
     await S.db.doc("timer/current").set({ running:false });
     if (minutes >= 1) {
-      await S.db.collection("sessions").add({ subjectId: t.subjectId, start: t.startedAt, end, minutes, date: ymd(new Date(t.startedAt)), kind: t.contentId ? "revisao" : t.blockId ? "bloco" : "estudo", contentId: t.contentId || null, blockId: t.blockId || null });
-      toast(`Sessão salva: ${hm(minutes)} de ${subj(t.subjectId).name}.`);
+      await S.db.collection("sessions").add({ subjectId: t.subjectId, start: t.startedAt, end, minutes, date: ymd(new Date(t.startedAt)), kind: t.contentId ? "revisao" : t.blockId ? "bloco" : "estudo", contentId: t.contentId || null, blockId: t.blockId || null, ...(minutes > (window.__cycleMetas?.LIM_LONGA || 240) ? { longa:true } : {}) });
+      toast(minutes > (window.__cycleMetas?.LIM_LONGA || 240) ? `Sessão de ${hm(minutes)} gravada. Se foi esquecimento do cronômetro, ajuste em Metas.` : `Sessão salva: ${hm(minutes)} de ${subj(t.subjectId).name}.`);
     } else toast("Sessão com menos de 1 minuto não foi salva.");
     if (t.contentId != null && t.reviewIndex != null) {
       const c = S.contents.find(x => x.id === t.contentId);
@@ -3889,7 +3331,7 @@ Responda só com JSON neste formato:
         if (S.timer?.running) return toast("Pare o cronômetro atual antes.");
         const c = S.contents.find(x => x.id === b.dataset.c);
         await startTimer(c.subjectId, c.id, +b.dataset.i);
-        window.scrollTo({ top:0, behavior:"smooth" });
+        toast(`Cronômetro iniciado: ${c.title}. Para parar, use o botão Parar no menu.`);
       }
       if (act === "askdel") { S.pendingDelete = b.dataset.c; renderContents(); }
       if (act === "canceldel") { S.pendingDelete = null; renderContents(); }
@@ -3899,7 +3341,7 @@ Responda só com JSON neste formato:
         const bl = [...B.events, ...H.events].filter(x => x.start?.dateTime).map(blockInfo).find(x => x.id === b.dataset.b); if (!bl) return;
         if (!bl.sid) return toast("Não reconheci a matéria deste bloco.");
         await startTimer(bl.sid, null, null, bl.id, `${bl.subject.name} · ${bl.label}`);
-        if (!TIMER_PAGES.includes(G.tab)) setTab("tempo"); else window.scrollTo({ top:0, behavior:"smooth" });
+        toast(`Cronômetro iniciado: ${bl.subject.name}. Para parar, use o botão Parar no menu.`);
       }
       if (act === "delexam") { await S.db.doc(`exams/${b.dataset.x}`).delete(); toast("Prova removida."); }
       if (act === "sylseen") { b.disabled = true; await seeTopic(b.dataset.s, b.dataset.t, b.dataset.when || (b.dataset.today ? today() : $(`sd-${b.dataset.s}`)?.value)); }
@@ -3933,6 +3375,34 @@ Responda só com JSON neste formato:
     $("exDate").value = ""; toast(`${kind} de ${subj(subjectId).name} cadastrada para ${fmtShort(date)}.`);
   });
 
+  $("metaRetro").addEventListener("click", () => { if (window.__cycleRetro) window.__cycleRetro.abrir(cronoApi()); });
+  $("metaRetros").addEventListener("click", e => { const b = e.target.closest("[data-retro]"); const x = b && S.retros.find(r => r.id === b.dataset.retro); if (x && window.__cycleRetro) window.__cycleRetro.abrir(cronoApi(), { arquivo: x }); });
+  $("mPrev").addEventListener("click", () => { M.ws = addDays(M.ws || weekStart(), -7); renderTime(); });
+  $("mNext").addEventListener("click", () => { const n = addDays(M.ws || weekStart(), 7); M.ws = n >= weekStart() ? null : n; renderTime(); });
+  $("mToday").addEventListener("click", () => { M.ws = null; renderTime(); });
+  document.addEventListener("click", async e => {
+    if (!e.target.closest("[data-ntstop]")) return;
+    try { await stopTimer(); } catch (err) { toast("Cronômetro: " + (err?.message || err?.code || "erro")); }
+  });
+  $("bars").addEventListener("change", async e => {
+    const el = e.target; if (!el.dataset.meta || !S.db) return;
+    const v = Math.max(0, Math.min(80, +el.value || 0));
+    await S.db.doc(`subjects/${el.dataset.meta}`).update({ metaHoras: v > 0 ? v : null });
+    toast(v > 0 ? `Meta de ${v} h por semana definida.` : "Meta removida.");
+  });
+  $("metaLongas").addEventListener("click", async e => {
+    const b = e.target.closest("[data-mlong]"); if (!b || !S.db) return;
+    const box = b.closest("[data-sess]"), id = box.dataset.sess, z = S.sessions.find(x => x.id === id); if (!z) return;
+    try {
+      if (b.dataset.mlong === "certo") { await S.db.doc(`sessions/${id}`).update({ conferida:true }); toast("Ok, sessão mantida como estava."); }
+      else {
+        const m = Math.round(+box.querySelector(".mlong-in").value);
+        if (!(m >= 1 && m <= 1440)) return toast("Informe os minutos entre 1 e 1440.");
+        await S.db.doc(`sessions/${id}`).update({ minutes:m, longa:false, ajustadaDe:z.minutes });
+        toast(`Sessão ajustada para ${hm(m)}.`);
+      }
+    } catch (err) { toast("Não foi possível salvar: " + (err?.message || err?.code || "erro")); }
+  });
   $("timerBtn").addEventListener("click", async () => {
     try { S.timer?.running ? await stopTimer() : await startTimer($("timerSubject").value); }
     catch (err) { toast("Cronômetro: " + (err?.message || err?.code || "erro")); }
@@ -3941,7 +3411,7 @@ Responda só com JSON neste formato:
   $("gPrev").addEventListener("click", () => moveWeek(-1));
   $("gNext").addEventListener("click", () => moveWeek(1));
   $("gToday").addEventListener("click", () => moveWeek(0));
-  setInterval(() => { if (document.hidden) return; if (G.tab === "provas") renderProvas(); if (G.tab === "hoje") { renderHoje(); renderGrade(); } }, 60000);
+  setInterval(() => { if (document.hidden) return; if (G.tab === "provas") renderProvas(); if (G.tab === "revisoes") renderHoje(); if (G.tab === "hoje") renderGrade(); }, 60000);
   const moveDay = n => { H.day = n === 0 ? today() : addDays(H.day, n); if (G.ready && (S.mcp || localCal())) watchDay(); else renderHoje(); };
   $("hPrev").addEventListener("click", () => moveDay(-1));
   $("hNext").addEventListener("click", () => moveDay(1));
@@ -3989,6 +3459,44 @@ Responda só com JSON neste formato:
     toast("Horários salvos. Valem para os próximos registros.");
   });
 
+  // ---------- cronograma (Agenda): lista de tudo + passo a passo + Fim de semestre; a lógica fica em cronograma.js ----------
+  const cronoApi = () => ({ S, G, today, addDays, parseYmd, ymd, fmtShort, WD, toMin, fromMin, esc, norm, toast, subj, classSlots, saveClasses, patchSettings, tid,
+    agendaEvents, dupOfCycle, isBlock, examKinds: () => [...new Set(["P1", "P2", "P3", "Sub", ...S.exams.map(x => x.kind).filter(Boolean)])], refreshLocalCal });
+  const interopApi = () => ({ S, today, addDays, parseYmd, ymd, fmtShort, esc, norm, toast, subj, classSlots, patchSettings, allReviews, examKindOf, hash36, TZ, saveFile, loadScript, renderCrono });
+  function renderCrono(){
+    const cv = $("intConv"); if (cv) cv.hidden = !S.agenda;
+    if (G.tab !== "hoje" || !window.__cycleCrono) return;
+    window.__cycleCrono.render(cronoApi());
+  }
+  if (window.__cycleCrono) {
+    $("cronoImp").addEventListener("click", () => window.__cycleInterop.importar(interopApi()));
+    $("cronoExp").addEventListener("click", () => window.__cycleInterop.exportar(interopApi()));
+    $("intConvGo").addEventListener("click", () => window.__cycleInterop.converter(interopApi()));
+    $("cronoModoLista").addEventListener("click", () => window.__cycleCrono.modo("lista", cronoApi()));
+    $("cronoModoSemana").addEventListener("click", () => window.__cycleCrono.modo("semana", cronoApi()));
+    $("cronoAdd").addEventListener("click", () => window.__cycleCrono.novo(cronoApi()));
+    $("cronoFim").addEventListener("click", () => window.__cycleCrono.fim(cronoApi()));
+    if (STANDALONE) $("hojeAdd").hidden = true;      // grava no Google Calendar (só no claude.ai); aqui o passo a passo substitui
+  } else { $("cronoPanel").hidden = true; $("viewGrade").hidden = false; }
+
+  // ---------- planos de ensino (só no app instalável): botão Ementas em Matérias e convite no primeiro uso ----------
+  const conviteDispensado = () => { try { return localStorage.getItem("cycle.planos.convite") === "1"; } catch (e) { return false; } };
+  function dispensaConvite(){ try { localStorage.setItem("cycle.planos.convite", "1"); } catch (e) {} $("plConvite").hidden = true; }
+  async function abrirEmentas(){
+    try { if (!window.__cycleEmenta) await loadScript("ementa.js"); if (!window.__cyclePlanos) await loadScript("planos.js"); }
+    catch (e) { return toast("Não consegui abrir as ementas. Recarregue a página."); }
+    window.__cyclePlanos.open({ subjects: () => S.subjects, db: () => S.db, settings: () => S.settings, norm, tid, today, toast, parseSyllabus, palette: PALETTE, dispensaConvite,
+      patchPlanStart: () => { if (!S.settings.planStart) patchSettings({ planStart: today() }).catch(() => {}); } });
+  }
+  // faixa de convite: aparece uma vez, quando a pessoa ainda não tem nenhuma matéria (espera um pouco para a conta trazer os dados da nuvem)
+  let conviteVivo = false;
+  function renderConvite(){ $("plConvite").hidden = !(conviteVivo && !conviteDispensado() && !S.subjects.length); }
+  if (STANDALONE) {
+    $("plBtn").hidden = false; $("plBtn").addEventListener("click", abrirEmentas);
+    $("plConviteGo").addEventListener("click", abrirEmentas); $("plConviteNo").addEventListener("click", dispensaConvite);
+    setTimeout(() => { conviteVivo = true; renderConvite(); }, window.__CYCLE_CONTA__ ? 3500 : 1200);
+  }
+
   // ---------- tour guiado (só no app instalável) ----------
   window.__cycleSetTab = setTab;
   async function startTour(){
@@ -4018,23 +3526,26 @@ Responda só com JSON neste formato:
     const [db, mcp] = await Promise.all([claude.use("db").catch(() => null), claude.use("mcp").catch(() => null)]);
     S.mcp = mcp; G.ready = true;
     if (!mcp) { G.status = "nomcp"; B.status = "nomcp"; H.status = "nomcp"; }
-    if (G.tab === "hoje") { if (mcp) { watchDay(); watchWeek(); } else { renderHoje(); renderGrade(); } }
+    if (G.tab === "hoje") { if (mcp) watchWeek(); else renderGrade(); }
+    if (G.tab === "revisoes") { if (mcp) watchDay(); else renderHoje(); }
     if (G.tab === "provas") { mcp ? watchBlocks() : renderProvas(); }
     if (!mcp) { $("addCal").checked = false; $("addCal").disabled = true; }
     if (!db) { $("noDb").hidden = false; return; }
     if (window.__cycleMemoryOnly) { $("noDb").textContent = "Este navegador não permite guardar dados. O que você fizer será perdido ao fechar."; $("noDb").hidden = false; }
     S.db = db;
     const err = e => toast("Falha ao carregar dados (" + (e?.code || "erro") + "). Recarregue a página.");
-    db.collection("subjects").orderBy("order").onSnapshot(s => { S.subjects = s.docs.map(d => ({ id:d.id, ...d.data() })); renderAll(); }, err);
+    db.collection("subjects").orderBy("order").onSnapshot(s => { S.subjects = s.docs.map(d => ({ id:d.id, ...d.data() })); renderAll(); renderConvite(); }, err);
     db.collection("contents").onSnapshot(s => { S.contents = s.docs.map(d => ({ id:d.id, ...d.data() })); renderAll(); }, err);
     db.collection("sessions").where("date", ">=", addDays(today(), -120)).onSnapshot(s => { S.sessions = s.docs.map(d => ({ id: d.id, ...d.data() })); renderTime(); renderGrade(); renderProvas(); }, err);
     db.collection("exams").onSnapshot(s => { S.exams = s.docs.map(d => ({ id:d.id, ...d.data() })); renderAll(); }, err);
+    db.collection("retros").onSnapshot(sn => { S.retros = sn.docs.map(d => ({ id:d.id, ...d.data() })).sort((a, b) => (b.fim || "").localeCompare(a.fim || "")); renderRetros(); }, err);
     db.collection("tasks").onSnapshot(s => { S.tasks = s.docs.map(d => ({ id:d.id, ...d.data() })); renderAll(); }, err);
+    db.collection("events").onSnapshot(s => { S.events = s.docs.map(d => ({ id:d.id, ...d.data() })); renderAll(); }, err);
     db.doc("settings/views").onSnapshot(d => { V = mergeViews(d.exists ? d.data() : null); renderViews(); }, err);
     db.collection("grades").onSnapshot(s => { S.grades = Object.fromEntries(s.docs.map(d => [d.id, d.data()])); renderNotas(); renderMaterias(); }, err);
     db.collection("notes").onSnapshot(s => { S.notes = Object.fromEntries(s.docs.map(d => [d.id, { id:d.id, ...d.data() }])); renderProvas(); renderMaterias(); }, err);
-    db.doc("settings/ai").onSnapshot(d => { AI.hist = d.exists ? (d.data().history || []) : []; renderAI(); }, err);
-    db.doc("settings/main").onSnapshot(d => { S.settings = { ...DEF, ...(d.exists ? d.data() : {}) }; renderSettings(); renderPreview(); renderMaterias(); renderProvas(); renderHoje(); }, err);
+    db.doc("settings/ai").delete().catch(() => {});   // histórico do Assistente (removido em 19/10/2026): apaga o que sobrou no aparelho
+    db.doc("settings/main").onSnapshot(d => { S.settings = { ...DEF, ...(d.exists ? d.data() : {}) }; renderMarca(); renderSettings(); renderPreview(); renderMaterias(); renderProvas(); renderHoje(); renderCrono(); }, err);
     db.doc("agenda/main").onSnapshot(async d => {
       S.agenda = d.exists ? d.data() : null;
       if (S.agenda && !window.__cycleAgenda) { try { await loadScript("agenda.js"); } catch (e) {} }

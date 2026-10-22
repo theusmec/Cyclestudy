@@ -1,6 +1,6 @@
 # Cycle
 
-**Revisão espaçada para estudar para provas.** Grátis, sem conta, sem servidor. Funciona no celular e no computador, inclusive offline, e os dados ficam só no navegador do seu aparelho.
+**Revisão espaçada para estudar para provas.** Grátis. Funciona no celular e no computador, inclusive offline depois do primeiro acesso. O uso é **por convite**: cada pessoa tem a sua conta e só ela vê os próprios dados.
 
 ### [Abrir o Cycle](https://theusmec.github.io/Cyclestudy/) · [Tutorial passo a passo](https://theusmec.github.io/Cyclestudy/ajuda.html)
 
@@ -8,31 +8,33 @@
 
 ## O que faz
 - Cadastra matérias, datas de prova, horários de aula e ementa.
-- Agenda **revisões espaçadas** (1, 3, 7, 14 e 30 dias, ajustáveis) e aproxima das provas quando elas chegam perto.
-- Lista, quadro e calendário; trabalhos com subtarefas; cronômetro e metas semanais.
-- **Ementa por PDF:** lê o PDF no aparelho (pdf.js), sugere os tópicos e você revisa antes de salvar.
-- **Tour guiado:** botão Tour no topo (e convite na primeira vez) que passa por todas as abas explicando o essencial, sem alterar dados.
-- **Assistente local (sem IA e sem internet):** responde sobre agenda, provas, notas, revisões, trabalhos, horas e ementa com os seus dados, cria trabalhos e move revisões atrasadas (com confirmação e desfazer), e recusa o que não sabe.
-- **IA gratuita, sem chave:** monta o pedido pronto para ChatGPT, Gemini ou Claude (ementa e critérios de avaliação), copia, abre o chat e entende a resposta que você colar de volta.
+- **Planos de ensino em PDF:** lê os PDFs no aparelho, mostra uma prévia e cria as matérias, as ementas e os tópicos que faltam.
+- Agenda **revisões espaçadas** (1, 3, 7, 14 e 30 dias, ajustáveis), aproxima das provas quando elas chegam perto e deixa criar revisões novas à mão.
+- **Cronograma do semestre** na Agenda: lista ou semana, passo a passo para adicionar aula, prova, trabalho e compromisso, cores fixas por tipo e o botão **Fim de semestre**.
+- **Metas:** estudo líquido da semana por matéria (só conta o tempo com o cronômetro rodando) e meta semanal.
+- **Retrospectiva do semestre:** horas, constância e superações, com resumo para baixar.
 - Notas e médias: pesos, substitutiva, o que falta para passar e simulação "e se…".
 - Anotações em Markdown por matéria e tópico.
-- Backup em arquivo, **sincronização entre celular e computador por QR animado ou código** (sem conta) e exportação **.ics** para o Google Agenda, Apple Calendar e Outlook.
-- **Importa o seu Google Agenda** (arquivo .zip exportado pelo Google) para ver seus compromissos, inclusive os que se repetem, ao lado das revisões. Separa aula, prova, trabalho, revisão e evento, cria as matérias e lança as provas sozinho, e você corrige o tipo quando precisar. Sem conta e sem enviar nada ao Google.
+- **Importar e exportar agenda** (.zip do Google, .ics do Apple, Outlook e outros).
+- **IA gratuita, sem chave:** monta o pedido pronto para ChatGPT, Gemini ou Claude (ementa e critérios de avaliação), copia e abre o chat.
+- **Tour guiado** pelas abas, no botão Tour.
+
+## Conta e dados
+- Você cria a conta com e-mail e senha e **confirma o e-mail**. Só e-mails convidados entram.
+- Os dados ficam no aparelho e na sua conta (Firebase, plano gratuito), para abrir em outro aparelho. O primeiro acesso precisa de internet; depois funciona offline e sincroniza quando voltar.
+- Entre dois aparelhos **da mesma conta** sem internet, dá para passar os dados por **QR animado ou código**.
+- Backup em arquivo (.json) em Sincronizar. Não há rastreamento nem anúncios.
 
 ## Como instalar
 - **Android (Chrome):** abrir o site e tocar em *Instalar app*.
 - **iPhone (Safari):** compartilhar > *Adicionar à Tela de Início*.
 - **Computador (Edge/Chrome):** ícone de instalar na barra de endereço.
-Depois da primeira abertura, funciona sem internet.
-
-## Privacidade
-Não há login, banco de dados nem rastreamento. Nada que você cadastra sai do aparelho (a sincronização acontece direto entre os aparelhos, por QR ou código). Limpar os dados do navegador apaga tudo, então faça backup de vez em quando.
 
 ## Não incluído nesta versão
-Conexão ao vivo com o Google Agenda (a troca é por arquivo) e o Assistente/Examinador com IA (dependem de contas externas, pagas por uso no caso da IA).
+Conexão ao vivo com o Google Agenda (a troca é por arquivo), assinar calendário por link e IA própria (os botões "Pedir a uma IA" abrem o seu navegador).
 
 ## Para quem quiser mexer
-É um site estático (HTML, JavaScript e IndexedDB), sem etapa de build para rodar. Publicado com o GitHub Pages a partir da raiz da branch `main`.
+É um site estático (HTML, JavaScript e IndexedDB) com contas pelo Firebase Authentication e Firestore. Publicado com o GitHub Pages a partir da raiz da branch `main`.
 
 ## Bibliotecas de terceiros
-qrcode-generator, jsQR e pdf.js da Mozilla (em `lib/`, com as licenças em `lib/LICENSES.txt`).
+qrcode-generator, jsQR, pdf.js da Mozilla e o SDK do Firebase (em `lib/`, com as licenças em `lib/LICENSES.txt`).

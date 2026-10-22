@@ -11,6 +11,7 @@
   var mem = new Map();          // caminho "colecao/id" -> dados
   var meta = new Map();         // caminho -> { t: data da alteração (ms), del: true se foi excluído }
   var listeners = [];
+  var writeListeners = [];     // quem quer saber de toda alteração local (a sincronização com a nuvem)
   var idb = null;
   var bc = typeof BroadcastChannel !== "undefined" ? new BroadcastChannel("cycle-db") : null;
   var clone = function (x) { return x === undefined ? undefined : JSON.parse(JSON.stringify(x)); };
@@ -98,6 +99,7 @@
   function fire(l) { Promise.resolve().then(function () { try { l.cb(l.kind === "doc" ? snapDoc(l.path) : runQuery(l.q)); } catch (e) { if (l.err) l.err(e); } }); }
   function notify(path) { var col = colOf(path); listeners.slice().forEach(function (l) { if (l.kind === "doc" ? l.path === path : l.q.col === col) fire(l); }); }
   function notifyAll() { listeners.slice().forEach(fire); }
+  function emitWrite(path) { writeListeners.slice().forEach(function (f) { try { f(path); } catch (e) {} }); }
   function subscribe(l) { listeners.push(l); fire(l); return function () { listeners = listeners.filter(function (x) { return x !== l; }); }; }
 
   function write(path, data) {
@@ -107,11 +109,12 @@
     persistOps([[path, data, m]]);
     if (bc) { try { bc.postMessage({ path: path, data: data, m: m }); } catch (e) {} }
     notify(path);
+    emitWrite(path);
   }
   if (bc) bc.onmessage = function (ev) {
     var m = ev.data || {};
     if (m.reload) { location.reload(); return; }
-    if (typeof m.path === "string") { if (m.data === null) mem.delete(m.path); else mem.set(m.path, m.data); if (m.m) meta.set(m.path, m.m); notify(m.path); }
+    if (typeof m.path === "string") { if (m.data === null) mem.delete(m.path); else mem.set(m.path, m.data); if (m.m) meta.set(m.path, m.m); notify(m.path); emitWrite(m.path); }
   };
 
   // ---------- API estilo Firestore ----------
@@ -156,9 +159,24 @@
       var ops = [], now = Date.now();
       if (replace) { Array.from(mem.keys()).forEach(function (p) { if (!(p in obj)) { mem.delete(p); var m = { t: now, del: true }; meta.set(p, m); ops.push([p, null, m]); } }); }
       Object.keys(obj).forEach(function (p) { var m = { t: now, del: false }; mem.set(p, clone(obj[p])); meta.set(p, m); ops.push([p, obj[p], m]); });
-      notifyAll();
+      notifyAll(); emitWrite("*");
       return persistOps(ops).then(function () { if (bc) { try { bc.postMessage({ reload: true }); } catch (e) {} } });
     },
+    // resolve quando os dados do aparelho terminaram de carregar
+    pronto: function () { return ready; },
+    // apaga TUDO deste aparelho (documentos e marcas de exclusão), sem registrar nada para sincronizar; usado ao trocar de conta
+    limpar: function () {
+      mem.clear(); meta.clear();
+      return new Promise(function (res) {
+        if (!idb) return res();
+        try {
+          var tx = idb.transaction([STORE, META], "readwrite"); tx.objectStore(STORE).clear(); tx.objectStore(META).clear();
+          tx.oncomplete = tx.onerror = tx.onabort = function () { res(); };
+        } catch (e) { res(); }
+      }).then(function () { notifyAll(); if (bc) { try { bc.postMessage({ reload: true }); } catch (e) {} } });
+    },
+    // avisa a cada alteração local (caminho do documento, ou "*" depois de restaurar um backup); devolve a função que cancela
+    onWrite: function (cb) { writeListeners.push(cb); return function () { writeListeners = writeListeners.filter(function (x) { return x !== cb; }); }; },
     // pacote para enviar a outro aparelho: { docs: {caminho: {d, t}}, del: {caminho: t} }; since = só o que mudou depois dessa data
     snapshot: function (opts) {
       var since = (opts && opts.since) || 0, docs = {}, del = {};
@@ -183,7 +201,8 @@
       });
       return { ops: ops, novos: novos, atualizados: atualizados, excluidos: excluidos, ignorados: ignorados, total: ops.length };
     },
-    apply: function (plan) {
+    // silent: aplica sem recarregar as outras abas (usado pela nuvem, que aplica o tempo todo); elas recebem só os documentos que mudaram
+    apply: function (plan, opts) {
       var ops = [];
       plan.ops.forEach(function (o) {
         var m = { t: o.t, del: o.d === null };
@@ -191,7 +210,11 @@
         meta.set(o.p, m); ops.push([o.p, o.d === null ? null : o.d, m]);
       });
       notifyAll();
-      return persistOps(ops).then(function () { if (bc) { try { bc.postMessage({ reload: true }); } catch (e) {} } return ops.length; });
+      var silent = !!(opts && opts.silent);
+      return persistOps(ops).then(function () {
+        if (bc) { try { if (silent) ops.forEach(function (o) { bc.postMessage({ path: o[0], data: o[1], m: o[2] }); }); else bc.postMessage({ reload: true }); } catch (e) {} }
+        return ops.length;
+      });
     }
   };
 

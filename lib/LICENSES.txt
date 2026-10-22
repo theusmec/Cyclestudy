@@ -393,3 +393,6 @@ Fonte: https://github.com/mozilla/pdf.js
 
    END OF TERMS AND CONDITIONS
 
+3) Firebase JS SDK 11.10.0 (firebase/firebase.js: só Auth e Firestore, empacotado com esbuild) - licença Apache 2.0
+Copyright (c) Google LLC. https://github.com/firebase/firebase-js-sdk
+O texto da licença Apache 2.0 é o mesmo reproduzido acima para o jsQR.
