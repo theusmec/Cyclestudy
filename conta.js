@@ -7,6 +7,9 @@
   var local = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
   var emulador = local && /[?&]emulador=1(&|$)/.test(location.search);
   if (emulador) CFG = { apiKey: "demo-key", authDomain: "localhost", projectId: "demo-cycle" };
+  // em localhost (desenvolvimento e testes) a configuração real é ignorada, para não usar o Firebase de verdade sem querer:
+  // o app roda só no aparelho. Para testar o Firebase real em localhost, abra com ?real=1.
+  else if (local && !/[?&]real=1(&|$)/.test(location.search)) CFG = null;
   if (!CFG) return;
   window.__CYCLE_CONTA__ = true;
 
