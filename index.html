@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Cycle — estude com método, revise na hora certa</title>
-<meta name="description" content="O Cycle organiza suas matérias, provas e revisões para você estudar no ritmo que a memória pede. Acesso por convite: seja um Cycler.">
+<meta name="description" content="O Cycle organiza suas matérias, provas e revisões para você estudar no ritmo que a memória pede. Acesso por convite: seja um Cycler e dê o seu melhor.">
 <meta name="theme-color" content="#0B1018">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Cycle — estude com método, revise na hora certa">
-<meta property="og:description" content="Revisão espaçada, agenda, metas e retrospectiva do semestre. Para quem quer fazer a diferença. Acesso por convite.">
+<meta property="og:description" content="Revisão espaçada, agenda, metas e retrospectiva do semestre. Para quem quer dar o seu melhor. Acesso por convite.">
 <meta property="og:image" content="https://cyclestudy.com.br/og.png">
 <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
@@ -32,10 +32,10 @@
     <span class="word" aria-hidden="true"><i style="--i:0">C</i><i style="--i:1">y</i><i style="--i:2">c</i><i style="--i:3">l</i><i style="--i:4">e</i></span>
   </a>
   <nav class="tabs" role="tablist" aria-label="Seções">
-    <button role="tab" id="t-ideia" aria-controls="p-ideia" aria-selected="true" data-tab="ideia" type="button">A ideia</button>
-    <button role="tab" id="t-objetivo" aria-controls="p-objetivo" aria-selected="false" tabindex="-1" data-tab="objetivo" type="button">O objetivo</button>
-    <button role="tab" id="t-donos" aria-controls="p-donos" aria-selected="false" tabindex="-1" data-tab="donos" type="button">Os donos</button>
-    <button role="tab" id="t-cycler" aria-controls="p-cycler" aria-selected="false" tabindex="-1" data-tab="cycler" type="button">Seja um Cycler</button>
+    <button role="tab" id="t-ideia" aria-controls="p-ideia" aria-selected="true" data-tab="ideia" type="button">Ideia</button>
+    <button role="tab" id="t-objetivo" aria-controls="p-objetivo" aria-selected="false" tabindex="-1" data-tab="objetivo" type="button">Objetivo</button>
+    <button role="tab" id="t-historia" aria-controls="p-historia" aria-selected="false" tabindex="-1" data-tab="historia" type="button">História</button>
+    <button role="tab" id="t-cycler" aria-controls="p-cycler" aria-selected="false" tabindex="-1" data-tab="cycler" type="button">Cycler</button>
     <i class="tab-bar" id="tabBar" aria-hidden="true"></i>
   </nav>
   <a class="btn enter" href="app/">Entrar</a>
@@ -79,56 +79,94 @@
 
     <h2 class="sec" data-reveal>A curva do esquecimento, vencida em etapas</h2>
     <div class="lab card" data-reveal>
-      <p class="plan">Clique em cada revisão: a memória decai depois de estudar, e cada revisão no momento certo a faz decair mais devagar.</p>
+      <p class="plan">A lembrança cai logo depois de estudar. Cada revisão no momento certo faz a queda ficar mais lenta. Veja o ciclo acontecer, ou clique em uma revisão para parar nela.</p>
+      <p class="legend" aria-hidden="true"><i class="lg lg-dim"></i> Sem revisar <i class="lg lg-on"></i> Com revisões</p>
       <svg class="curve" id="curve" viewBox="0 0 600 190" role="img" aria-label="Curva do esquecimento com revisões em 1, 3, 7, 14 e 30 dias"></svg>
-      <div class="rev-row" id="revRow" role="group" aria-label="Revisões"></div>
-      <p class="readout" id="readout" aria-live="polite">Estudou hoje. Sem revisar, a lembrança cai rápido.</p>
+      <div class="lab-bar"><div class="rev-row" id="revRow" role="group" aria-label="Revisões"></div><button class="btn small" id="labPlay" type="button" aria-pressed="true">Pausar</button></div>
+      <p class="readout" id="readout" aria-live="off">Estudou hoje. Sem revisar, a lembrança cai rápido.</p>
     </div>
+
+    <h2 class="sec" data-reveal>O método em quatro ideias</h2>
+    <div class="facts">
+      <article class="card fact" data-reveal><b class="n">1</b><h3>A memória decai rápido</h3><p>No fim do século XIX, o psicólogo Hermann Ebbinghaus mostrou que esquecemos depressa logo depois de estudar e mais devagar com o passar do tempo. É a curva do esquecimento.</p></article>
+      <article class="card fact" data-reveal><b class="n">2</b><h3>Espaçar vence amontoar</h3><p>Estudos de psicologia cognitiva mostram que revisar em intervalos crescentes fixa melhor o conteúdo do que estudar tudo de uma vez na véspera da prova.</p></article>
+      <article class="card fact" data-reveal><b class="n">3</b><h3>Lembrar é treinar</h3><p>Tentar lembrar antes de olhar a resposta fortalece a memória mais do que simplesmente reler. Na hora de revisar, responda primeiro e confira depois.</p></article>
+      <article class="card fact" data-reveal><b class="n">4</b><h3>Os intervalos do Cycle</h3><p>O Cycle agenda revisões 1, 3, 7, 14 e 30 dias depois de estudar (você pode ajustar) e aproxima as revisões da data da prova quando ela chega perto.</p></article>
+    </div>
+    <p class="tip" data-reveal>Resumo prático: <b>revise cedo, revise pouco, revise sempre.</b></p>
   </section>
 
   <!-- O OBJETIVO -->
   <section class="panel" id="p-objetivo" role="tabpanel" aria-labelledby="t-objetivo" data-panel="objetivo" hidden>
     <p class="eyebrow">O objetivo</p>
-    <h2 class="big">Fazer a diferença,<br><span class="grad">estudando melhor.</span></h2>
-    <p class="lead">O Cycle é feito para quem quer fazer a diferença: em si mesmo, na turma e no que vai construir. A ideia é simples: dar a cada estudante um jeito claro, gratuito e confiável de transformar tempo em aprendizado.</p>
+    <h2 class="big">Para quem quer<br><span class="grad">dar o seu melhor.</span></h2>
+    <p class="lead">O Cycle é feito para quem não se contenta em só passar: quer entender, lembrar e evoluir. A ideia é dar a cada estudante um jeito claro e gratuito de transformar tempo em aprendizado, um dia de cada vez.</p>
+    <figure class="featured card" data-reveal>
+      <blockquote>“A excelência não é um ato, mas um hábito.”</blockquote>
+      <figcaption>Will Durant, resumindo o pensamento de Aristóteles</figcaption>
+    </figure>
     <div class="quote card" data-reveal><p id="quote">Constância vence intensidade.</p><span class="plan">toque para outra frase</span></div>
     <div class="nums">
       <article class="card" data-reveal><b class="num" data-to="0" data-pre="R$ ">0</b><span>para usar</span></article>
       <article class="card" data-reveal><b class="num" data-to="5">5</b><span>revisões por conteúdo (ajustáveis)</span></article>
       <article class="card" data-reveal><b class="num" data-to="100" data-suf="%">100%</b><span>funciona offline depois do 1º acesso</span></article>
-      <article class="card" data-reveal><b class="num" data-to="1">1</b><span>conta por pessoa; só você vê os seus dados</span></article>
+      <article class="card" data-reveal><b class="num" data-to="1">1</b><span>conta só sua, em qualquer aparelho</span></article>
     </div>
     <h2 class="sec" data-reveal>Por que o acesso é por convite?</h2>
-    <p class="lead" data-reveal>Cada conta guarda os dados de estudo de uma pessoa. Para o projeto crescer com cuidado, o acesso é por convite, e é aí que você entra: conte por que quer ser um Cycler.</p>
+    <p class="lead" data-reveal>Quero que o Cycle cresça com cuidado, ao lado de gente que usa de verdade e ajuda a melhorar. Por isso o acesso é por convite, e é aí que você entra: conte por que quer ser um Cycler.</p>
     <p><button class="btn primary" type="button" data-go="cycler">Quero ser um Cycler</button></p>
   </section>
 
-  <!-- OS DONOS -->
-  <section class="panel" id="p-donos" role="tabpanel" aria-labelledby="t-donos" data-panel="donos" hidden>
-    <p class="eyebrow">Os donos</p>
-    <h2 class="big">Quem está por trás<br><span class="grad">do Cycle.</span></h2>
-    <div class="owners">
+  <!-- QUEM SOU EU -->
+  <section class="panel" id="p-historia" role="tabpanel" aria-labelledby="t-historia" data-panel="historia" hidden>
+    <p class="eyebrow">Quem sou eu</p>
+    <h2 class="big">Quem sou eu<span class="grad">?</span></h2>
+    <div class="story">
       <article class="owner card tilt" data-reveal>
         <div class="avatar" aria-hidden="true"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="22" class="ring-base"/><circle cx="32" cy="32" r="22" class="a-arc" pathLength="100"/><circle cx="32" cy="32" r="5" class="ring-dot"/></svg></div>
-        <div><h3>Matheus Liborio</h3><p class="role">Idealizador do Cycle</p><p>Criou o Cycle para estudar com método e quer que mais gente faça o mesmo, com ferramentas simples, gratuitas e que respeitam a sua privacidade.</p></div>
+        <div>
+          <h3>Matheus Liborio</h3>
+          <p class="role">Idealizador do Cycle · 3º ano de Engenharia Elétrica, UNESP</p>
+          <p>Sou estudante do terceiro ano de Engenharia Elétrica na UNESP.</p>
+          <p>Com a quantidade de matérias e o volume de conteúdo, eu não conseguia me organizar para fazer as revisões e ainda dar conta de tudo o que o curso oferece: projetos, iniciação científica, monitoria e estágio.</p>
+          <p>Criei o Cycle para resolver isso para mim: um lugar só para as matérias, as provas e as revisões na hora certa. Agora quero dividir com quem também quer dar o seu melhor.</p>
+        </div>
       </article>
-      <article class="owner card soon" data-reveal>
-        <div><h3>Você?</h3><p class="role">O projeto está começando</p><p>Quem entrar agora ajuda a moldar o Cycle. Conte o que você faria diferente.</p><p><button class="btn ghost" type="button" data-go="cycler">Seja um Cycler</button></p></div>
-      </article>
+      <ol class="path" aria-label="Trajetória do Cycle">
+        <li data-reveal><b>Hoje</b><span>Terceiro ano de Engenharia Elétrica na UNESP.</span></li>
+        <li data-reveal><b>O desafio</b><span>Muitas matérias e pouco tempo: revisões, projetos, iniciação científica, monitoria e estágio disputando a mesma semana.</span></li>
+        <li data-reveal><b>O Cycle</b><span>Criei o Cycle para organizar os estudos: revisão espaçada, agenda, metas e a retrospectiva do semestre.</span></li>
+        <li data-reveal class="next"><b>Agora</b><span>Abrindo para os primeiros Cyclers: gente que quer dar o seu melhor.</span></li>
+      </ol>
+    </div>
+    <div class="card soon join-cta" data-reveal>
+      <div><h3>Quer dar o seu melhor com o Cycle?</h3><p>Conte por que você quer ser um Cycler. Quem entrar agora ajuda a moldar o Cycle.</p></div>
+      <button class="btn primary" type="button" data-go="cycler">Seja um Cycler</button>
     </div>
   </section>
 
   <!-- SEJA UM CYCLER -->
   <section class="panel" id="p-cycler" role="tabpanel" aria-labelledby="t-cycler" data-panel="cycler" hidden>
     <p class="eyebrow">Seja um Cycler</p>
-    <h2 class="big">Para quem quer<br><span class="grad">fazer a diferença.</span></h2>
+    <h2 class="big">Para quem quer<br><span class="grad">dar o seu melhor.</span></h2>
     <div class="join">
       <form class="card form" id="form" novalidate autocomplete="on">
-        <p class="lead sm">Conte quem você é e por que quer participar. Eu leio cada pedido.</p>
+        <div class="prog" aria-hidden="true"><i id="prog"></i></div>
+        <p class="lead sm">Leva menos de um minuto. Conte quem você é e o que quer alcançar: eu leio cada pedido.</p>
         <label class="fld"><span>Seu nome</span><input id="f-nome" name="nome" maxlength="80" autocomplete="name" required></label>
         <label class="fld"><span>Seu e-mail</span><input id="f-email" name="email" type="email" maxlength="120" autocomplete="email" inputmode="email" required><small>É com este e-mail que você vai criar a conta depois.</small></label>
         <label class="fld"><span>Curso ou área</span><input id="f-curso" name="curso" maxlength="80" autocomplete="off" placeholder="Ex.: Engenharia Elétrica"></label>
-        <label class="fld"><span>Por que você quer ser um Cycler?</span><textarea id="f-motivo" name="motivo" rows="5" maxlength="600" required placeholder="O que você quer fazer de diferente? Como o Cycle te ajudaria?"></textarea><small class="count" id="count">0 / 600</small></label>
+        <div class="goals" role="group" aria-label="O que você quer alcançar">
+          <span class="gl">O que você quer alcançar? <em>Escolha quantos quiser.</em></span>
+          <div class="gchips" id="gchips">
+            <button type="button" class="gchip" aria-pressed="false">Revisar sem esquecer</button>
+            <button type="button" class="gchip" aria-pressed="false">Organizar provas e trabalhos</button>
+            <button type="button" class="gchip" aria-pressed="false">Dar conta de projetos e estágio</button>
+            <button type="button" class="gchip" aria-pressed="false">Acompanhar minhas metas</button>
+            <button type="button" class="gchip" aria-pressed="false">Criar uma rotina de estudo</button>
+          </div>
+        </div>
+        <label class="fld"><span>Por que você quer ser um Cycler?</span><textarea id="f-motivo" name="motivo" rows="5" maxlength="600" required placeholder="Conte com as suas palavras: o que você quer alcançar e como o Cycle te ajudaria?"></textarea><small class="count" id="count">0 / 600</small></label>
         <div class="trap" aria-hidden="true"><label>Não preencha<input id="f-site" name="site" tabindex="-1" autocomplete="off"></label></div>
         <label class="check"><input id="f-ok" type="checkbox" required><span>Aceito que o Cycle use estes dados só para avaliar o meu pedido e me responder.</span></label>
         <p class="err" id="err" role="alert"></p>
@@ -138,18 +176,23 @@
       <div class="done card" id="done" hidden role="status">
         <svg class="check-ico" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="26"/><path d="M20 33l9 9 17-19"/></svg>
         <h3>Pedido recebido, Cycler!</h3>
-        <p>Vou ler com atenção e te aviso pelo e-mail que você informou. Quando for aprovado, é só criar a sua conta em <a href="app/">Entrar</a> usando <b>o mesmo e-mail</b>.</p>
+        <p>Você acabou de dar o primeiro passo. Vou ler com atenção e te aviso pelo e-mail que você informou. Quando for aprovado, é só criar a sua conta em <a href="app/">Entrar</a> usando <b>o mesmo e-mail</b>.</p>
       </div>
       <aside class="side">
+        <h3>Por que ser um Cycler</h3>
+        <ul class="why">
+          <li><b>Você chega antes</b><span>Acesso gratuito enquanto o Cycle ainda está sendo moldado.</span></li>
+          <li><b>Sua opinião pesa</b><span>Quem entra agora ajuda a decidir o que vem a seguir.</span></li>
+          <li><b>Estudo no ritmo da memória</b><span>Revisões nos dias certos, sem planilha e sem bagunça.</span></li>
+          <li><b>Funciona onde você estiver</b><span>No celular ou no computador, até sem internet.</span></li>
+        </ul>
         <h3>O que acontece depois</h3>
         <ol class="flow">
           <li><b>Você envia</b> o pedido com a sua história.</li>
-          <li><b>Eu leio</b> cada mensagem.</li>
+          <li><b>Eu leio</b> cada mensagem e libero os convites aos poucos.</li>
           <li><b>Você recebe o convite</b> no e-mail informado.</li>
           <li><b>Crie a conta</b> em Entrar, com o mesmo e-mail, e confirme pelo link.</li>
         </ol>
-        <h3>Privacidade</h3>
-        <p class="plan">Nome, e-mail, curso e a sua mensagem ficam numa planilha privada do projeto e servem só para avaliar o pedido. Nada é público e nada é vendido. Esta página não usa rastreadores nem anúncios.</p>
       </aside>
     </div>
   </section>
