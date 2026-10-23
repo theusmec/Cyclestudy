@@ -222,12 +222,16 @@
     if (nome.length < 2) return ruim("f-nome", "Diga o seu nome.");
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return ruim("f-email", "Esse e-mail não parece válido.");
     if (motivo.length < 20) return ruim("f-motivo", "Conte um pouco mais (pelo menos 20 caracteres).");
+    if (CF.campos.objetivos && !chips.some(function (c) { return c.getAttribute("aria-pressed") === "true"; })) { erro.textContent = "Escolha pelo menos um objetivo."; $("#gchips").scrollIntoView({ block: "center" }); return; }
     if (!$("#f-ok").checked) { erro.textContent = "Marque a caixa de consentimento para enviar."; $("#f-ok").focus(); return; }
     if (t0 && Date.now() - t0 < 3000) { erro.textContent = "Calma: releia e tente enviar de novo em instantes."; return; }
     var ultimo = 0; try { ultimo = +localStorage.getItem(ULT) || 0; } catch (x) {}
     if (ultimo && Date.now() - ultimo < ESPERA) { erro.textContent = "Você já enviou um pedido há pouco. Eu já recebi, é só aguardar."; return; }
     enviar.disabled = true; enviar.textContent = "Enviando…";
-    var body = new URLSearchParams(); body.set(CF.campos.nome, nome); body.set(CF.campos.email, email); if (CF.campos.curso) body.set(CF.campos.curso, curso); var metas = chips.filter(function (c) { return c.getAttribute("aria-pressed") === "true"; }).map(function (c) { return c.textContent; }); body.set(CF.campos.motivo, (metas.length ? "Objetivos: " + metas.join("; ") + "." + NL + NL : "") + motivo);
+    var metas = chips.filter(function (c) { return c.getAttribute("aria-pressed") === "true"; }).map(function (c) { return c.textContent; });
+    var body = new URLSearchParams(); body.set(CF.campos.nome, nome); body.set(CF.campos.email, email); if (CF.campos.curso) body.set(CF.campos.curso, curso || "Não informado");
+    if (CF.campos.objetivos) metas.forEach(function (m) { body.append(CF.campos.objetivos, m); });
+    body.set(CF.campos.motivo, (!CF.campos.objetivos && metas.length ? "Objetivos: " + metas.join("; ") + "." + NL + NL : "") + motivo);
     fetch(CF.url, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: body.toString() }).then(function () {
       try { localStorage.setItem(ULT, String(Date.now())); } catch (x) {}
       form.hidden = true; $("#done").hidden = false; confete(); $("#done").scrollIntoView({ block: "center" });
