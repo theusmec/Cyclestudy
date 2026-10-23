@@ -2,7 +2,7 @@
 
 **Revisão espaçada para estudar para provas.** Grátis. Funciona no celular e no computador, inclusive offline depois do primeiro acesso. O uso é **por convite**: cada pessoa tem a sua conta e só ela vê os próprios dados.
 
-### [Abrir o Cycle](https://theusmec.github.io/Cyclestudy/) · [Tutorial passo a passo](https://theusmec.github.io/Cyclestudy/ajuda.html)
+### [Abrir o Cycle](https://cyclestudy.com.br/) · [Tutorial passo a passo](https://cyclestudy.com.br/app/ajuda.html)
 
 <img src="cartaz-cycle.png" alt="QR code para abrir o Cycle no celular" width="320">
 
