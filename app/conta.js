@@ -60,25 +60,170 @@
       "#contaGate .panel{gap:12px}#contaGate input{font:16px var(--body);padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);width:100%}" +
       "#contaGate .btn{padding:11px 14px;font-size:15px}#contaGate .btn.full{width:100%}#contaGate .cg-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between;align-items:center}" +
       "#contaGate .cg-erro{font-size:13px;color:var(--late);min-height:1.2em}#contaGate p{margin:0}#contaGate .cg-peq{font-size:13px;color:var(--muted)}" +
-      "#contaGate a.cg-link,#contaGate button.cg-link{background:none;border:0;padding:4px 0;color:var(--muted);font:inherit;font-size:14px;text-decoration:underline;cursor:pointer}";
+      "#contaGate a.cg-link,#contaGate button.cg-link{background:none;border:0;padding:4px 0;color:var(--muted);font:inherit;font-size:14px;text-decoration:underline;cursor:pointer}" +
+      // fundo: biblioteca noturna em SVG (três camadas com parallax), luz da luminária, halo do cursor e poeira (canvas)
+      "#contaGate{background:#0E141B}#contaGate .cg-cont{position:relative;z-index:1;width:100%;display:flex;justify-content:center}" +
+      "#contaGate .cg-cena{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;contain:layout paint;animation:cgEntra 1.4s ease-out both}" +
+      "@keyframes cgEntra{from{opacity:0;transform:scale(1.04)}to{opacity:1;transform:none}}" +
+      "#contaGate .cg-cena .cm{position:absolute;inset:-5%;will-change:transform}#contaGate .cg-cena .cm svg{display:block;width:100%;height:100%}" +
+      "#contaGate .cg-cena::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 45%,rgba(14,20,27,.0) 30%,rgba(14,20,27,.55) 100%)}" +
+      "#contaGate .cg-halo{position:absolute;left:0;top:0;width:380px;height:380px;border-radius:50%;opacity:0;transition:opacity .6s;will-change:transform;background:radial-gradient(circle,rgba(255,196,110,.20) 0,rgba(255,170,90,.10) 34%,rgba(91,192,235,.05) 58%,transparent 70%)}" +
+      "#contaGate .cg-halo.on{opacity:1}#contaGate .cg-poeira{position:absolute;inset:0;width:100%;height:100%}" +
+      "#contaGate .cm .luz{animation:cgLuz 5.3s ease-in-out infinite}#contaGate .cm .cone{animation:cgLuz 7.1s ease-in-out infinite reverse}" +
+      "@keyframes cgLuz{0%{opacity:.93}30%{opacity:1}55%{opacity:.95}80%{opacity:.99}100%{opacity:.93}}" +
+      "#contaGate .cm .borda{opacity:calc(.22 + var(--luz,0) * .78);transition:opacity .4s}#contaGate .cm .brilho{opacity:calc(var(--luz,0) * .2)}" +
+      "#contaGate .cm .folha{opacity:0;transform-origin:800px 0;animation:cgFolha 12s ease-in-out 3s infinite}" +
+      "@keyframes cgFolha{0%{transform:scaleX(1);opacity:0}3%{opacity:1}19%{transform:scaleX(-1);opacity:1}23%{transform:scaleX(-1);opacity:0}24%{transform:scaleX(1);opacity:0}100%{transform:scaleX(1);opacity:0}}" +
+      "#contaGate .cg-cena.acende .luz{animation:none;opacity:1;filter:brightness(1.35);transition:filter .5s}#contaGate .cg-cena.pisca .luz{animation:cgPisca .5s}" +
+      "@keyframes cgPisca{25%{opacity:.55}50%{opacity:1}75%{opacity:.7}}" +
+      "#contaGate .cg-cena.calma,#contaGate .cg-cena.calma *{animation:none!important}#contaGate .cg-cena.calma .luz,#contaGate .cg-cena.calma .cone{opacity:1}" +
+      "#contaGate .cg-logo{color:#F2EFE6;text-shadow:0 2px 14px rgba(0,0,0,.6)}" +
+      "#contaGate .panel{box-shadow:0 22px 60px rgba(0,0,0,.5);border-color:rgba(255,255,255,.08)}" +
+      "#contaGate input{transition:border-color .2s,box-shadow .2s,background-color .2s}#contaGate input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(240,180,41,.28)}" +
+      "#contaGate .btn.primary{transition:background-color .25s,color .25s,transform .25s,box-shadow .25s}" +
+      "#contaGate .btn.primary:hover:not(:disabled){background:var(--accent);color:var(--accent-ink);transform:translateY(-1px);box-shadow:0 8px 22px rgba(217,154,0,.38)}";
     document.head.appendChild(s);
+  }
+
+  // ---------- cena de biblioteca ----------
+  // Três camadas SVG (fundo, estantes, mesa) deslizam em velocidades diferentes com o mouse; a luz da luminária oscila de leve,
+  // um halo quente acompanha o cursor, o livro aberto brilha quando o cursor chega perto e a poeira flutua perto da luz.
+  // Celular (sem mouse): um cursor invisível passeia devagar. "Reduzir movimento" e navegador automatizado: cena parada.
+  var lv = null;
+  function cenaSvg() {
+    var sem = 7, rnd = function () { sem = (sem * 16807) % 2147483647; return sem / 2147483647; };
+    var cores = ["#2B3849", "#34475E", "#1F2A38", "#8A6A2B", "#3D5A66", "#4A3B52", "#5A4632", "#26323F"];
+    function estante(x0, x1, ys, aMin, aMax, lMin, lMax) {
+      var s = "";
+      ys.forEach(function (y) {
+        var x = x0 + rnd() * 6;
+        while (x < x1 - lMax) {
+          var l = lMin + rnd() * (lMax - lMin), a = aMin + rnd() * (aMax - aMin), c = cores[Math.floor(rnd() * cores.length)], inc = rnd() < .06;
+          s += '<g' + (inc ? ' transform="rotate(-7 ' + (x + l).toFixed(1) + " " + y + ')"' : "") + '><rect x="' + x.toFixed(1) + '" y="' + (y - a).toFixed(1) + '" width="' + l.toFixed(1) + '" height="' + a.toFixed(1) + '" rx="1.5" fill="' + c + '"/>' +
+            '<rect x="' + (x + l * .18).toFixed(1) + '" y="' + (y - a + a * .14).toFixed(1) + '" width="' + (l * .64).toFixed(1) + '" height="3" fill="#E0B14F" opacity=".5"/></g>';
+          x += l + 1 + (rnd() < .12 ? rnd() * 24 : 0);
+        }
+        s += '<rect x="' + x0 + '" y="' + y + '" width="' + (x1 - x0) + '" height="12" fill="url(#cMad)"/>';
+      });
+      return s;
+    }
+    var defs = '<defs><linearGradient id="cMad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5A3E2A"/><stop offset="1" stop-color="#2A1C12"/></linearGradient>' +
+      '<linearGradient id="cParede" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16202B"/><stop offset="1" stop-color="#0B1118"/></linearGradient>' +
+      '<linearGradient id="cMesa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6B4A31"/><stop offset=".25" stop-color="#4A3220"/><stop offset="1" stop-color="#22160D"/></linearGradient>' +
+      '<radialGradient id="cLuz" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFD98A" stop-opacity=".42"/><stop offset=".45" stop-color="#FFB85C" stop-opacity=".14"/><stop offset="1" stop-color="#FFB85C" stop-opacity="0"/></radialGradient>' +
+      '<linearGradient id="cCone" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFE0A0" stop-opacity=".34"/><stop offset="1" stop-color="#FFC16A" stop-opacity="0"/></linearGradient>' +
+      '<linearGradient id="cLado" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#000" stop-opacity=".0"/><stop offset="1" stop-color="#000" stop-opacity=".5"/></linearGradient></defs>';
+    var cab = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">';
+    var fundo = cab + defs + '<rect width="1600" height="900" fill="url(#cParede)"/>' + estante(0, 1600, [230, 410, 590], 80, 135, 14, 27) + '<rect width="1600" height="900" fill="#0B1118" opacity=".5"/></svg>';
+    var lado = function (x0, x1, esq) {
+      return estante(x0, x1, [290, 500, 710], 130, 195, 24, 44) +
+        '<rect x="' + (esq ? x0 : x1 - 16) + '" y="0" width="16" height="900" fill="#2A1C12"/>' +
+        '<rect x="' + (esq ? x1 - 90 : x0) + '" y="0" width="90" height="900" fill="url(#cLado)" transform="' + (esq ? "" : "scale(-1 1) translate(" + (-(x0 + x0 + 90)) + " 0)") + '" opacity=".6"/>';
+    };
+    var estantes = cab + defs + lado(-30, 380, true) + lado(1220, 1630, false) + "</svg>";
+    // livro aberto: ponto (u: 0 lombada -> 1 borda, f: 0 topo -> 1 base), lado -1 esquerdo / +1 direito
+    var pt = function (lado, u, f) {
+      var tx = 800 + lado * 240 * u, ty = 690 - 18 * u, bx = 800 + lado * 252 * u, by = 752 - 22 * u;
+      return [(tx + (bx - tx) * f).toFixed(1), (ty + (by - ty) * f).toFixed(1)];
+    };
+    var pol = function (lado) { return [pt(lado, 0, 0), pt(lado, 1, 0), pt(lado, 1, 1), pt(lado, 0, 1)].map(function (p) { return p.join(","); }).join(" "); };
+    var linhas = function (lado, op) {
+      var s = ""; for (var i = 0; i < 8; i++) { var f = .14 + i * .1, a = pt(lado, .1, f), b = pt(lado, .9 - (i % 3) * .06, f); s += '<line x1="' + a[0] + '" y1="' + a[1] + '" x2="' + b[0] + '" y2="' + b[1] + '" stroke="#8C7B58" stroke-width="1.4" opacity="' + op + '"/>'; }
+      return s;
+    };
+    var borda = function (lado) { return '<polyline points="' + [pt(lado, 0, 0), pt(lado, 1, 0), pt(lado, 1, 1), pt(lado, 0, 1)].map(function (p) { return p.join(","); }).join(" ") + '" fill="none" stroke="#FFE2A8" stroke-width="2.4" stroke-linejoin="round"/>'; };
+    var mesa = cab + defs +
+      '<rect x="-60" y="735" width="1720" height="200" fill="url(#cMesa)"/><rect x="-60" y="735" width="1720" height="4" fill="#9A6D45" opacity=".55"/>' +
+      '<polygon id="lvCone" class="cone" points="1050,568 1150,545 1360,760 860,760" fill="url(#cCone)"/>' +
+      '<circle class="luz" cx="1095" cy="552" r="440" fill="url(#cLuz)"/>' +
+      '<ellipse cx="1220" cy="742" rx="56" ry="10" fill="#101820"/><path d="M1220 738 L1180 590 L1112 520" fill="none" stroke="#2B3849" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '<polygon points="1022,505 1136,472 1158,545 1054,572" fill="#1B2430" stroke="#E0A21B" stroke-width="2"/><ellipse id="lvLuz" cx="1100" cy="560" rx="30" ry="9" fill="#FFE3A3" transform="rotate(-14 1100 560)"/>' +
+      '<g transform="translate(330 0)"><rect x="0" y="718" width="176" height="17" fill="#34475E"/><rect x="10" y="702" width="150" height="16" fill="#8A6A2B"/><rect x="4" y="686" width="162" height="16" fill="#3D5A66"/><rect x="14" y="690" width="60" height="3" fill="#E0B14F" opacity=".6"/></g>' +
+      '<g><ellipse cx="1360" cy="748" rx="34" ry="8" fill="#101820" opacity=".6"/><rect x="1330" y="706" width="60" height="42" rx="8" fill="#26323F"/><rect x="1330" y="706" width="60" height="6" rx="3" fill="#34475E"/></g>' +
+      '<polygon points="544,684 800,708 1056,684 1068,748 800,772 532,748" fill="#2B3849"/>' +
+      '<polygon id="lvLivro" points="' + pol(-1) + '" fill="#F3EBD3"/><polygon points="' + pol(1) + '" fill="#EDE3C7"/>' + linhas(-1, .55) + linhas(1, .55) +
+      '<polygon class="brilho" points="' + pol(-1) + '" fill="#FFE7B0"/><polygon class="brilho" points="' + pol(1) + '" fill="#FFE7B0"/>' +
+      '<g class="borda">' + borda(-1) + borda(1) + '</g><line x1="800" y1="690" x2="800" y2="752" stroke="#B9A878" stroke-width="2"/>' +
+      '<g class="folha"><polygon points="' + pol(1) + '" fill="#F6EFD9" stroke="#D8CBA5" stroke-width="1.4"/>' + linhas(1, .4) + "</g></svg>";
+    return { fundo: fundo, estantes: estantes, mesa: mesa };
+  }
+  function cenaLiga(camada) {
+    var calma = (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) || (navigator.webdriver && !/[?&]livros=1(&|$)/.test(location.search));   // navegador automatizado (testes) não tem aceleração gráfica: cena parada, salvo ?livros=1
+    var toque = window.matchMedia && matchMedia("(pointer: coarse)").matches;
+    if (calma && navigator.webdriver) { camada.classList.add("calma"); camada.style.background = "linear-gradient(#16202B,#0B1118 70%,#3A2819)"; lv = { para: function () {}, onda: function () {}, treme: function () {} }; return; }   // testes: só um degradê, sem SVG (a renderização por software deixa a tela lenta demais)
+    var c = cenaSvg();
+    camada.innerHTML = ['fundo', 'estantes', 'mesa'].map(function (k) { return '<div class="cm" data-k="' + k + '">' + c[k] + "</div>"; }).join("") +
+      '<div class="cg-halo"></div><canvas class="cg-poeira"></canvas>';
+    if (calma) { camada.classList.add("calma"); lv = { para: function () {}, onda: function () {}, treme: function () {} }; return; }
+    var cm = camada.querySelectorAll(".cm"), prof = [14, 32, 54], halo = camada.querySelector(".cg-halo"), cv = camada.querySelector(".cg-poeira"), ctx = cv.getContext("2d");
+    var W = 0, H = 0, dpr = 1, alvo = { x: 0, y: 0 }, cur = { x: 0, y: 0 }, ptr = { x: -999, y: -999, real: 0 }, luz = 0, ancLivro = null, ancLuz = null, parts = [], raf = 0, t0 = performance.now(), tm = 0, ult = 0;
+    function mede() {
+      W = innerWidth; H = innerHeight; dpr = Math.min(2, devicePixelRatio || 1); cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      var a = camada.querySelector("#lvLivro").getBoundingClientRect(), b = camada.querySelector("#lvLuz").getBoundingClientRect();
+      ancLivro = { x: a.left + a.width * .5, y: a.top + a.height * .35, r: Math.max(60, a.width * .55), w: a.width };
+      ancLuz = { x: b.left + b.width / 2, y: b.top + b.height / 2 + b.width * 1.4, r: Math.max(70, b.width * 4.2) };
+      if (!parts.length) for (var i = 0; i < (W < 600 ? 14 : 26); i++) parts.push(nova(i % 3 ? ancLuz : ancLivro, true));
+    }
+    function nova(an, inicio) {
+      var ang = Math.random() * 6.283, d = Math.sqrt(Math.random());
+      return { an: an, x: an.x + Math.cos(ang) * d * an.r * 1.3, y: an.y + Math.sin(ang) * d * an.r * .8, r: .6 + Math.random() * 1.3, vx: (Math.random() - .5) * .12, vy: -.04 - Math.random() * .1, a: .18 + Math.random() * .45, f: Math.random() * 6.283, s: .6 + Math.random() };
+    }
+    function quadro(t) {
+      raf = requestAnimationFrame(quadro);
+      if (document.hidden) { ult = 0; return; }
+      var s = (t - t0) / 1000;
+      // aparelho muito lento: a cena fica parada, para não atrapalhar o formulário
+      if (ult) { var dt = t - ult; lento = dt > 70 ? lento + 1 : Math.max(0, lento - 1); if (lento > 40) { camada.classList.add("calma"); cancelAnimationFrame(raf); ctx.clearRect(0, 0, W, H); return; } }
+      ult = t;
+      var px = ptr.x, py = ptr.y;
+      if (!ptr.real) { if (toque) { px = W * (.5 + .3 * Math.sin(s * .21)); py = H * (.5 + .25 * Math.sin(s * .17 + 1)); alvo.x = (px / W - .5) * .7; alvo.y = (py / H - .5) * .7; } else { alvo.x = 0; alvo.y = 0; } }
+      cur.x += (alvo.x - cur.x) * .06; cur.y += (alvo.y - cur.y) * .06;
+      for (var i = 0; i < cm.length; i++) cm[i].style.transform = "translate3d(" + (-cur.x * prof[i]).toFixed(2) + "px," + (-cur.y * prof[i] * .7).toFixed(2) + "px,0)";
+      if (ptr.real || toque) halo.style.transform = "translate3d(" + (px - 190).toFixed(1) + "px," + (py - 190).toFixed(1) + "px,0)";
+      var d = Math.hypot(px - ancLivro.x, py - ancLivro.y), alvoLuz = ptr.real || toque ? Math.max(0, 1 - d / (ancLivro.w * 1.1)) : 0;
+      luz += (alvoLuz - luz) * .08; camada.style.setProperty("--luz", luz.toFixed(3));
+      ctx.clearRect(0, 0, W, H);
+      for (var k = 0; k < parts.length; k++) {
+        var p = parts[k]; p.x += p.vx + Math.sin(s * .5 * p.s + p.f) * .08; p.y += p.vy;
+        if (ptr.real) { var dx = p.x - px, dy = p.y - py, dd = Math.hypot(dx, dy); if (dd < 90 && dd > 1) { p.x += dx / dd * (1 - dd / 90) * 1.2; p.y += dy / dd * (1 - dd / 90) * 1.2; } }
+        if (Math.hypot((p.x - p.an.x) / 1.3, (p.y - p.an.y) / .8) > p.an.r) { parts[k] = p = nova(p.an); p.a *= .5; }
+        ctx.globalAlpha = p.a * (.6 + .4 * Math.sin(s * p.s * 1.3 + p.f)); ctx.fillStyle = "#FFD99A"; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.283); ctx.fill();
+      }
+    }
+    var lento = 0;
+    function mexe(ev) { ptr.x = ev.clientX; ptr.y = ev.clientY; ptr.real = 1; alvo.x = ev.clientX / W - .5; alvo.y = ev.clientY / H - .5; halo.classList.add("on"); clearTimeout(tm); if (ev.pointerType !== "mouse") tm = setTimeout(solta, 1800); }
+    function solta() { ptr.real = 0; halo.classList.remove("on"); }
+    var gateEl = camada.parentNode, saiu = function (ev) { if (!ev.relatedTarget) solta(); };
+    gateEl.addEventListener("pointermove", mexe); gateEl.addEventListener("pointerdown", mexe); document.addEventListener("mouseout", saiu);
+    var aj = 0, reflui = function () { clearTimeout(aj); aj = setTimeout(mede, 200); }; addEventListener("resize", reflui);
+    mede(); raf = requestAnimationFrame(quadro);
+    var tml = 0;
+    lv = {
+      para: function () { cancelAnimationFrame(raf); removeEventListener("resize", reflui); document.removeEventListener("mouseout", saiu); clearTimeout(tm); clearTimeout(aj); clearTimeout(tml); },
+      onda: function () { camada.classList.add("acende"); clearTimeout(tml); tml = setTimeout(function () { camada.classList.remove("acende"); }, 1600); },
+      treme: function () { camada.classList.remove("pisca"); void camada.offsetWidth; camada.classList.add("pisca"); }
+    };
   }
   function esconderApp() {
     if (!$("contaPre")) { var s = document.createElement("style"); s.id = "contaPre"; s.textContent = pre.textContent; document.head.appendChild(s); }
   }
   function mostra(html, foco) {
     estilo(); esconderApp();
-    if (!gate) { gate = document.createElement("div"); gate.id = "contaGate"; gate.setAttribute("role", "dialog"); gate.setAttribute("aria-modal", "true"); gate.setAttribute("aria-label", "Conta do Cycle"); document.body.appendChild(gate); }
-    gate.innerHTML = '<div class="cg"><div class="cg-logo"><i></i>Cycle</div>' + html + "</div>";
+    if (!gate) {
+      gate = document.createElement("div"); gate.id = "contaGate"; gate.setAttribute("role", "dialog"); gate.setAttribute("aria-modal", "true"); gate.setAttribute("aria-label", "Conta do Cycle");
+      gate.innerHTML = '<div class="cg-cena" aria-hidden="true"></div><div class="cg-cont"></div>';
+      document.body.appendChild(gate); cenaLiga(gate.firstChild);
+    }
+    gate.lastChild.innerHTML = '<div class="cg"><div class="cg-logo"><i></i>Cycle</div>' + html + "</div>";
     var f = foco && gate.querySelector(foco); if (f) f.focus();
   }
   function abreApp() {
     var p = $("contaPre"); if (p) p.remove();
-    if (gate) { gate.remove(); gate = null; }
+    if (gate) { if (lv) lv.para(); lv = null; gate.remove(); gate = null; }
     var n = document.querySelectorAll('[data-nav="conta"]'); for (var i = 0; i < n.length; i++) n[i].hidden = false;
   }
   var erroEl = function () { return gate && gate.querySelector(".cg-erro"); };
-  var falha = function (e) { var el = erroEl(); if (el) el.textContent = typeof e === "string" ? e : msgErro(e); };
+  var falha = function (e) { var el = erroEl(); if (el) el.textContent = typeof e === "string" ? e : msgErro(e); if (e && lv) lv.treme(); };
   var ocupado = function (b, sim) { if (b) { b.disabled = sim; } };
 
   function telaCarregando(msg) { mostra('<div class="panel"><p>' + esc(msg || "Carregando…") + "</p></div>"); }
@@ -101,7 +246,7 @@
   function entrar() {
     var email = $("cgEmail").value.trim(), senha = $("cgSenha").value;
     if (!email || !senha) return falha("Digite o e-mail e a senha.");
-    ocupado($("cgOk"), true); falha("");
+    ocupado($("cgOk"), true); falha(""); if (lv) lv.onda();
     sdk.signInWithEmailAndPassword(auth, email, senha).catch(function (e) { falha(e); ocupado($("cgOk"), false); });   // o resto segue pelo onAuthStateChanged
   }
   function cadastrar() {
