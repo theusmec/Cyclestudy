@@ -23,7 +23,7 @@
 - Você cria a conta com e-mail e senha e **confirma o e-mail**. Só e-mails convidados entram.
 - Os dados ficam no aparelho e na sua conta (Firebase, plano gratuito), para abrir em outro aparelho. O primeiro acesso precisa de internet; depois funciona offline e sincroniza quando voltar.
 - Entre dois aparelhos **da mesma conta** sem internet, dá para passar os dados por **QR animado ou código**.
-- Backup em arquivo (.json) em Sincronizar. Não há rastreamento nem anúncios.
+- Backup em arquivo (.json) em Dados e backup. Não há rastreamento nem anúncios.
 
 ## Como instalar
 - **Android (Chrome):** abrir o site e tocar em *Instalar app*.

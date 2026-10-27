@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Cycle</title><meta name="theme-color" content="#1B2430"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Cycle"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/png" href="icons/icon-192.png"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<script>window.CYCLE_VERSION="cycle-v18"</script>
+<script>window.CYCLE_VERSION="cycle-v19"</script>
 <script src="shim.js"></script>
 <script src="firebase-config.js"></script>
 <script src="conta.js"></script>
@@ -177,7 +177,7 @@ details.panel[open] summary::after{content:"–"}
 .xbadge{font-size:12px;font-weight:600;padding:1px 7px;border-radius:999px;border:1px solid var(--line);white-space:nowrap}
 .xbadge.sprint{background:var(--accent-soft);border-color:transparent}
 .xbadge.final{background:var(--late-soft);color:var(--late);border-color:transparent}
-.xcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.xcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
 .xcard{border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;background:var(--card)}
 .xcard.soon{border-color:var(--late)}
 .xcard .top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
@@ -185,9 +185,9 @@ details.panel[open] summary::after{content:"–"}
 .xcard .name{font-weight:600;display:flex;gap:6px;align-items:center}
 .xcard .cd{font-family:var(--display);font-weight:700;font-size:26px;line-height:1}
 .xcard .cd small{font-family:var(--body);font-size:13px;font-weight:500;color:var(--muted)}
-.xcard dl{display:grid;grid-template-columns:1fr auto;gap:2px 10px;margin:0;font-size:13px}
-.xcard dt{color:var(--muted)}
-.xcard dd{margin:0;font-family:var(--mono);text-align:right}
+.xcard dl{display:grid;grid-template-columns:1fr;gap:0;margin:0;font-size:13px}
+.xcard dt{color:var(--muted);margin-top:6px}
+.xcard dd{margin:0;font-family:var(--mono)}
 .tl{overflow-x:auto}
 .tl-in{min-width:760px;display:grid;grid-template-columns:150px 1fr;row-gap:8px;font-size:12px}
 .tl-lbl{display:flex;align-items:center;gap:6px;padding-right:8px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
@@ -298,6 +298,11 @@ details.panel[open] summary::after{content:"–"}
 .sw.ses{width:5px;height:12px;background:var(--ink);border:0}
 .gmsg{font-size:13px;background:var(--late-soft);border-radius:8px;padding:8px 12px}
 .gmsg.info{background:var(--accent-soft)}
+.comeco{background:var(--accent-soft);border:1px solid var(--line);border-radius:14px;padding:12px 16px;margin-bottom:16px}.comeco h2{font:700 15px var(--display);margin:0 0 4px}
+.mais-wrap{position:relative;display:inline-block}.mais-menu{position:absolute;right:0;top:calc(100% + 4px);z-index:25;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px;display:flex;flex-direction:column;gap:4px;box-shadow:0 8px 24px rgba(0,0,0,.18);min-width:170px}.mais-menu[hidden]{display:none}.mais-menu .btn{justify-content:flex-start;text-align:left}
+.crfil-t{font-size:12px;color:var(--muted);margin:2px 0 4px}
+.co-l{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:6px 0;font-size:14px}.co-l[hidden]{display:none}
+.comeco:not(:has(.co-l:not([hidden]))),.comeco.fora{display:none}
 a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .gscroll{overflow-x:auto;margin-inline:-4px;padding-inline:4px}
 .gw{display:grid;grid-template-columns:46px repeat(7,minmax(104px,1fr));min-width:774px}
@@ -559,7 +564,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
 .mmeta{grid-column:1 / -1;display:flex;gap:6px 14px;flex-wrap:wrap;align-items:center;justify-content:space-between;font-size:12px;color:var(--muted)}
 .mmeta small{font-size:11px}
 .mset{display:flex;gap:6px;align-items:center}
-.mset input{width:84px;padding:4px 6px;font-size:13px}
+.mset input{width:104px;padding:4px 6px;font-size:13px}
 .meta-ok{color:var(--ok);font-weight:600}
 .msem{display:inline-flex;gap:3px;align-items:flex-end;height:20px}
 .msem i{width:6px;background:var(--ink);opacity:.45;border-radius:2px 2px 0 0;display:block}
@@ -706,12 +711,12 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
   <button class="side-search" data-open-search type="button" aria-label="Buscar"><svg class="ico"><use href="#i-busca"/></svg><span class="lbl">Buscar</span><kbd class="lbl">Ctrl K</kbd></button>
   <nav class="side-nav" aria-label="Páginas">
     <button class="nav-item" data-nav="hoje" type="button" title="Agenda"><svg class="ico"><use href="#i-hoje"/></svg><span class="lbl">Agenda</span></button>
-    <button class="nav-item" data-nav="revisoes" type="button" title="Revisões"><svg class="ico"><use href="#i-revisoes"/></svg><span class="lbl">Revisões</span><span class="nav-count js-revcount" hidden></span></button>
+    <button class="nav-item" data-nav="revisoes" type="button" title="Hoje"><svg class="ico"><use href="#i-revisoes"/></svg><span class="lbl">Hoje</span><span class="nav-count js-revcount" hidden></span></button>
     <button class="nav-item" data-nav="materias" type="button" title="Matérias"><svg class="ico"><use href="#i-materias"/></svg><span class="lbl">Matérias</span></button>
     <button class="nav-item" data-nav="provas" type="button" title="Provas"><svg class="ico"><use href="#i-provas"/></svg><span class="lbl">Provas</span></button>
     <button class="nav-item" data-nav="notas" type="button" title="Notas"><svg class="ico"><use href="#i-notas"/></svg><span class="lbl">Notas</span></button>
     <button class="nav-item" data-nav="tempo" type="button" title="Metas"><svg class="ico"><use href="#i-tempo"/></svg><span class="lbl">Metas</span></button>
-    <button class="nav-item" data-nav="dados" type="button" title="Sincronizar"><svg class="ico"><use href="#i-sync"/></svg><span class="lbl">Sincronizar</span></button>
+    <button class="nav-item" data-nav="dados" type="button" title="Dados e backup"><svg class="ico"><use href="#i-sync"/></svg><span class="lbl">Dados e backup</span></button>
     <button class="nav-item" data-nav="conta" type="button" title="Conta" hidden><svg class="ico"><use href="#i-conta"/></svg><span class="lbl">Conta</span></button>
   </nav>
   <div class="ntw" data-ntimer hidden><button class="nav-timer" data-nav="tempo" type="button" aria-label="Cronômetro em andamento"><i class="nt-dot"></i><span class="lbl"><b class="nt-clock">00:00:00</b><span class="sub nt-sub"></span></span></button><button class="nt-stop" data-ntstop type="button" aria-label="Parar e salvar o cronômetro" title="Parar e salvar">■<span class="lbl"> Parar</span></button></div>
@@ -731,8 +736,10 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     </div>
   </header>
 
-  <div class="gmsg info" id="tourBanner" hidden style="margin-bottom:14px"><span>Primeira vez por aqui? Faça um tour de 1 minuto por todas as abas.</span> <button class="btn small primary" id="tourGo" type="button">Fazer o tour</button> <button class="btn small ghost" id="tourNo" type="button">Agora não</button></div>
-  <div class="gmsg info" id="plConvite" hidden style="margin-bottom:14px"><span>Já tem os Planos de Ensino (PDF) das suas matérias? O Cycle monta as matérias e as ementas para você.</span> <button class="btn small primary" id="plConviteGo" type="button">Importar planos de ensino</button> <button class="btn small ghost" id="plConviteNo" type="button">Agora não</button></div>
+  <section class="comeco" id="comeco" aria-label="Comece por aqui"><h2>Comece por aqui</h2>
+    <div class="co-l" id="plConvite" hidden><span>Já tem os Planos de Ensino (PDF) das suas matérias? O Cycle monta as matérias e as ementas para você.</span> <button class="btn small primary" id="plConviteGo" type="button">Importar planos de ensino</button> <button class="btn small ghost" id="plConviteNo" type="button" title="Não mostrar de novo">Dispensar</button></div>
+    <div class="co-l" id="tourBanner" hidden><span>Primeira vez por aqui? Faça um tour de 1 minuto por todas as abas.</span> <button class="btn small primary" id="tourGo" type="button">Fazer o tour</button> <button class="btn small ghost" id="tourNo" type="button" title="Não mostrar de novo">Dispensar</button></div>
+  </section>
   <div class="banner" id="noDb" hidden>Os dados só são salvos quando a página é aberta pelo claude.ai. Nesta visualização nada fica gravado.</div>
 
   <div id="viewHoje" hidden style="display:flex;flex-direction:column;gap:20px">
@@ -743,11 +750,12 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
         <div class="crseg" role="group" aria-label="Forma de ver"><button class="btn small" id="cronoModoLista" type="button" aria-pressed="true">Lista</button><button class="btn small" id="cronoModoSemana" type="button" aria-pressed="false">Semana</button></div>
         <button class="btn small primary" id="cronoAdd" type="button">+ Adicionar</button>
         <button class="btn small" id="cronoImp" type="button">Importar</button>
-        <button class="btn small" id="cronoExp" type="button">Exportar</button>
-        <button class="btn small" id="cronoFim" type="button">Fim de semestre</button>
+        <div class="mais-wrap"><button class="btn small" id="cronoMais" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="cronoMenu" aria-label="Mais ações da agenda" title="Mais ações">⋯</button>
+          <div class="mais-menu" id="cronoMenu" hidden><button class="btn small" id="cronoExp" type="button">Exportar</button><button class="btn small" id="cronoFim" type="button">Fim de semestre</button></div></div>
       </div>
     </div>
     <div class="gmsg info" id="intConv" hidden style="margin-bottom:10px"><span>Sua agenda importada agora vira itens do cronograma: você poderá editar, apagar e sincronizar pela conta.</span> <button class="btn small primary" id="intConvGo" type="button">Converter</button></div>
+    <div class="crfil-t">Mostrar na lista:</div>
     <div class="crfil" id="cronoFiltros"></div>
     <div id="cronoLista" aria-live="polite"></div>
   </section>
@@ -937,7 +945,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
         <h2 id="hCov">Ementas</h2>
         <span class="count" id="covLead"></span>
       </div>
-      <p class="plan" style="margin:0">Cada tópico que você ainda não teve fica previsto para a próxima aula da matéria, pela sua grade semanal (um por aula, na ordem). Depois da aula, toque em <b>Vi</b>: só aí as revisões começam, a partir da data da aula. <b>Já visto</b> marca sem criar revisões.</p>
+      <p class="plan" style="margin:0">Cada tópico que você ainda não teve fica previsto para a próxima aula da matéria, pela sua grade semanal (um por aula, na ordem). Depois da aula, toque em <b>Assisti</b>: só aí as revisões começam, a partir da data da aula. <b>Já visto</b> marca sem criar revisões.</p>
       <div class="covs" id="covList"></div>
       <input type="file" id="sylPdf" accept="application/pdf,.pdf" hidden>
     </section>
@@ -968,16 +976,16 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     </div>
     <div id="matOver" style="display:flex;flex-direction:column;gap:20px">
     <section class="panel" aria-labelledby="hMatCards">
-      <div class="panel-head"><h2 id="hMatCards">Suas matérias</h2><span style="display:flex;gap:8px;align-items:center"><button class="btn small" id="plBtn" type="button" hidden title="Importar os Planos de Ensino (PDF) das matérias que você cursa">Ementas</button><span class="count" id="matCount"></span></span></div>
+      <div class="panel-head"><h2 id="hMatCards">Suas matérias</h2><span style="display:flex;gap:8px;align-items:center"><button class="btn small primary" id="novaMateria" type="button">+ Nova matéria</button><button class="btn small" id="plBtn" type="button" hidden title="Importar os Planos de Ensino (PDF) das matérias que você cursa">Ementas</button><span class="count" id="matCount"></span></span></div>
       <div class="mcards" id="matCards"></div>
     </section>
-      <details class="panel" open>
-        <summary>Matérias</summary>
+      <details class="panel" open id="matEditar">
+        <summary>Editar matérias <small style="font-weight:400;color:var(--muted)">nome, cor, prova cumulativa, excluir</small></summary>
         <div id="subjList" class="bars"></div>
         <div class="subj-row">
           <input type="color" id="newSubjColor" value="#3B82C4" aria-label="Cor">
           <input id="newSubjName" placeholder="Nova matéria" autocomplete="off">
-          <button class="btn small" id="newSubjBtn" type="button">Adicionar</button>
+          <button class="btn small" id="newSubjBtn" type="button">Adicionar matéria</button>
         </div>
       </details>
     </div>
@@ -998,9 +1006,9 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
       </div>
       <div class="tl" id="timeline"></div>
       <div class="legend">
-        <span><i class="sw" style="background:var(--ink);opacity:.22;border:0"></i>Manutenção</span>
-        <span><i class="sw" style="background:var(--ink);opacity:.5;border:0"></i>Sprint (10 dias antes)</span>
-        <span><i class="sw" style="background:var(--ink);opacity:.85;border:0"></i>Reta final (3 dias)</span>
+        <span title="Mais de 10 dias antes da prova: só as revisões do ciclo"><i class="sw" style="background:var(--ink);opacity:.22;border:0"></i>Manutenção</span>
+        <span title="Nos 10 dias antes da prova: ritmo mais forte"><i class="sw" style="background:var(--ink);opacity:.5;border:0"></i>Sprint (10 dias antes)</span>
+        <span title="Nos 3 dias antes da prova: só o essencial"><i class="sw" style="background:var(--ink);opacity:.85;border:0"></i>Reta final (3 dias)</span>
         <span><i class="sw" style="background:repeating-linear-gradient(90deg,var(--line) 0 4px,transparent 4px 7px)"></i>Prova sem data</span>
         <span><i class="sw" style="width:2px;background:var(--ink);border:0;opacity:.55"></i>Meta: tudo estudado</span>
       </div>
@@ -1107,15 +1115,15 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
 <nav class="bnav" aria-label="Páginas">
   <div class="bnav-tw" data-ntimer hidden><button class="bnav-timer" data-nav="tempo" type="button"><i class="nt-dot"></i><b class="nt-clock">00:00:00</b><span class="nt-sub"></span></button><button class="nt-stop" data-ntstop type="button" aria-label="Parar e salvar o cronômetro">■ Parar</button></div>
   <button class="b-item" data-nav="hoje" type="button"><span class="b-ico"><svg class="ico"><use href="#i-hoje"/></svg></span>Agenda</button>
-  <button class="b-item" data-nav="revisoes" type="button"><span class="b-ico"><svg class="ico"><use href="#i-revisoes"/></svg></span>Revisões<span class="nav-count js-revcount" hidden></span></button>
+  <button class="b-item" data-nav="revisoes" type="button"><span class="b-ico"><svg class="ico"><use href="#i-revisoes"/></svg></span>Hoje<span class="nav-count js-revcount" hidden></span></button>
   <button class="b-item" data-nav="materias" type="button"><span class="b-ico"><svg class="ico"><use href="#i-materias"/></svg></span>Matérias</button>
-  <button class="b-item" data-nav="provas" type="button"><span class="b-ico"><svg class="ico"><use href="#i-provas"/></svg></span>Provas</button>
+  <button class="b-item" data-nav="tempo" type="button"><span class="b-ico"><svg class="ico"><use href="#i-tempo"/></svg></span>Metas</button>
   <button class="b-item" id="moreBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="morePanel"><span class="b-ico"><svg class="ico"><use href="#i-mais"/></svg></span>Mais</button>
 </nav>
 <div class="more" id="morePanel" hidden>
+  <button class="nav-item" data-nav="provas" type="button"><svg class="ico"><use href="#i-provas"/></svg><span class="lbl">Provas</span></button>
   <button class="nav-item" data-nav="notas" type="button"><svg class="ico"><use href="#i-notas"/></svg><span class="lbl">Notas</span></button>
-  <button class="nav-item" data-nav="tempo" type="button"><svg class="ico"><use href="#i-tempo"/></svg><span class="lbl">Metas</span></button>
-  <button class="nav-item" data-nav="dados" type="button"><svg class="ico"><use href="#i-sync"/></svg><span class="lbl">Sincronizar</span></button>
+  <button class="nav-item" data-nav="dados" type="button"><svg class="ico"><use href="#i-sync"/></svg><span class="lbl">Dados e backup</span></button>
   <button class="nav-item" data-nav="conta" type="button" hidden><svg class="ico"><use href="#i-conta"/></svg><span class="lbl">Conta</span></button>
   <button class="nav-item" data-open-search type="button"><svg class="ico"><use href="#i-busca"/></svg><span class="lbl">Buscar</span></button>
 </div>
@@ -1743,7 +1751,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
         if (it.seenOn) return `<li class="tp done"><span class="ck" aria-hidden="true">✓</span><div><span class="tt">${esc(it.title)}</span><span class="dl">${it.mode === "antes" ? "já visto · sem revisões" : `visto ${fmtShort(it.seenOn)} · com revisões`}</span></div><div class="acts">${noteBtn(s.id, it.id)}<button class="btn small ghost" data-act="sylundo" data-s="${sid}" data-t="${esc(it.id)}" type="button">Desmarcar</button></div></li>`;
         const had = it.target && it.target <= t, aft = p.exam && it.target && it.target >= p.exam.date;
         const lbl = !it.target ? "sem aula prevista" : `${it.target < t ? "aula prevista era" : it.target === t ? "aula de hoje" : "próxima aula"} ${fmtShort(it.target)} ${it.cls || ""}${aft ? ` · depois da ${esc(p.exam.kind)}` : ""}`;
-        return `<li class="tp"><span class="ck" aria-hidden="true"></span><div><span class="tt">${esc(it.title)}</span><span class="dl">${lbl}</span></div><div class="acts">${noteBtn(s.id, it.id)}<button class="btn small ${had ? "primary" : ""}" data-act="sylseen" data-s="${sid}" data-t="${esc(it.id)}" type="button" title="Tive essa aula: começa as revisões a partir da data escolhida">Vi</button><button class="btn small ghost" data-act="sylprior" data-s="${sid}" data-t="${esc(it.id)}" type="button" title="Marca como visto sem criar revisões">Já visto</button></div></li>`;
+        return `<li class="tp"><span class="ck" aria-hidden="true"></span><div><span class="tt">${esc(it.title)}</span><span class="dl">${lbl}</span></div><div class="acts">${noteBtn(s.id, it.id)}<button class="btn small ${had ? "primary" : ""}" data-act="sylseen" data-s="${sid}" data-t="${esc(it.id)}" type="button" title="Tive essa aula: começa as revisões a partir da data escolhida">Assisti</button><button class="btn small ghost" data-act="sylprior" data-s="${sid}" data-t="${esc(it.id)}" type="button" title="Marca como visto sem criar revisões">Já visto</button></div></li>`;
       };
       const units = groups.map((g, gi) => {
         const pend = g.items.filter(i => !i.seenOn).length, key = `${s.id}:u${gi}`;
@@ -1849,7 +1857,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     const sumBy = k => items.filter(i => i.type === k);
     const mins = arr => arr.reduce((a,i) => a + (i.b - i.a), 0);
     $("hojeSum").innerHTML = H.status === "loading" ? "<span>Carregando agenda…</span>" :
-      `<span>Aulas <b>${sumBy("aula").length}</b></span><span>Compromissos <b>${sumBy("comp").length}</b></span><span>Blocos <b>${hm(mins(sumBy("bloco")))}</b></span><span>Revisões <b>${sumBy("rev").length}</b></span>${sumBy("exam").length ? `<span>Provas <b>${sumBy("exam").length}</b></span>` : ""}<span>Livre na janela <b>${hm(gaps.reduce((a,g) => a + g[1]-g[0], 0))}</b></span>`;
+      `<span>Aulas <b>${sumBy("aula").length}</b></span><span>Compromissos <b>${sumBy("comp").length}</b></span><span>Blocos de estudo <b>${hm(mins(sumBy("bloco")))}</b></span><span>Revisões na agenda <b>${sumBy("rev").length}</b></span>${sumBy("exam").length ? `<span>Provas <b>${sumBy("exam").length}</b></span>` : ""}<span>Livre para estudar <b>${hm(gaps.reduce((a,g) => a + g[1]-g[0], 0))}</b></span>`;
     $("hojeAllDay").innerHTML = allDay.map(x => `<span class="xbadge">${esc(x)}</span>`).join("");
 
     const rows = [...items.map(i => ({ ...i, kind:"item" })), ...gaps.map(g => ({ kind:"gap", a:g[0], b:g[1] }))].sort((p,q) => p.a - q.a || (p.kind === "gap" ? 1 : -1));
@@ -1885,7 +1893,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     tps.sort((a,b) => a.it.target.localeCompare(b.it.target) || (a.it.cls||"").localeCompare(b.it.cls||""));
     $("hojeTpsCount").textContent = tps.length ? String(tps.length) : "";
     $("hojeTps").innerHTML = tps.length ? tps.slice(0, 8).map(({s, p, it}) =>
-      `<li class="tp"><span class="ck" style="border-color:${esc(s.color)}" aria-hidden="true"></span><div><span class="tt">${esc(it.title)}</span><span class="dl">${esc(s.name)} · ${it.target === d ? "aula de hoje" : "aula de " + fmtShort(it.target)} ${esc(it.cls || "")}</span></div><div class="acts"><button class="btn small" data-act="sylseen" data-s="${esc(s.id)}" data-t="${esc(it.id)}" data-when="${esc(it.target)}" type="button" title="Tive a aula: começa as revisões">Vi</button><button class="btn small ghost" data-act="sylskip" data-s="${esc(s.id)}" data-t="${esc(it.id)}" type="button" title="O professor não deu esse tópico nessa aula">Não deu</button></div></li>`).join("")
+      `<li class="tp"><span class="ck" style="border-color:${esc(s.color)}" aria-hidden="true"></span><div><span class="tt">${esc(it.title)}</span><span class="dl">${esc(s.name)} · ${it.target === d ? "aula de hoje" : "aula de " + fmtShort(it.target)} ${esc(it.cls || "")}</span></div><div class="acts"><button class="btn small" data-act="sylseen" data-s="${esc(s.id)}" data-t="${esc(it.id)}" data-when="${esc(it.target)}" type="button" title="Tive a aula: começa as revisões">Assisti</button><button class="btn small ghost" data-act="sylskip" data-s="${esc(s.id)}" data-t="${esc(it.id)}" type="button" title="O professor não deu esse tópico nessa aula">Faltei</button></div></li>`).join("")
       : `<li class="empty">${S.subjects.some(s => (s.syllabus||[]).length) ? "Nenhuma aula com tópico previsto até agora." : "Cadastre as ementas na aba Provas para os tópicos aparecerem aqui."}</li>`;
 
     // reviews to fit in (due today or overdue, not booked for today)
@@ -1893,7 +1901,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
       .sort((a,b) => examRank(a.c).localeCompare(examRank(b.c)) || a.r.due.localeCompare(b.r.due));
     $("hojePendCount").textContent = pend.length ? `${pend.length}` : "";
     $("hojePend").innerHTML = pend.length ? pend.slice(0, 6).map(({c, r, i}) => { const s = subj(c.subjectId), late = r.due < d;
-      return `<li class="rv ${late?"late":""}"><div class="stage">R${i+1}</div><div><div class="title">${esc(c.title)}</div><div class="sub"><span class="subj"><i class="dot" style="background:${esc(s.color)}"></i>${esc(s.name)}</span>${late ? `<span class="tag-late">desde ${fmtShort(r.due)}</span>` : ""}${examBadge(c)}</div></div><div class="actions"><button class="btn small primary" data-act="done" data-c="${esc(c.id)}" data-i="${i}" type="button">Feita</button></div></li>`; }).join("") + (pend.length > 6 ? `<li class="empty">e mais ${pend.length - 6} na página Revisões</li>` : "")
+      return `<li class="rv ${late?"late":""}"><div class="stage" title="${i+1}ª revisão deste conteúdo">R${i+1}</div><div><div class="title">${esc(c.title)}</div><div class="sub"><span class="subj"><i class="dot" style="background:${esc(s.color)}"></i>${esc(s.name)}</span>${late ? `<span class="tag-late">desde ${fmtShort(r.due)}</span>` : ""}${examBadge(c)}</div></div><div class="actions"><button class="btn small primary" data-act="done" data-c="${esc(c.id)}" data-i="${i}" type="button">Feita</button></div></li>`; }).join("") + (pend.length > 6 ? `<li class="empty">e mais ${pend.length - 6} na página Revisões</li>` : "")
       : `<li class="empty">Nenhuma revisão atrasada ou sem horário.${gaps.length ? "" : ""}</li>`;
 
     // trabalhos com prazo perto, atrasados ou marcados para hoje
@@ -2234,23 +2242,24 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
   });
 
   // ---------- páginas ----------
-  const PAGES = { hoje:"Agenda", revisoes:"Revisões", materias:"Matérias", provas:"Provas", notas:"Notas", tempo:"Metas", dados:"Sincronizar", conta:"Conta" };
+  const PAGES = { hoje:"Agenda", revisoes:"Hoje", materias:"Matérias", provas:"Provas", notas:"Notas", tempo:"Metas", dados:"Dados e backup", conta:"Conta" };
   const VIEW = { hoje:"viewHoje", revisoes:"viewRevisoes", materias:"viewMaterias", provas:"viewProvas", notas:"viewNotas", tempo:"viewTempo", dados:"viewDados", conta:"viewConta" };
   const LEGACY = { painel:"revisoes", grade:"tempo" };
   const pageSub = k => ({
     hoje: "Semana, compromissos, aulas e revisões",
-    revisoes: `Revisão espaçada · ${intervals().join(" · ")} dias · trabalhos`,
+    revisoes: `O que fazer hoje · revisões ${intervals().join(" · ")} dias · aulas e entregas`,
     materias: "Ementas e tópicos por matéria",
     provas: "Datas, ciclos e blocos de estudo",
     notas: "Suas notas, pesos e quanto falta para passar",
     tempo: "Cronômetro, horas estudadas e metas semanais",
-    dados: "Sincronizar aparelhos, importar e exportar",
+    dados: "Backup, importar e exportar, e sincronizar com outro aparelho",
     conta: "Seu acesso, curso e dados na nuvem"
   })[k];
 
   function setTab(tab){
     tab = LEGACY[tab] || tab; if (!VIEW[tab]) tab = "hoje";
     G.tab = tab;
+    $("comeco").classList.toggle("fora", tab !== "hoje");
     Object.keys(VIEW).forEach(k => { $(VIEW[k]).hidden = k !== tab; });
     document.querySelectorAll("[data-nav]").forEach(b => {
       if (!b.classList.contains("nav-item") && !b.classList.contains("b-item")) return;
@@ -2258,7 +2267,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
       b.classList.toggle("on", on);
       if (on) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
     });
-    $("moreBtn").classList.toggle("on", ["notas", "tempo", "dados", "conta"].includes(tab));
+    $("moreBtn").classList.toggle("on", ["provas", "notas", "dados", "conta"].includes(tab));
     $("pageTitle").textContent = (V.nomes && V.nomes[tab]) || PAGES[tab];
     $("pageEyebrow").textContent = pageSub(tab);
     closeMore();
@@ -2856,7 +2865,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     $("grCount").textContent = S.subjects.length ? `${S.subjects.length} matérias` : "";
     $("grSummary").innerHTML = `<div class="hsum"><span>Média das matérias com nota <b>${fmtN(withG.length ? withG.reduce((a, x) => a + x.c.parcial, 0) / withG.length : null)}</b></span><span>Aprovadas ou garantidas <b>${ok}</b></span><span>Em risco <b>${risk}</b></span><span>Sem avaliações <b>${empty}</b></span></div>`;
     keepFocus($("grList"), () => {
-      $("grList").innerHTML = calcs.length ? calcs.map(({ s, c }) => `<details class="gcard" data-s="${esc(s.id)}" ${VM.gOpen[s.id] ? "open" : ""}><summary><span class="subj">${subjIco(s)}<b>${esc(s.name)}</b></span><span class="gsum2"><span class="num">${fmtN(c.parcial)}</span><span class="xbadge ${G_ST[c.status][0]}">${G_ST[c.status][1]}</span></span></summary>${gradeEditor(s.id, "p")}</details>`).join("") : `<div class="empty">Cadastre uma matéria na página Matérias.</div>`;
+      $("grList").innerHTML = calcs.length ? calcs.map(({ s, c }) => `<details class="gcard" data-s="${esc(s.id)}" ${(VM.gOpen[s.id] ?? c.status === "vazio") ? "open" : ""}><summary><span class="subj">${subjIco(s)}<b>${esc(s.name)}</b></span><span class="gsum2"><span class="num">${fmtN(c.parcial)}</span><span class="xbadge ${G_ST[c.status][0]}">${G_ST[c.status][1]}</span></span></summary>${gradeEditor(s.id, "p")}</details>`).join("") : `<div class="empty">Cadastre uma matéria na página Matérias.</div>`;
     });
   }
   $("grList").addEventListener("toggle", e => { const d = e.target; if (d && d.dataset && d.dataset.s) VM.gOpen[d.dataset.s] = d.open; }, true);
@@ -3445,6 +3454,7 @@ Responda só com JSON neste formato:
     await S.db.collection("sessions").add({ subjectId: sid, start: now - m*60000, end: now, minutes: m, date: today(), kind:"manual" });
     $("manMin").value = ""; toast(`${hm(m)} adicionados a ${subj(sid).name}.`);
   });
+  $("novaMateria").addEventListener("click", () => { $("matEditar").open = true; $("newSubjName").scrollIntoView({ block: "center", behavior: "smooth" }); $("newSubjName").focus(); });
   $("newSubjBtn").addEventListener("click", async () => {
     const name = $("newSubjName").value.trim(); if (!name || !S.db) return;
     await S.db.collection("subjects").add({ name, color: $("newSubjColor").value, order: S.subjects.length });
@@ -3477,6 +3487,11 @@ Responda só com JSON neste formato:
     $("cronoModoSemana").addEventListener("click", () => window.__cycleCrono.modo("semana", cronoApi()));
     $("cronoAdd").addEventListener("click", () => window.__cycleCrono.novo(cronoApi()));
     $("cronoFim").addEventListener("click", () => window.__cycleCrono.fim(cronoApi()));
+    const fechaMais = () => { $("cronoMenu").hidden = true; $("cronoMais").setAttribute("aria-expanded", "false"); };
+    $("cronoMais").addEventListener("click", e => { e.stopPropagation(); const abrir = $("cronoMenu").hidden; $("cronoMenu").hidden = !abrir; $("cronoMais").setAttribute("aria-expanded", String(abrir)); });
+    $("cronoMenu").addEventListener("click", fechaMais);
+    document.addEventListener("click", e => { if (!e.target.closest(".mais-wrap")) fechaMais(); });
+    document.addEventListener("keydown", e => { if (e.key === "Escape") fechaMais(); });
     if (STANDALONE) $("hojeAdd").hidden = true;      // grava no Google Calendar (só no claude.ai); aqui o passo a passo substitui
   } else { $("cronoPanel").hidden = true; $("viewGrade").hidden = false; }
 

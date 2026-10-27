@@ -1,6 +1,6 @@
 /* Service worker do Cycle: abre mesmo sem internet.
    Arquivos do app: responde do cache e atualiza em segundo plano (a nova versão aparece na abertura seguinte). */
-const V = "cycle-v18";
+const V = "cycle-v19";
 const SHELL = ["./", "index.html", "ajuda.html", "agenda.js", "ementa.js", "planos.js", "cronograma.js", "metas.js", "retrospectiva.js", "interop.js", "ia.js", "tour.js", "lib/pdf.min.js", "lib/pdf.worker.min.js", "shim.js", "nuvem.js", "conta.js", "firebase-config.js", "lib/firebase/firebase.js", "manifest.webmanifest", "sync.js", "lib/qrcode.js", "lib/jsQR.js", "icons/icon-192.png", "icons/icon-512.png"];
 
 self.addEventListener("install", e => {

@@ -10,7 +10,7 @@
       pontos: ["Estudou algo? Ele agenda as revisões nos dias certos.", "Seus dados ficam no aparelho e, com a sua conta, sincronizam sozinhos pela nuvem.", "Use as setas do teclado ou os botões abaixo. Esc fecha o tour."] },
     { tab: "hoje", titulo: "Agenda: a sua semana", texto: "A página inicial mostra a semana inteira de uma vez.",
       pontos: ["Aulas, compromissos importados do Google e provas, nos dias e horários.", "Na linha \"a fazer\": revisões e entregas do dia. Toque no ✓ para concluir ali mesmo.", "Em Lista ou Semana, com cor fixa por tipo: aula, prova, trabalho e compromisso. O botão Fim de semestre começa outro."] },
-    { tab: "revisoes", titulo: "Revisões: o que você estudou", texto: "É aqui que você registra o conteúdo do dia.",
+    { tab: "revisoes", titulo: "Hoje: o que fazer agora", texto: "É aqui que você registra o conteúdo do dia.",
       pontos: ["Ao registrar, o Cycle cria revisões em 1, 3, 7, 14 e 30 dias (dá para ajustar).", "Veja tudo em lista, quadro ou calendário, com filtros.", "Trabalhos também ficam aqui, com subtarefas. O painel de hoje e o botão + Nova revisão também."] },
     { tab: "materias", titulo: "Matérias: ementa, aulas e anotações", texto: "Cada matéria tem a sua página.",
       pontos: ["Ementa: cole os tópicos, importe de PDF ou peça a uma IA gratuita.", "Horários de aula: o Cycle prevê qual tópico cai em cada aula.", "Anotações, meta semanal e o botão grande para voltar à lista."] },
@@ -20,7 +20,7 @@
       pontos: ["Defina avaliações e pesos (a Sub entra no cálculo).", "O app mostra a média e quanto você precisa tirar para passar.", "\"E se…\" simula notas sem gravar nada."] },
     { tab: "tempo", titulo: "Metas: horas e cronômetro", texto: "O cronômetro vive aqui e vira estatística.",
       pontos: ["Horas por matéria na semana e por dia (só o tempo com o cronômetro rodando).", "Meta semanal por matéria, com quanto falta.", "Esqueceu de ligar o cronômetro? Dá para lançar os minutos."] },
-    { tab: "dados", titulo: "Sincronizar: dados e Google Agenda", texto: "Tudo o que entra e sai do Cycle passa por aqui.",
+    { tab: "dados", titulo: "Dados e backup: o que entra e sai do Cycle", texto: "Tudo o que entra e sai do Cycle passa por aqui.",
       pontos: ["Passar dados entre aparelhos da mesma conta, sem internet, por QR ou código.", "Backup e restauração dos dados.", "Importar e exportar a agenda (.ics) fica na página Agenda."] },
     { tab: null, fim: true, titulo: "Pronto!", texto: "Você já conhece o mapa do Cycle.",
       pontos: ["Ctrl+K abre a busca de tudo.", "O botão Tour, no topo, refaz este passeio quando quiser.", "O tutorial completo explica cada detalhe."] }

@@ -366,7 +366,7 @@
         '<button class="btn full" id="cgDescarta" type="button">Não levar: começar só com os dados da conta</button>' +
         '<p class="cg-peq" style="margin-top:-6px">Apaga os dados deste aparelho.</p>' +
         '<button class="btn full" id="cgBackup" type="button">Baixar um backup destes dados agora</button>' +
-        '<p class="cg-peq" style="margin-top:-6px">Um arquivo .json com tudo o que está aqui, por segurança. Depois, em Sincronizar, dá para importar de volta.</p>' +
+        '<p class="cg-peq" style="margin-top:-6px">Um arquivo .json com tudo o que está aqui, por segurança. Depois, em Dados e backup, dá para importar de volta.</p>' +
         '<div class="cg-row"><span></span><button class="cg-link" type="button" id="cgSair">Sair</button></div></div>', "#cgJunta");
       return new Promise(function (res) {
         $("cgJunta").onclick = function () { defineDono(u.uid); res(true); };
