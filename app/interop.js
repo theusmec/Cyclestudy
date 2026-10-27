@@ -307,10 +307,10 @@
   function passo1(api) {
     var h = cab("Agenda", "Importar a sua agenda", "im") + '<div class="in-form"><p class="plan" style="margin:0">Escolha de onde vem a agenda. O arquivo é lido neste aparelho; nada é enviado para fora.</p>' +
       '<div class="im-fontes">' +
-      '<div class="im-f"><b>Google Agenda</b><p>No computador: abra a <a href="https://calendar.google.com/calendar/u/0/r/settings/export" target="_blank" rel="noopener">exportação do Google</a>, clique em <b>Exportar</b> e guarde o <b>.zip</b>. No celular o Google não deixa exportar.</p></div>' +
+      '<div class="im-f im-g"><b>Trazer meu Google Agenda</b><ol class="im-pass"><li>No computador, abra a <a href="https://calendar.google.com/calendar/u/0/r/settings/export" target="_blank" rel="noopener">exportação do Google</a> e clique em <b>Exportar</b>. O <b>.zip</b> vai para a pasta Downloads (não precisa abrir).</li><li>Volte aqui e toque no botão.</li></ol><p style="margin:4px 0 8px">No celular o Google não deixa exportar: faça no computador e passe o arquivo para o celular.</p><button class="btn primary" data-in="google" type="button">Trazer meu Google Agenda</button></div>' +
       '<div class="im-f"><b>Apple Calendário</b><p>No Mac: <b>Calendário > Arquivo > Exportar > Exportar…</b> (gera um .ics). <b>iPhone e iPad não exportam arquivo</b>: use um Mac ou, se a conta da Apple já está no Google Agenda, exporte por lá.</p></div>' +
       '<div class="im-f"><b>Outlook ou outro</b><p>Qualquer arquivo <b>.ics</b> serve.</p></div></div>' +
-      '<div class="hnav"><button class="btn primary" data-in="escolher" type="button">Escolher arquivo(s) .zip ou .ics</button></div><input type="file" id="imFile" accept=".zip,.ics,text/calendar,application/zip" multiple hidden>' +
+      '<div class="hnav"><button class="btn primary" data-in="escolher" type="button">Escolher outro arquivo (.zip ou .ics)</button></div><input type="file" id="imFile" accept=".zip,.ics,text/calendar,application/zip" multiple hidden>' +
       '<div class="cw-erro" role="alert" id="imErro"></div><div class="cw-rodape"><button class="btn" data-in="fechar" data-m="im" type="button">Cancelar</button></div></div>';
     $("imBox").innerHTML = h;
   }
@@ -360,6 +360,7 @@
       var b = e.target.closest("[data-in]"); if (!b) return; var k = b.dataset.in;
       if (k === "fechar") { fecha("im"); W = null; }
       else if (k === "escolher") $("imFile").click();
+      else if (k === "google") escolheGoogle(api);
       else if (k === "voltar") { W.passo = 1; W.erro = ""; desenha(api); }
       else if (k === "editar") { W.passo = 2; W.erro = ""; desenha(api); }
       else if (k === "resumo") { W.passo = 3; W.erro = ""; desenha(api); }
@@ -381,6 +382,16 @@
       if (t.dataset.imk) { var r = W.rows[t.dataset.imk]; r.kind = t.value; var g = grupos().find(function (x) { return x.key === t.dataset.imk; }); if (g) r.sid = sidPadrao(api, g, r.kind); desenha(api); return; }
       if (t.dataset.ims) { W.rows[t.dataset.ims].sid = t.value; }
     };
+  }
+  // Botão "Trazer meu Google Agenda": onde o navegador permite (Chrome, Edge, Android), o seletor já abre na pasta Downloads;
+  // onde não permite (iPhone, Firefox) ou se algo falhar, cai no seletor comum. Fechar o seletor sem escolher não faz nada.
+  function escolheGoogle(api) {
+    var comum = function () { var i = $("imFile"); if (i) i.click(); };
+    if (typeof window.showOpenFilePicker !== "function") return comum();
+    var opcoes = { startIn: "downloads", multiple: true, excludeAcceptAllOption: false,
+      types: [{ description: "Agenda do Google (.zip) ou .ics", accept: { "application/zip": [".zip"], "application/x-zip-compressed": [".zip"], "text/calendar": [".ics"] } }] };
+    window.showOpenFilePicker(opcoes).then(function (hs) { return Promise.all(hs.map(function (h) { return h.getFile(); })); })
+      .then(function (files) { lerArquivos(api, files); }, function (e) { if (!e || e.name !== "AbortError") comum(); });
   }
   function lerArquivos(api, files) {
     if (!files.length) return;
