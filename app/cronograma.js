@@ -343,6 +343,7 @@
       return db.doc("events/" + o.id).update({ date: para }).then(function () { ok(ev.type === "aula" ? "Aula movida" : "Compromisso movido"); });
     }
     if (o.k === "aula-semana") { escolhaMover(api, o, para); return Promise.resolve(); }
+    if (o.k === "revisao") return api.moverRevisao(o.c, o.i, para);
     return Promise.resolve();
   }
   // aviso antes de mudar: nada é gravado até a pessoa confirmar
@@ -350,6 +351,7 @@
     var S = api.S, m = function (sid) { var n = nomeMat(api, sid); return n ? " · " + n : ""; };
     if (o.k === "prova") { var x = S.exams.find(function (e) { return e.id === o.id; }); return x ? "Prova " + (x.kind || "") + m(x.subjectId) : "Prova"; }
     if (o.k === "trabalho") { var k = S.tasks.find(function (e) { return e.id === o.id; }); return k ? "Trabalho: " + k.title + m(k.subjectId) : "Trabalho"; }
+    if (o.k === "revisao") { var c = S.contents.find(function (e) { return e.id === o.c; }); return c ? "Revisão R" + (o.i + 1) + ": " + c.title + m(c.subjectId) : "Revisão"; }
     if (o.k === "evento") { var v = S.events.find(function (e) { return e.id === o.id; }); return v ? (v.type === "aula" ? "Aula" : "Compromisso") + ": " + (v.title || nomeMat(api, v.sid) || "(sem título)") : "Evento"; }
     return "Evento";
   }
@@ -361,6 +363,7 @@
     $("cwBox").innerHTML = cab("Mudar para " + esc(nomeDia(api, para)) + "?", 0) + '<div class="cw-form"><p style="margin:0"><b>' + esc(descreve(api, o)) + "</b></p>" +
       '<p style="margin:0">De ' + esc(nomeDia(api, de)) + " (" + esc(br(de)) + ") para " + esc(nomeDia(api, para)) + " (" + esc(br(para)) + ").</p>" +
       (serie ? '<p class="plan" style="margin:0">Este compromisso se repete toda semana. A série inteira vai andar ' + Math.abs(n) + (Math.abs(n) === 1 ? " dia" : " dias") + (n < 0 ? " para trás" : " para frente") + ".</p>" : "") +
+      (o.k === "revisao" ? '<p class="plan" style="margin:0">Se a data nova cair depois da prova da matéria, a revisão vai para a véspera. Não dá para escolher uma data que já passou.</p>' : "") +
       (o.k === "prova" ? '<p class="plan" style="margin:0">A cobertura da ementa e as revisões ligadas à prova passam a usar a data nova.</p>' : "") +
       '<button class="btn primary" data-cw="mover" type="button">Mudar</button><button class="btn" data-cw="fechar" type="button">Cancelar</button></div>';
     var bt = $("cwBox").querySelector('[data-cw="mover"]'); if (bt) bt.focus();

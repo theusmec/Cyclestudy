@@ -1582,7 +1582,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     const booked = new Set(G.events.map(e => e.id)), late = [];
     for (const { c, r, i } of allReviews()) {
       if (r.done || r.skipped || (r.eventId && booked.has(r.eventId))) continue;
-      const sj = subj(c.subjectId), it = { kind:"rev", text:`R${i + 1} · ${c.title}`, sub:sj.name, color:sj.color, c:c.id, i };
+      const sj = subj(c.subjectId), it = { kind:"rev", text:`R${i + 1} · ${c.title}`, sub:sj.name, color:sj.color, c:c.id, i, due:r.due };
       if (r.due < t) late.push({ ...it, late:true }); else if (todo[r.due]) { todo[r.due].push(it); revCount++; }
     }
     for (const k of S.tasks) {
@@ -1594,7 +1594,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     if (todayIn) todo[t] = [...late.slice(0, 6), ...todo[t]];
     const hasTodo = days.some(d => todo[d].length);
     const dragAttr = (o, d) => window.__cycleCrono && o ? ` draggable="true" data-o="${esc(JSON.stringify(o))}" data-dt="${esc(d)}"` : "";
-    const pill = x => `<i class="gp ${x.late ? "late" : ""}"${x.kind === "task" ? dragAttr({ k:"trabalho", id:x.id }, x.due) : ""} style="--c:${esc(x.color)}" title="${esc(x.sub + " · " + x.text + (x.late ? " (atrasada)" : ""))}"><button type="button" data-act="${x.kind === "rev" ? "done" : "gtask"}" ${x.kind === "rev" ? `data-c="${esc(x.c)}" data-i="${x.i}"` : `data-id="${esc(x.id)}"`} aria-label="Marcar como feita">✓</button><span>${esc(x.text)}</span></i>`;
+    const pill = x => `<i class="gp ${x.late ? "late" : ""}"${x.kind === "task" ? dragAttr({ k:"trabalho", id:x.id }, x.due) : dragAttr({ k:"revisao", c:x.c, i:x.i }, x.due)} style="--c:${esc(x.color)}" title="${esc(x.sub + " · " + x.text + (x.late ? " (atrasada)" : ""))}"><button type="button" data-act="${x.kind === "rev" ? "done" : "gtask"}" ${x.kind === "rev" ? `data-c="${esc(x.c)}" data-i="${x.i}"` : `data-id="${esc(x.id)}"`} aria-label="Marcar como feita">✓</button><span>${esc(x.text)}</span></i>`;
     for (const x of S.sessions) {
       if (!sess[x.date] || !x.start) continue;
       const s = new Date(x.start), e = new Date(x.end || (x.start + (x.minutes||0)*60000));
@@ -2157,6 +2157,27 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     VM.sel = key; VM.to = to || ""; renderViews();
     $("rBar").scrollIntoView({ block:"nearest" });
   }
+  // reagenda uma revisão (usado pelo calendário de Revisões e pelo arrastar da Agenda); devolve false se a data não serve
+  async function reschRev(it, to){
+    const a = it.r.manual ? { due:to } : adjustDue(it.sid, it.c.studiedOn, to);
+    if (a.skipped) { toast(`Essa data fica depois da prova. Escolha outra.`); return false; }
+    const nd = a.moved ? a.due : to;
+    const reviews = it.c.reviews.map(r => ({ ...r })), r = reviews[it.i];
+    if (r.eventId && S.mcp) { try { await S.mcp.callTool(CAL, "delete_event", { eventId:r.eventId, notificationLevel:"NONE" }); } catch (e) {} }
+    reviews[it.i] = { ...r, due:nd, movedFrom:r.due, eventId:"", slot:"" };
+    await S.db.doc(`contents/${it.c.id}`).update({ reviews });
+    if (S.mcp) await scheduleReviews({ ...it.c, reviews });
+    refreshGrade();
+    toast(a.moved ? `Caía no dia da prova. Foi para ${fmtShort(nd)}, a véspera.` : `Revisão reagendada para ${fmtShort(nd)}.`);
+    return true;
+  }
+  async function moverRevisao(cid, i, to){
+    const it = findItem(`r:${cid}:${i}`); if (!it) return;
+    if (!S.db) return toast("Abra pelo app para salvar.");
+    if (it.done) return toast("Reabra a revisão antes de reagendar.");
+    if (to < today()) return toast("Escolha uma data de hoje em diante.");
+    await reschRev(it, to);
+  }
   async function doResch(){
     const it = VM.sel ? findItem(VM.sel) : null, to = $("rBarDate").value;
     if (!it || !to) return;
@@ -2166,16 +2187,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     const btn = $("rBarOk"); btn.disabled = true; btn.textContent = "Reagendando…";
     try {
       if (it.tipo === "revisao") {
-        const a = it.r.manual ? { due:to } : adjustDue(it.sid, it.c.studiedOn, to);
-        if (a.skipped) { toast(`Essa data fica depois da prova. Escolha outra.`); return; }
-        const nd = a.moved ? a.due : to;
-        const reviews = it.c.reviews.map(r => ({ ...r })), r = reviews[it.i];
-        if (r.eventId && S.mcp) { try { await S.mcp.callTool(CAL, "delete_event", { eventId:r.eventId, notificationLevel:"NONE" }); } catch (e) {} }
-        reviews[it.i] = { ...r, due:nd, movedFrom:r.due, eventId:"", slot:"" };
-        await S.db.doc(`contents/${it.c.id}`).update({ reviews });
-        if (S.mcp) await scheduleReviews({ ...it.c, reviews });
-        refreshGrade();
-        toast(a.moved ? `Caía no dia da prova. Foi para ${fmtShort(nd)}, a véspera.` : `Revisão reagendada para ${fmtShort(nd)}.`);
+        if (!(await reschRev(it, to))) return;
       } else {
         await S.db.doc(`tasks/${it.k.id}`).update({ due:to });
         toast(`Prazo do trabalho mudou para ${fmtShort(to)}.`);
@@ -3480,7 +3492,7 @@ Responda só com JSON neste formato:
 
   // ---------- cronograma (Agenda): lista de tudo + passo a passo + Fim de semestre; a lógica fica em cronograma.js ----------
   const cronoApi = () => ({ S, G, today, addDays, parseYmd, ymd, fmtShort, WD, toMin, fromMin, esc, norm, toast, subj, classSlots, saveClasses, patchSettings, tid,
-    agendaEvents, dupOfCycle, isBlock, examKinds: () => [...new Set(["P1", "P2", "P3", "Sub", ...S.exams.map(x => x.kind).filter(Boolean)])], refreshLocalCal });
+    agendaEvents, dupOfCycle, isBlock, moverRevisao, examKinds: () => [...new Set(["P1", "P2", "P3", "Sub", ...S.exams.map(x => x.kind).filter(Boolean)])], refreshLocalCal });
   const interopApi = () => ({ S, today, addDays, parseYmd, ymd, fmtShort, esc, norm, toast, subj, classSlots, patchSettings, allReviews, examKindOf, hash36, TZ, saveFile, loadScript, renderCrono });
   function renderCrono(){
     const cv = $("intConv"); if (cv) cv.hidden = !S.agenda;
