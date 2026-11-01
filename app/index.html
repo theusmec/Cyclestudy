@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Cycle</title><meta name="theme-color" content="#1B2430"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Cycle"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/png" href="icons/icon-192.png"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<script>window.CYCLE_VERSION="cycle-v19"</script>
+<script>window.CYCLE_VERSION="cycle-v20"</script>
 <script src="shim.js"></script>
 <script src="firebase-config.js"></script>
 <script src="conta.js"></script>
@@ -49,7 +49,12 @@
 .crsem{margin:14px 0 4px;font:600 12px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .crdia{margin:10px 0 4px;font:600 14px var(--body)}.crdia.hoje{color:var(--accent-ink);background:var(--accent-soft);display:inline-block;padding:1px 8px;border-radius:6px}
 .crev{display:flex;gap:10px;align-items:center;flex-wrap:wrap;width:100%;text-align:left;padding:8px 10px;margin:3px 0;border:1px solid var(--line);border-left:4px solid var(--t);border-radius:8px;background:color-mix(in srgb,var(--t) 9%,var(--card));color:var(--ink);font:14px var(--body);cursor:pointer}
-.crev[disabled]{cursor:default}.crev.feito{opacity:.55;text-decoration:line-through}
+.crev[disabled]{cursor:default}
+.crev[draggable=true]{cursor:grab}.crdia.over,.crev.over{outline:2px dashed var(--accent);outline-offset:1px}
+.crtray{position:fixed;left:0;right:0;bottom:0;z-index:60;background:var(--card);border-top:2px solid var(--accent);padding:8px 12px calc(8px + env(safe-area-inset-bottom,0px));box-shadow:0 -6px 20px rgba(0,0,0,.18)}
+.crtray-t{display:block;font:600 12px var(--body);color:var(--muted);margin-bottom:6px}.crtray-d{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+.crdrop{flex:none;min-width:54px;text-align:center;padding:6px 4px;border:1px solid var(--line);border-radius:8px;font:12px var(--mono);background:var(--paper);color:var(--ink)}
+.crdrop b{display:block;font:600 11px var(--body);text-transform:uppercase;color:var(--muted)}.crdrop.fds{background:var(--card)}.crdrop.hoje{border-color:var(--accent)}.crdrop.orig{opacity:.55}.crdrop.over{background:var(--accent-soft);border-color:var(--accent);border-width:2px}.crev.feito{opacity:.55;text-decoration:line-through}
 .crev .hora{font:500 13px var(--mono);min-width:92px;color:var(--muted)}.crev .tipo{display:inline-flex;align-items:center;gap:5px;font-weight:600;font-size:12px;color:var(--ink)}.crev .tipo .ico{width:16px;height:16px;color:var(--t)}
 .crev .tt{flex:1;min-width:140px;font-weight:600}.crev .mat{font-size:12px;padding:1px 8px;border-radius:999px;border:1px solid var(--c,var(--line));color:var(--ink)}.crev .loc,.crev .imp{font-size:12px;color:var(--muted)}
 .t-aula{--t:var(--t-aula)}.t-prova{--t:var(--t-prova)}.t-trabalho{--t:var(--t-trab)}.t-compromisso{--t:var(--t-comp)}
@@ -317,6 +322,7 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .gad i.gp button{flex:none;border:0;background:var(--card);color:var(--ink);border-radius:3px;font-size:10px;line-height:1;padding:3px 4px;cursor:pointer}
 .gad i.gp button:hover{background:var(--accent-soft)}
 .gad i.gp.late{outline:1px dashed var(--late)}
+[draggable=true][data-o]{cursor:grab}.gcol.over,.gad.over{background:var(--accent-soft)}.blk[draggable=true]:active{opacity:.6}
 .gad-l{font-size:10px;color:var(--muted);text-align:right;padding:6px 6px 0 0;border-bottom:1px solid var(--line)}
 .gtimes{position:relative;height:calc(var(--rows) * var(--hpx))}
 .gtimes span{position:absolute;right:6px;font-family:var(--mono);font-size:11px;color:var(--muted);transform:translateY(-50%)}
@@ -1539,7 +1545,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     for (const x of S.exams) {
       if (!timed[x.date]) continue;
       const a = toMin(x.time || "10:00");
-      timed[x.date].push({ a, b: Math.min(1440, a + 120), title: `${x.kind} · ${subj(x.subjectId).name}`, exam:true, loc:"Prova" });
+      timed[x.date].push({ a, b: Math.min(1440, a + 120), title: `${x.kind} · ${subj(x.subjectId).name}`, exam:true, loc:"Prova", o:{ k:"prova", id:x.id }, dt:x.date });
     }
     for (const e of G.events) {
       if (e.status === "cancelled") continue;
@@ -1557,9 +1563,10 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     if (window.__cycleCrono) for (const o of window.__cycleCrono.ocorrencias(S.events, days[0], days[6], { addDays, parseYmd, ymd })) {
       const ev = o.ev, sj = ev.sid && S.subjects.find(x => x.id === ev.sid), cor = ev.type === "aula" ? "var(--t-aula)" : "var(--t-comp)";
       const title = (ev.type === "aula" ? "Aula · " + (sj ? sj.name : "") + (ev.title ? " · " + ev.title : "") : ev.title) || "(sem título)";
-      if (ev.allDay || !ev.start) { allDay[o.date].push({ t:title, k:"" }); continue; }
+      const oo = { k:"evento", id:ev.id };
+      if (ev.allDay || !ev.start) { allDay[o.date].push({ t:title, k:"", o:oo, dt:o.date }); continue; }
       const a = toMin(ev.start), b = Math.max(a + 15, ev.end ? toMin(ev.end) : a + 60);
-      timed[o.date].push({ a, b: Math.min(1440, b), title, cor, color: sj?.color || null, sid: sj?.id || null, loc: ev.loc || "" });
+      timed[o.date].push({ a, b: Math.min(1440, b), title, cor, color: sj?.color || null, sid: sj?.id || null, loc: ev.loc || "", o:oo, dt:o.date });
       classMin += Math.min(1440, b) - a;
     }
     // aulas semanais (do horário de cada matéria), sem repetir as que já vieram da agenda importada e sem os dias de prova
@@ -1567,7 +1574,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
       if (parseYmd(d).getDay() !== wd || examsOf(s.id).some(e => e.date === d) || (s.skipLectures || []).includes(d)) continue;
       const a = toMin(tm);
       if (timed[d].some(x => !x.exam && x.sid === s.id && Math.abs(x.a - a) <= 30)) continue;
-      timed[d].push({ a, b: Math.min(1440, a + 100), title: `Aula · ${s.name}`, color: s.color, cor: "var(--t-aula)", sid: s.id, loc: "Aula" });
+      timed[d].push({ a, b: Math.min(1440, a + 100), title: `Aula · ${s.name}`, color: s.color, cor: "var(--t-aula)", sid: s.id, loc: "Aula", o:{ k:"aula-semana", sid:s.id, slot:[wd, tm], date:d }, dt:d });
       classMin += 100;
     }
     // revisões e entregas a fazer: aparecem no dia em que vencem; as atrasadas ficam em hoje
@@ -1580,13 +1587,14 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     }
     for (const k of S.tasks) {
       if (k.status === "feita" || !k.due) continue;
-      const sj = subj(k.subjectId), it = { kind:"task", text:`Entrega: ${k.title}`, sub:sj.name, color:sj.color, id:k.id };
+      const sj = subj(k.subjectId), it = { kind:"task", text:`Entrega: ${k.title}`, sub:sj.name, color:sj.color, id:k.id, due:k.due };
       if (k.due < t) late.push({ ...it, late:true }); else if (todo[k.due]) todo[k.due].push(it);
     }
     const todayIn = days.includes(t), lateMore = todayIn ? Math.max(0, late.length - 6) : 0;
     if (todayIn) todo[t] = [...late.slice(0, 6), ...todo[t]];
     const hasTodo = days.some(d => todo[d].length);
-    const pill = x => `<i class="gp ${x.late ? "late" : ""}" style="--c:${esc(x.color)}" title="${esc(x.sub + " · " + x.text + (x.late ? " (atrasada)" : ""))}"><button type="button" data-act="${x.kind === "rev" ? "done" : "gtask"}" ${x.kind === "rev" ? `data-c="${esc(x.c)}" data-i="${x.i}"` : `data-id="${esc(x.id)}"`} aria-label="Marcar como feita">✓</button><span>${esc(x.text)}</span></i>`;
+    const dragAttr = (o, d) => window.__cycleCrono && o ? ` draggable="true" data-o="${esc(JSON.stringify(o))}" data-dt="${esc(d)}"` : "";
+    const pill = x => `<i class="gp ${x.late ? "late" : ""}"${x.kind === "task" ? dragAttr({ k:"trabalho", id:x.id }, x.due) : ""} style="--c:${esc(x.color)}" title="${esc(x.sub + " · " + x.text + (x.late ? " (atrasada)" : ""))}"><button type="button" data-act="${x.kind === "rev" ? "done" : "gtask"}" ${x.kind === "rev" ? `data-c="${esc(x.c)}" data-i="${x.i}"` : `data-id="${esc(x.id)}"`} aria-label="Marcar como feita">✓</button><span>${esc(x.text)}</span></i>`;
     for (const x of S.sessions) {
       if (!sess[x.date] || !x.start) continue;
       const s = new Date(x.start), e = new Date(x.end || (x.start + (x.minutes||0)*60000));
@@ -1611,18 +1619,18 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
 
     let html = `<div class="gw" style="--rows:${rows};--hpx:${HPX}px"><div class="gh"></div>`;
     html += days.map(d => { const dt = parseYmd(d); return `<div class="gh ${d===t?"today":""}"><span>${WD[dt.getDay()]}</span><b>${pad(dt.getDate())}</b></div>`; }).join("");
-    if (hasAllDay) html += `<div class="gad-l">dia todo</div>` + days.map(d => `<div class="gad">${allDay[d].map(x => `<i class="${x.k ? "k-" + x.k : ""}" title="${esc(x.t)}">${esc(x.t)}</i>`).join("")}</div>`).join("");
-    if (hasTodo) html += `<div class="gad-l">a fazer</div>` + days.map(d => `<div class="gad">${todo[d].map(pill).join("")}${d === t && lateMore ? `<i>+${lateMore} atrasadas (veja em Revisões)</i>` : ""}</div>`).join("");
+    if (hasAllDay) html += `<div class="gad-l">dia todo</div>` + days.map(d => `<div class="gad" data-day="${d}">${allDay[d].map(x => `<i class="${x.k ? "k-" + x.k : ""}"${dragAttr(x.o, x.dt)} title="${esc(x.t)}">${esc(x.t)}</i>`).join("")}</div>`).join("");
+    if (hasTodo) html += `<div class="gad-l">a fazer</div>` + days.map(d => `<div class="gad" data-day="${d}">${todo[d].map(pill).join("")}${d === t && lateMore ? `<i>+${lateMore} atrasadas (veja em Revisões)</i>` : ""}</div>`).join("");
     html += `<div class="gtimes">${[...Array(rows)].map((_,i) => `<span style="top:${i*HPX}px">${pad(H0+i)}h</span>`).join("")}</div>`;
     html += days.map(d => {
-      let col = `<div class="gcol ${d===t?"today":""}">`;
+      let col = `<div class="gcol ${d===t?"today":""}" data-day="${d}">`;
       if (winB > winA) col += `<div class="win" style="top:${y(winA)}px;height:${y(winB)-y(winA)}px"></div>`;
       for (const it of layoutLanes(timed[d])) {
         if (it.b <= H0*60) continue;
         const top = y(it.a), h = Math.max(18, y(it.b) - top - 2), w = 100/it.lanes;
         const one = h < 34, time = `${fromMin(it.a)}–${fromMin(Math.min(it.b,1439))}`;
         const style = `top:${top+1}px;height:${h}px;left:calc(${it.lane*w}% + 3px);width:calc(${w}% - 13px);${it.exam || it.rev || it.trab ? "" : it.cor ? `--c:${it.cor}` : it.color ? `--c:${esc(it.color)}` : "--c:var(--muted)"}`;
-        col += `<div class="blk ${it.rev?"rev":""} ${it.exam?"exam":""} ${it.trab?"trab":""} ${one?"one":""}" style="${style}" title="${esc(time + " · " + it.title + (it.loc ? " · " + it.loc : ""))}"><span class="h">${time}</span><span class="tt">${esc(it.title)}</span></div>`;
+        col += `<div class="blk ${it.rev?"rev":""} ${it.exam?"exam":""} ${it.trab?"trab":""} ${one?"one":""}"${dragAttr(it.o, it.dt)} style="${style}" title="${esc(time + " · " + it.title + (it.loc ? " · " + it.loc : ""))}"><span class="h">${time}</span><span class="tt">${esc(it.title)}</span></div>`;
       }
       for (const s of sess[d]) {
         if (s.b <= H0*60) continue;

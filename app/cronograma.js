@@ -92,7 +92,7 @@
     var T = TIPOS[it.tipo], S = api.S, s = it.sid && S.subjects.find(function (x) { return x.id === it.sid; });
     var hora = it.diaTodo ? (it.tipo === "trabalho" ? "prazo" : "dia todo") : api.fromMin(it.ini) + (it.fim != null ? "–" + api.fromMin(Math.min(it.fim, 1439)) : "");
     var rotulo = T.nome + ": " + it.titulo + (s ? ", " + s.name : "") + ", " + hora + (it.importado ? " (importado, só leitura)" : "");
-    return '<button type="button" class="crev t-' + it.tipo + (it.feito ? " feito" : "") + '" data-cr="item" data-i="' + it.idx + '"' + (it.importado ? " disabled" : "") + ' aria-label="' + esc(rotulo) + '">' +
+    return '<button type="button" class="crev t-' + it.tipo + (it.feito ? " feito" : "") + '" data-cr="item" data-i="' + it.idx + '" data-date="' + esc(it.date) + '"' + (it.importado ? " disabled" : ' draggable="true" data-o="' + esc(JSON.stringify(it.o)) + '"') + ' aria-label="' + esc(rotulo) + '">' +
       '<span class="hora">' + esc(hora) + '</span><span class="tipo"><svg class="ico" aria-hidden="true"><use href="' + T.ico + '"/></svg>' + T.nome + "</span>" +
       '<span class="tt">' + esc(it.titulo) + (it.feito ? " (feito)" : "") + "</span>" +
       (s ? '<span class="mat" style="--c:' + esc(s.color) + '">' + esc(s.name) + "</span>" : "") +
@@ -131,7 +131,7 @@
     ITENS.forEach(function (it) {
       var d = api.parseYmd(it.date), seg = api.addDays(it.date, -((d.getDay() + 6) % 7));
       if (seg !== semAtual) { semAtual = seg; diaAtual = null; html += '<h3 class="crsem">Semana de ' + esc(api.fmtShort(seg)) + " a " + esc(api.fmtShort(api.addDays(seg, 6))) + "</h3>"; }
-      if (it.date !== diaAtual) { diaAtual = it.date; html += '<h4 class="crdia' + (it.date === t ? " hoje" : "") + '">' + DIAS[d.getDay()] + ", " + api.fmtShort(it.date).split(" ")[1] + (it.date === t ? " · hoje" : "") + "</h4>"; }
+      if (it.date !== diaAtual) { diaAtual = it.date; html += '<h4 class="crdia' + (it.date === t ? " hoje" : "") + '" data-date="' + esc(it.date) + '">' + DIAS[d.getDay()] + ", " + api.fmtShort(it.date).split(" ")[1] + (it.date === t ? " · hoje" : "") + "</h4>"; }
       html += tmpl(api, it);
     });
     $("cronoLista").innerHTML = html + '<p class="plan" style="margin:12px 0 0">Aulas semanais aparecem até ' + esc(api.fmtShort(fx.ate)) + (fx.ultimo ? " (a última prova, prazo ou compromisso cadastrado)." : " (8 semanas; cadastre provas e prazos para ver mais).") + "</p>";
@@ -145,6 +145,7 @@
       if (k === "tipo") { F.tipos[b.dataset.k] = !F.tipos[b.dataset.k]; render(a); }
       else if (k === "item") abrirItem(a, ITENS[+b.dataset.i]);
     });
+    ligaArrasto();
     $("cronoPanel").addEventListener("change", function (e) {
       var b = e.target.closest("[data-cr]"); if (!b) return; var a = window.__cycleCrono._api;
       if (b.dataset.cr === "mat") { F.sid = b.value; render(a); } else if (b.dataset.cr === "pass") { F.passados = b.checked; render(a); }
@@ -321,6 +322,117 @@
     };
   }
 
+
+  // ---------- arrastar para mudar o dia (Lista e Semana); no celular, tocar no evento abre a edição ----------
+  var DRAG = null, bandeja = null;
+  var difDias = function (api, a, b) { return Math.round((api.parseYmd(b) - api.parseYmd(a)) / 864e5); };
+  var nomeDia = function (api, d) { return DIAS_C[api.parseYmd(d).getDay()] + " " + br(d).slice(0, 5); };
+  function mover(api, o, de, para) {
+    var S = api.S, db = S.db;
+    if (!o || !de || !para || de === para) return Promise.resolve();
+    if (!db) { api.toast("Abra pelo app para salvar."); return Promise.resolve(); }
+    var ok = function (txt) { api.toast(txt + " para " + nomeDia(api, para) + "."); };
+    if (o.k === "prova") return db.doc("exams/" + o.id).update({ date: para }).then(function () { ok("Prova movida"); });
+    if (o.k === "trabalho") return db.doc("tasks/" + o.id).update({ due: para }).then(function () { ok("Prazo movido"); });
+    if (o.k === "evento") {
+      var ev = S.events.find(function (x) { return x.id === o.id; }); if (!ev) return Promise.resolve();
+      if (ev.repeat && ev.repeat.until) {
+        var n = difDias(api, de, para);
+        return db.doc("events/" + o.id).update({ date: api.addDays(ev.date, n), repeat: { until: api.addDays(ev.repeat.until, n) } }).then(function () { ok("Série movida"); });
+      }
+      return db.doc("events/" + o.id).update({ date: para }).then(function () { ok(ev.type === "aula" ? "Aula movida" : "Compromisso movido"); });
+    }
+    if (o.k === "aula-semana") { escolhaMover(api, o, para); return Promise.resolve(); }
+    return Promise.resolve();
+  }
+  // aviso antes de mudar: nada é gravado até a pessoa confirmar
+  function descreve(api, o) {
+    var S = api.S, m = function (sid) { var n = nomeMat(api, sid); return n ? " · " + n : ""; };
+    if (o.k === "prova") { var x = S.exams.find(function (e) { return e.id === o.id; }); return x ? "Prova " + (x.kind || "") + m(x.subjectId) : "Prova"; }
+    if (o.k === "trabalho") { var k = S.tasks.find(function (e) { return e.id === o.id; }); return k ? "Trabalho: " + k.title + m(k.subjectId) : "Trabalho"; }
+    if (o.k === "evento") { var v = S.events.find(function (e) { return e.id === o.id; }); return v ? (v.type === "aula" ? "Aula" : "Compromisso") + ": " + (v.title || nomeMat(api, v.sid) || "(sem título)") : "Evento"; }
+    return "Evento";
+  }
+  function pedir(api, o, de, para) {
+    if (!o || !de || !para || de === para) return;
+    if (o.k === "aula-semana") { mover(api, o, de, para); return; }   // a pergunta da aula semanal já é a confirmação
+    var S = api.S, ev = o.k === "evento" ? S.events.find(function (x) { return x.id === o.id; }) : null, serie = ev && ev.repeat && ev.repeat.until, n = difDias(api, de, para);
+    abre();
+    $("cwBox").innerHTML = cab("Mudar para " + esc(nomeDia(api, para)) + "?", 0) + '<div class="cw-form"><p style="margin:0"><b>' + esc(descreve(api, o)) + "</b></p>" +
+      '<p style="margin:0">De ' + esc(nomeDia(api, de)) + " (" + esc(br(de)) + ") para " + esc(nomeDia(api, para)) + " (" + esc(br(para)) + ").</p>" +
+      (serie ? '<p class="plan" style="margin:0">Este compromisso se repete toda semana. A série inteira vai andar ' + Math.abs(n) + (Math.abs(n) === 1 ? " dia" : " dias") + (n < 0 ? " para trás" : " para frente") + ".</p>" : "") +
+      (o.k === "prova" ? '<p class="plan" style="margin:0">A cobertura da ementa e as revisões ligadas à prova passam a usar a data nova.</p>' : "") +
+      '<button class="btn primary" data-cw="mover" type="button">Mudar</button><button class="btn" data-cw="fechar" type="button">Cancelar</button></div>';
+    var bt = $("cwBox").querySelector('[data-cw="mover"]'); if (bt) bt.focus();
+    $("cwBox").onclick = function (ev2) {
+      var b = ev2.target.closest("[data-cw]"); if (!b) return;
+      if (b.dataset.cw === "fechar") return fecha();
+      if (b.dataset.cw === "mover") { b.disabled = true; mover(api, o, de, para).then(fecha, function (err) { api.toast("Não consegui mover: " + ((err && err.message) || err)); fecha(); }); }
+    };
+  }
+  function escolhaMover(api, e, para) {
+    var S = api.S, mesmoDia = api.parseYmd(para).getDay() === e.slot[0], s = nomeMat(api, e.sid);
+    abre();
+    $("cwBox").innerHTML = cab("Mover aula de " + esc(s), 0) + '<div class="cw-form"><p style="margin:0">Esta aula acontece toda semana (' + DIAS[e.slot[0]] + " às " + esc(e.slot[1]) + "). Você quer levar a aula de " + esc(br(e.date)) + " para " + esc(br(para)) + ". O que fazer?</p>" +
+      '<button class="btn" data-cw="so-esta" type="button">Só esta aula (vira aula avulsa em ' + esc(br(para)) + ")</button>" +
+      (mesmoDia ? "" : '<button class="btn" data-cw="todas" type="button">Mudar o dia fixo da aula, todas as semanas (' + DIAS[api.parseYmd(para).getDay()] + ")</button>") +
+      '<p class="plan" style="margin:0">Aula avulsa não consome tópico da ementa.</p>' +
+      '<button class="btn" data-cw="fechar" type="button">Cancelar</button></div>';
+    $("cwBox").onclick = function (ev) {
+      var b = ev.target.closest("[data-cw]"); if (!b) return;
+      var k = b.dataset.cw, db = S.db;
+      if (k === "fechar") return fecha();
+      if (k === "so-esta") {
+        var sj = api.subj(e.sid), skip = (sj.skipLectures || []).concat([e.date]), fimM = api.fromMin(Math.min(1439, api.toMin(e.slot[1]) + DUR_AULA));
+        db.doc("subjects/" + e.sid).update({ skipLectures: skip.filter(function (x, i) { return skip.indexOf(x) === i; }).sort() }).then(function () {
+          return db.collection("events").add({ type: "aula", title: "", sid: e.sid, date: para, allDay: false, start: e.slot[1], end: fimM, repeat: null, loc: "", notes: "", createdAt: Date.now() });
+        }).then(function () { api.toast("Aula movida para " + nomeDia(api, para) + "."); fecha(); }, function (err) { api.toast("Não consegui mover: " + ((err && err.message) || err)); });
+      } else if (k === "todas") {
+        var novo = [api.parseYmd(para).getDay(), e.slot[1]], atuais = api.classSlots(e.sid).filter(function (x) { return !(x[0] === e.slot[0] && x[1] === e.slot[1]); });
+        if (!atuais.some(function (x) { return x[0] === novo[0] && x[1] === novo[1]; })) atuais.push(novo);
+        api.saveClasses(e.sid, atuais).then(function () { api.toast("Aula agora é toda " + DIAS[novo[0]] + "."); fecha(); }, function (err) { api.toast("Não consegui mover: " + ((err && err.message) || err)); });
+      }
+    };
+  }
+  function limpaOver() { document.querySelectorAll(".over").forEach(function (x) { x.classList.remove("over"); }); }
+  function fechaBandeja() { if (bandeja) { bandeja.remove(); bandeja = null; } }
+  function abreBandeja(api, de) {   // faixa de dias para soltar o evento num dia que ainda não tem nada na lista
+    fechaBandeja();
+    if (MODO !== "lista") return;
+    bandeja = document.createElement("div"); bandeja.className = "crtray"; bandeja.setAttribute("aria-hidden", "true");
+    var h = '<span class="crtray-t">Solte em um dia</span><div class="crtray-d">', t = api.today();
+    for (var i = -7; i <= 35; i++) { var d = api.addDays(de, i), w = api.parseYmd(d).getDay(); h += '<span class="crdrop' + (d === t ? " hoje" : "") + (d === de ? " orig" : "") + (w === 0 || w === 6 ? " fds" : "") + '" data-date="' + d + '"><b>' + DIAS_C[w] + "</b>" + br(d).slice(0, 5) + "</span>"; }
+    bandeja.innerHTML = h + "</div>"; document.body.appendChild(bandeja);
+    var orig = bandeja.querySelector(".orig"), rolo = bandeja.querySelector(".crtray-d");
+    if (orig) rolo.scrollLeft = orig.offsetLeft - rolo.clientWidth / 2;
+  }
+  function ligaArrasto() {
+    var raiz = document.body;
+    raiz.addEventListener("dragstart", function (e) {
+      var el = e.target.closest && e.target.closest("[data-o][draggable=true]"); if (!el || !(el.closest("#cronoLista") || el.closest("#gradeBody"))) return;
+      try { DRAG = { o: JSON.parse(el.dataset.o), de: el.dataset.date || el.dataset.dt }; } catch (x) { DRAG = null; return; }
+      if (!DRAG.de && DRAG.o.date) DRAG.de = DRAG.o.date;
+      e.dataTransfer.effectAllowed = "move"; try { e.dataTransfer.setData("text/plain", el.dataset.o); } catch (x) {}
+      var api = window.__cycleCrono._api; setTimeout(function () { if (DRAG && el.closest("#cronoLista")) abreBandeja(api, DRAG.de); }, 0);
+    });
+    var alvo = function (e) {
+      var el = e.target.closest && e.target.closest("#cronoLista [data-date], .crtray [data-date], #gradeBody [data-day]"); if (!el) return null;
+      return { el: el, d: el.dataset.date || el.dataset.day };
+    };
+    raiz.addEventListener("dragover", function (e) {
+      if (!DRAG) return; var a = alvo(e); limpaOver();
+      if (!a) return; e.preventDefault(); e.dataTransfer.dropEffect = "move";
+      var box = a.el.matches(".crev") ? (a.el.parentNode.querySelector('.crdia[data-date="' + a.d + '"]') || a.el) : a.el; box.classList.add("over");
+    });
+    raiz.addEventListener("dragleave", function (e) { if (DRAG && !raiz.contains(e.relatedTarget)) limpaOver(); });
+    raiz.addEventListener("dragend", function () { DRAG = null; limpaOver(); fechaBandeja(); });
+    raiz.addEventListener("drop", function (e) {
+      var d = DRAG, a = d && alvo(e); DRAG = null; limpaOver(); fechaBandeja();
+      if (!d || !a) return; e.preventDefault();
+      pedir(window.__cycleCrono._api, d.o, d.de, a.d);
+    });
+  }
+
   // ---------- Fim de semestre ----------
   function contagens(api) {
     var S = api.S, horarios = 0; Object.keys(S.settings.classes || {}).forEach(function (k) { horarios += (S.settings.classes[k] || []).length; });
@@ -378,6 +490,6 @@
       function (err) { if (b) b.disabled = false; var el = $("cfErro"); if (el) el.textContent = "Não consegui apagar: " + ((err && err.message) || err); });
   }
 
-  window.__cycleCrono = { render: function (api) { this._api = api; render(api); }, modo: modo, novo: novo, fim: fim, ocorrencias: ocorrencias, _api: null,
+  window.__cycleCrono = { render: function (api) { this._api = api; render(api); }, modo: modo, novo: novo, fim: fim, ocorrencias: ocorrencias, mover: mover, pedir: pedir, _api: null,
     _t: { itens: itens, contagens: contagens, resumoMd: resumoMd } };
 })();
