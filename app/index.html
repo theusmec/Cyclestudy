@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Cycle</title><meta name="theme-color" content="#1B2430"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Cycle"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/png" href="icons/icon-192.png"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<script>window.CYCLE_VERSION="cycle-v20"</script>
+<script>window.CYCLE_VERSION="cycle-v21"</script>
 <script src="shim.js"></script>
 <script src="firebase-config.js"></script>
 <script src="conta.js"></script>
@@ -50,6 +50,7 @@
 .crdia{margin:10px 0 4px;font:600 14px var(--body)}.crdia.hoje{color:var(--accent-ink);background:var(--accent-soft);display:inline-block;padding:1px 8px;border-radius:6px}
 .crev{display:flex;gap:10px;align-items:center;flex-wrap:wrap;width:100%;text-align:left;padding:8px 10px;margin:3px 0;border:1px solid var(--line);border-left:4px solid var(--t);border-radius:8px;background:color-mix(in srgb,var(--t) 9%,var(--card));color:var(--ink);font:14px var(--body);cursor:pointer}
 .crev[disabled]{cursor:default}
+.rg-g{border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:6px 0}.rg-gh{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.rg-l{margin:6px 0 0;padding-left:18px;font-size:13px}.rg-l li{margin:2px 0}
 .crev[draggable=true]{cursor:grab}.crdia.over,.crev.over{outline:2px dashed var(--accent);outline-offset:1px}
 .crtray{position:fixed;left:0;right:0;bottom:0;z-index:60;background:var(--card);border-top:2px solid var(--accent);padding:8px 12px calc(8px + env(safe-area-inset-bottom,0px));box-shadow:0 -6px 20px rgba(0,0,0,.18)}
 .crtray-t{display:block;font:600 12px var(--body);color:var(--muted);margin-bottom:6px}.crtray-d{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
@@ -859,7 +860,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
       <section class="panel" id="viewsPanel" aria-labelledby="hViews">
         <div class="panel-head">
           <div><h2 id="hViews">Revisões e trabalhos</h2><span class="count" id="vCount"></span></div>
-          <button class="btn small primary" id="nrOpen" type="button" aria-expanded="false" aria-controls="nrForm">+ Nova revisão</button>
+          <div class="hnav"><button class="btn small" id="reorgOpen" type="button" hidden>Reorganizar atrasadas</button><button class="btn small primary" id="nrOpen" type="button" aria-expanded="false" aria-controls="nrForm">+ Nova revisão</button></div>
         </div>
         <form class="nrform" id="nrForm" novalidate hidden aria-label="Nova revisão">
           <div class="crseg" role="group" aria-label="Tipo de revisão"><button class="btn small" id="nrModoC" type="button" aria-pressed="true">De um conteúdo já registrado</button><button class="btn small" id="nrModoL" type="button" aria-pressed="false">Lembrete avulso</button></div>
@@ -2090,7 +2091,32 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     $("rBarNote").textContent = it.tipo === "revisao" && it.r.eventId && S.mcp ? "O evento no Google Calendar será trocado de dia." : "";
   }
 
+  function renderReorg(){ $("reorgOpen").hidden = !(STANDALONE && allReviews().some(({ r }) => !r.done && !r.skipped && r.due < today())); }
+  async function aplicarReorg(moves){
+    if (!S.db) { toast("Abra pelo app para salvar."); return; }
+    const por = new Map(); moves.forEach(m => (por.get(m.cid) || por.set(m.cid, []).get(m.cid)).push(m));
+    for (const [cid, ms] of por) {
+      const c = S.contents.find(x => x.id === cid); if (!c) continue;
+      const reviews = c.reviews.map(r => ({ ...r }));
+      for (const m of ms) {
+        const r = reviews[m.i]; if (!r || r.done) continue;
+        if (r.eventId && S.mcp) { try { await S.mcp.callTool(CAL, "delete_event", { eventId:r.eventId, notificationLevel:"NONE" }); } catch (e) {} }
+        reviews[m.i] = { ...r, due:m.to, movedFrom:r.due, eventId:"", slot:"" };
+      }
+      await S.db.doc(`contents/${cid}`).update({ reviews });
+      if (S.mcp) await scheduleReviews({ ...c, reviews });
+    }
+    refreshGrade();
+    toast(`${moves.length} ${moves.length === 1 ? "revisão reorganizada" : "revisões reorganizadas"} antes das provas.`);
+  }
+  async function abrirReorg(){
+    try { if (!window.__cycleReorg) await loadScript("reorganiza.js"); }
+    catch (e) { return toast("Não consegui abrir. Recarregue a página."); }
+    window.__cycleReorg.abrir({ S, today, parseYmd, subj, toast, aplicar: aplicarReorg,
+      revisoes: () => allReviews().map(({ c, r, i }) => ({ key:`r:${c.id}:${i}`, cid:c.id, i, sid:c.subjectId, title:c.title, stage:i + 1, due:r.due, done:!!r.done, skipped:!!r.skipped })) });
+  }
   function renderViews(){
+    renderReorg();
     const v = curView(), all = buildItems(), f = v.filtro;
     $("vTabs").innerHTML = V.items.map(x => `<button class="tab" role="tab" aria-selected="${x.id === v.id}" data-act="vtab" data-v="${esc(x.id)}" type="button">${esc(x.name)}</button>`).join("");
     const opt = (val, cur, lbl) => `<option value="${esc(val)}" ${String(cur) === String(val) ? "selected" : ""}>${esc(lbl)}</option>`;
@@ -3172,6 +3198,7 @@ kbd{font-family:var(--mono);font-size:11px;color:var(--muted);border:1px solid v
     toast("Revisão excluída.");
   }
   $("nrOpen").addEventListener("click", () => $("nrForm").hidden ? nrAbre() : nrFecha());
+  $("reorgOpen").addEventListener("click", abrirReorg);
   $("nrNo").addEventListener("click", nrFecha);
   $("nrModoC").addEventListener("click", () => nrModo("c"));
   $("nrModoL").addEventListener("click", () => nrModo("l"));
